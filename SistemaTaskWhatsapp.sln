@@ -5,6 +5,14 @@ VisualStudioVersion = 17.14.36804.6 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SistemaTaskWhatsapp", "SistemaTaskWhatsapp\SistemaTaskWhatsapp.csproj", "{F5A11B94-98E9-4F61-B318-4FA821D66629}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SistemaTaskWhatsapp.Models", "SistemaTaskWhatsapp.Models\SistemaTaskWhatsapp.Models.csproj", "{9CC58BCD-AE86-4DB8-A5AD-E0862E8C3536}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SistemaTaskWhatsapp.AccesoDatos", "SistemaTaskWhatsapp.AccesoDatos\SistemaTaskWhatsapp.AccesoDatos.csproj", "{C4753490-CF13-43D5-BE3D-58DCB0DF59CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SistemaTaskWhatsapp.Utilidades", "SistemaTaskWhatsapp.Utilidades\SistemaTaskWhatsapp.Utilidades.csproj", "{3A9911A8-768D-4CD0-8DC7-F4300A583B0A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SistemaTaskWhatsapp.Services", "SistemaTaskWhatsapp.Services\SistemaTaskWhatsapp.Services.csproj", "{2AF9E3DA-B918-4A63-A6AB-0D552911CE3B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +23,22 @@ Global
 		{F5A11B94-98E9-4F61-B318-4FA821D66629}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F5A11B94-98E9-4F61-B318-4FA821D66629}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F5A11B94-98E9-4F61-B318-4FA821D66629}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9CC58BCD-AE86-4DB8-A5AD-E0862E8C3536}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CC58BCD-AE86-4DB8-A5AD-E0862E8C3536}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CC58BCD-AE86-4DB8-A5AD-E0862E8C3536}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CC58BCD-AE86-4DB8-A5AD-E0862E8C3536}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4753490-CF13-43D5-BE3D-58DCB0DF59CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4753490-CF13-43D5-BE3D-58DCB0DF59CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4753490-CF13-43D5-BE3D-58DCB0DF59CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4753490-CF13-43D5-BE3D-58DCB0DF59CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A9911A8-768D-4CD0-8DC7-F4300A583B0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A9911A8-768D-4CD0-8DC7-F4300A583B0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A9911A8-768D-4CD0-8DC7-F4300A583B0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A9911A8-768D-4CD0-8DC7-F4300A583B0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AF9E3DA-B918-4A63-A6AB-0D552911CE3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AF9E3DA-B918-4A63-A6AB-0D552911CE3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AF9E3DA-B918-4A63-A6AB-0D552911CE3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AF9E3DA-B918-4A63-A6AB-0D552911CE3B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
