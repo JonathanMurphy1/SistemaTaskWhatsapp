@@ -10,4 +10,8 @@
     <ProjectReference Include="..\SistemaTaskWhatsapp.Utilidades\SistemaTaskWhatsapp.Utilidades.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ViewModels\" />
+  </ItemGroup>
+
 </Project>

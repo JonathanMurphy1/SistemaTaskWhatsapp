@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using SistemaTaskWhatsapp.Models;
 
 namespace SistemaTaskWhatsapp.Data
 {
@@ -9,5 +10,8 @@ namespace SistemaTaskWhatsapp.Data
             : base(options)
         {
         }
+
+        //Poner aqui todos los modelos que se vayan creando
+        public DbSet<Usuario> Usuario { get; set; }
     }
 }
