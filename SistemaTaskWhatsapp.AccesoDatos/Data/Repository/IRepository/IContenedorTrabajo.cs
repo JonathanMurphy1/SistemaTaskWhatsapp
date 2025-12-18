@@ -10,6 +10,7 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository
     {
         //Aqui se van agregando los diferentes repositorios
         IUsuarioRepository Usuario { get; }
+        IEmpresaRepository Empresa { get; }
 
         Task SaveAsync();
     }
