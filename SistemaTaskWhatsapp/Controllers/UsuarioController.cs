@@ -49,7 +49,8 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
         // GET: UsuarioController/Create
-        public ActionResult Create()
+        [HttpGet]
+        public IActionResult Create()
         {
             return View();
         }
@@ -57,16 +58,20 @@ namespace SistemaTaskWhatsapp.Controllers
         // POST: UsuarioController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Create(SistemaTaskWhatsapp.Models.Usuario nuevoUsuario)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            //Se pone esta linea dos veces para evitar consultar la base de datos si el modelo no es valido de principio
+            if (!ModelState.IsValid) return View(nuevoUsuario);
+
+
+            if (!ModelState.IsValid) return View(nuevoUsuario);
+
+            await _contenedorTrabajo.Usuario.AddAsync(nuevoUsuario);
+            await _contenedorTrabajo.SaveAsync();
+
+            TempData["Mensaje"] = $"Cliente agregado exitosamente Id: {nuevoUsuario.Id} Nombre: {nuevoUsuario.Nombre}";
+
+            return RedirectToAction("Index");
         }
 
         // GET: UsuarioController/Edit/5

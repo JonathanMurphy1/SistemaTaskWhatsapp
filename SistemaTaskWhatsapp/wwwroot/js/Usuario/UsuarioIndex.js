@@ -17,6 +17,7 @@ function cargarDatatable() {
             { data: "email" },
             { data: "telefono" },
             { data: "rol" }
+
         ],
         language: {
             decimal: "",
