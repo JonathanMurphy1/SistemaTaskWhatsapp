@@ -95,25 +95,26 @@ namespace SistemaTaskWhatsapp.Controllers
             }
         }
 
-        // GET: UsuarioController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
+       
         // POST: UsuarioController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<IActionResult> Delete(int id)
         {
-            try
+            bool resultado = await _contenedorTrabajo.Usuario.RemoveByIdAsync(id);
+
+            if (!resultado)
             {
-                return RedirectToAction(nameof(Index));
+                TempData["Mensaje"] = $"Hubo un error al tratar de borrar el usuario Id: {id}";
+                TempData["error"] = "Error";
+                return RedirectToAction("Index");
             }
-            catch
-            {
-                return View();
-            }
+
+            await _contenedorTrabajo.SaveAsync();
+
+            TempData["Mensaje"] = $"Usuario borrado correctamente Id: {id}";
+
+            return RedirectToAction("Index");
         }
     }
 }
