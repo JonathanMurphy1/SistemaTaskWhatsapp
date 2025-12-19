@@ -27,11 +27,11 @@ function cargarDatatable() {
                             <a title="Editar"
                                href="/Usuario/Edit/${data}"
                                class="btn btn-warning rounded-circle align-content-center" style="width: 50px; height: 50px;">
-                                <i class="fa-solid fa-pen-to-square"></i>
+                                <i class="bi bi-pencil-square"></i>
                             </a>
                             <button type="button" title="Borrar" data-id="${data}" data-nombre="${row.nombre}" data-bs-toggle="modal"
                                     data-bs-target="#modalEliminar" class="btn btn-danger rounded-circle" style="width: 50px; height: 50px;">
-                                <i class="fa-solid fa-trash"></i>
+                                <i class="bi bi-trash-fill"></i>
                             </button>
                         </div>
                     `;
