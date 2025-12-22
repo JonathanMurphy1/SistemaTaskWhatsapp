@@ -61,6 +61,10 @@ namespace SistemaTaskWhatsapp.Controllers
             //Se pone esta linea dos veces para evitar consultar la base de datos si el modelo no es valido de principio
             if (!ModelState.IsValid) return View(nuevoUsuario);
 
+            await ValidarDuplicidadCampos(nuevoUsuario.Email,
+                                          nuevoUsuario.Telefono,
+                                          nuevoUsuario.Id
+                                          );
 
             if (!ModelState.IsValid) return View(nuevoUsuario);
 
@@ -79,7 +83,9 @@ namespace SistemaTaskWhatsapp.Controllers
 
             if (usuario == null)
             {
-                return NotFound();
+                TempData["Mensaje"] = "No se encontró el usuario";
+                TempData["Error"] = "Error";
+                return RedirectToAction("Index");
             }
 
             var model = new EditarUsuarioVM
@@ -97,15 +103,28 @@ namespace SistemaTaskWhatsapp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(SistemaTaskWhatsapp.Models.Usuario EditarUsuarioVM)
+        public async Task<IActionResult> Edit(EditarUsuarioVM model)
         {
-            if (!ModelState.IsValid) return View(EditarUsuarioVM);
+            if (!ModelState.IsValid)
+                return View(model);
 
-            _contenedorTrabajo.Usuario.Update(EditarUsuarioVM);
+            await ValidarDuplicidadCampos(model.Email, model.Telefono, model.Id);
+
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var usuario = await _contenedorTrabajo.Usuario.GetByIdAsync(model.Id);
+            if (usuario == null)
+            {
+                TempData["Mensaje"] = "Usuario no encontrado";
+                TempData["Error"] = "Error";
+                return RedirectToAction("Index");
+            }
+
+            _contenedorTrabajo.Usuario.Update(usuario);
             await _contenedorTrabajo.SaveAsync();
 
-            TempData["Mensaje"] = $"Se modifico correctamente el Usuario con el Id: {EditarUsuarioVM.Id}";
-
+            TempData["Mensaje"] = $"Se modificó correctamente el usuario con Id: {model.Id}";
             return RedirectToAction("Index");
         }
 
@@ -128,6 +147,24 @@ namespace SistemaTaskWhatsapp.Controllers
             TempData["Mensaje"] = $"Usuario borrado correctamente Id: {id}";
 
             return RedirectToAction("Index");
+        }
+
+
+        //Funciones
+        private async Task ValidarDuplicidadCampos(string email, string telefono, int? id = null)
+        {
+            var duplicado = await _contenedorTrabajo.Usuario.GetFirstOrDefaultAsync(u =>
+                (u.Email == email || u.Telefono == telefono) &&
+                u.Id != id.Value);
+
+            if (duplicado != null)
+            {
+                if (duplicado.Email == email)
+                    ModelState.AddModelError("Email", "Este correo ya está registrado.");
+
+                if (duplicado.Telefono == telefono)
+                    ModelState.AddModelError("Telefono", "Este teléfono ya está registrado.");
+            }
         }
     }
 }
