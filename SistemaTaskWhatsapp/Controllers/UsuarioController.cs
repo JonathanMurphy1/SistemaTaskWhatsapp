@@ -1,17 +1,15 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Data;
 using SistemaTaskWhatsapp.Models;
+using SistemaTaskWhatsapp.Models.ViewModels;
 
 namespace SistemaTaskWhatsapp.Controllers
 {
     public class UsuarioController : Controller
     {
-
-
         private readonly IContenedorTrabajo _contenedorTrabajo;
 
         public UsuarioController(IContenedorTrabajo contenedorTrabajo)
@@ -74,28 +72,43 @@ namespace SistemaTaskWhatsapp.Controllers
             return RedirectToAction("Index");
         }
 
-        // GET: UsuarioController/Edit/5
-        public ActionResult Edit(int id)
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
         {
-            return View();
+            var usuario = await _contenedorTrabajo.Usuario.GetByIdAsync(id);
+
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            var model = new EditarUsuarioVM
+            {
+                Id = usuario.Id,
+                Nombre = usuario.Nombre,
+                Email = usuario.Email,
+                Password = usuario.Password,
+                Telefono = usuario.Telefono,
+                Rol = usuario.Rol
+            };
+
+            return View(model);
         }
 
-        // POST: UsuarioController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(SistemaTaskWhatsapp.Models.Usuario EditarUsuarioVM)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            if (!ModelState.IsValid) return View(EditarUsuarioVM);
+
+            _contenedorTrabajo.Usuario.Update(EditarUsuarioVM);
+            await _contenedorTrabajo.SaveAsync();
+
+            TempData["Mensaje"] = $"Se modifico correctamente el Usuario con el Id: {EditarUsuarioVM.Id}";
+
+            return RedirectToAction("Index");
         }
 
-       
         // POST: UsuarioController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
