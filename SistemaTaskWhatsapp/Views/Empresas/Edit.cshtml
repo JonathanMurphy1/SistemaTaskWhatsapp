@@ -11,6 +11,8 @@
     <div class="col-5 mt-4 border rounded shadow p-3">
         <form asp-action="Edit" method="post">
             <div asp-validation-summary="All" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="FechaRegistro" />
             <div class="form-group">
                 <label for="nombre">Nombre:</label>
                 <input type="text" id="nombre" asp-for="Nombre" class="form-control" placeholder="Escriba el nombre de la empresa..." />

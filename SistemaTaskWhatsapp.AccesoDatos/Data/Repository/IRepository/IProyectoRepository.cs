@@ -9,8 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository
 {
-    public interface IEmpresaRepository : IRepository<Empresa>
+    public interface IProyectoRepository : IRepository<Proyecto>
     {
-        Task<IEnumerable<SelectListItem>> GetEmpresasDropdown(int? id = null);
     }
 }
