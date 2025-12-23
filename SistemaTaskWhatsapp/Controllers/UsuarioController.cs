@@ -121,6 +121,11 @@ namespace SistemaTaskWhatsapp.Controllers
                 return RedirectToAction("Index");
             }
 
+            usuario.Nombre = model.Nombre;
+            usuario.Email = model.Email;
+            usuario.Telefono = model.Telefono;
+            usuario.Rol = model.Rol;
+
             _contenedorTrabajo.Usuario.Update(usuario);
             await _contenedorTrabajo.SaveAsync();
 
