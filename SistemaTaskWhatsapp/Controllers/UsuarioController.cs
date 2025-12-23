@@ -71,7 +71,7 @@ namespace SistemaTaskWhatsapp.Controllers
             await _contenedorTrabajo.Usuario.AddAsync(nuevoUsuario);
             await _contenedorTrabajo.SaveAsync();
 
-            TempData["Mensaje"] = $"Cliente agregado exitosamente Id: {nuevoUsuario.Id} Nombre: {nuevoUsuario.Nombre}";
+            TempData["Mensaje"] = $"Usuario agregado exitosamente Id: {nuevoUsuario.Id} Nombre: {nuevoUsuario.Nombre}";
 
             return RedirectToAction("Index");
         }
@@ -124,6 +124,7 @@ namespace SistemaTaskWhatsapp.Controllers
             usuario.Nombre = model.Nombre;
             usuario.Email = model.Email;
             usuario.Telefono = model.Telefono;
+            usuario.Password = model.Password;
             usuario.Rol = model.Rol;
 
             _contenedorTrabajo.Usuario.Update(usuario);
