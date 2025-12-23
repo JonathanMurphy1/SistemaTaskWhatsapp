@@ -36,7 +36,7 @@
                             <td>@empresa.FechaRegistro</td>
                             <td>
                                 <a class="btn btn-warning" asp-action="Edit" asp-route-id="@empresa.Id">Editar</a>
-                                <button asp-action="Delete" class="btn btn-danger">Borrar</button>
+                                <button class="btn btn-danger" data-id="@empresa.Id" data-nombre="@empresa.Nombre" data-bs-toggle="modal" data-bs-target="#modalEliminar">Borrar</button>
                             </td>
                         </tr>
                     }
@@ -45,3 +45,38 @@
         </table>
     </div>
 </div>
+
+<div class="modal fade" id="modalEliminar">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header bg-danger">
+                <h4 class="modal-title text-white">Eliminar</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <h5>Estas seguro de querer eliminar esta empresa? </h5>
+                <p id="mostrarNombre"></p>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <div class="d-flex justify-content-center gap-3">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <form asp-action="Delete" method="post">
+                        <input id="inputId" name="id" value="" type="hidden"/>
+                        <button type="submit" class="btn btn-danger">Borrar</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/empresa/empresaIndex.js"></script>
+}
