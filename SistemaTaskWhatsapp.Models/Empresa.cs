@@ -14,7 +14,7 @@ namespace SistemaTaskWhatsapp.Models
         [Key]
         public int Id { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Escriba el nombre por favor")]
         public string Nombre { get; set; }
 
         public DateTime FechaRegistro { get; set; }

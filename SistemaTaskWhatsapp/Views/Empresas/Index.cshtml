@@ -1,0 +1,47 @@
+﻿@model IEnumerable<SistemaTaskWhatsapp.Models.Empresa>
+
+@{
+    ViewData["Title"] = "Lista de empresas";
+}
+
+<div class="contenedor-principal">
+    <div class="d-flex justify-content-between">
+        <h3 class="col-3">@ViewData["Title"]</h3>
+        <a asp-action="Create" class="btn btn-success col-2">Nueva empresa</a>
+    </div>
+    <div class="mt-4">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Fecha de registro</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if(Model == null || !Model.Any())
+                {
+                    <tr>
+                        <td colspan="4" class="text-center text-muted" >No hay empresas registradas...</td>
+                    </tr>
+                }
+                else
+                {
+                    foreach(var empresa in Model)
+                    {
+                        <tr>
+                            <td>@empresa.Id</td>
+                            <td>@empresa.Nombre</td>
+                            <td>@empresa.FechaRegistro</td>
+                            <td>
+                                <a class="btn btn-warning" asp-action="Edit" asp-route-id="@empresa.Id">Editar</a>
+                                <button asp-action="Delete" class="btn btn-danger">Borrar</button>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
