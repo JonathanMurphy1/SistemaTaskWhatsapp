@@ -1,0 +1,66 @@
+﻿@model SistemaTaskWhatsapp.Models.ViewModels.EditarUsuarioVM
+@using SistemaTaskWhatsapp.Utilidades
+
+@{
+    ViewData["Title"] = "Editar Usuario";
+}
+
+<br />
+
+<h3 class="text-center">@ViewData["Title"]</h3>
+<form method="post" asp-action="Edit">
+    <input type="hidden" asp-for="Id" />
+    <div class="row px-2 offset-1 border shadow">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <div class="col-10 offset-1 p-4">
+            <div class="d-flex gap-5">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label asp-for="Nombre">Nombre: </label>
+                        <input asp-for="Nombre" class="form-control" placeholder="Ingrese el nombre" />
+                        <span asp-validation-for="Nombre" class="text-danger"></span>
+                    </div>
+                    <br />
+                    <div class="form-group">
+                        <label asp-for="Email">Email: </label>
+                        <input asp-for="Email" class="form-control uppercase" placeholder="Ingrese el email" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <br />
+                    <div class="form-group">
+                        <label asp-for="Password">Contraseña: </label>
+                        <input asp-for="Password" class="form-control" placeholder="Ingrese la contraseña" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <br />
+                    <div class="form-group">
+                        <label asp-for="Telefono">Telefono: </label>
+                        <input maxlength="10" asp-for="Telefono" class="form-control" placeholder="Ingrese el telefono" />
+                        <span asp-validation-for="Telefono" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label asp-for="Rol">Rol:</label>
+                        <select asp-for="Rol"
+                                class="form-control"
+                                asp-items="Html.GetEnumSelectList<Roles>()">
+                            <option value="">-- Seleccione un rol --</option>
+                        </select>
+                        <span asp-validation-for="Rol" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <br />
+            <div class="d-flex justify-content-center gap-2">
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-return-left"></i> Volver
+                </a>
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-floppy2-fill"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
