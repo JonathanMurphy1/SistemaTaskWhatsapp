@@ -76,19 +76,21 @@
 @section Scripts {
     <script>
         const select = document.getElementById("selectRol");
+        const formSupervisor = document.getElementById("formSupervisor");
 
-        function mostrarFormulario() {
-            document.getElementById("formSupervisor").style.display = "none";
-            
-            if (select.value === "1") {
-                document.getElementById("formSupervisor").style.display = "block";
-            }
-           
+        function toggleSupervisorForm() {
+            const isSupervisor = select.value === "1";
+            formSupervisor.style.display = isSupervisor ? "block" : "none";
+
+            formSupervisor
+                .querySelectorAll("select, input")
+                .forEach(el => el.disabled = !isSupervisor);
         }
 
-        select.addEventListener("change", mostrarFormulario);
-        window.addEventListener("load", mostrarFormulario);
+        select.addEventListener("change", toggleSupervisorForm);
+        window.addEventListener("load", toggleSupervisorForm);
     </script>
+
 }
 
 
