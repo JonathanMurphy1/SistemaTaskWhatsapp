@@ -13,6 +13,7 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository
         IEmpresaRepository Empresa { get; }
         IProyectoRepository Proyecto { get; }
         ITareaRepository Tarea { get; }
+        IReporteRepository Reporte { get; }
 
         Task SaveAsync();
     }
