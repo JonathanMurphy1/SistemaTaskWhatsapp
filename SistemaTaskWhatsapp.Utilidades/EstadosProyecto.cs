@@ -10,5 +10,6 @@ namespace SistemaTaskWhatsapp.Utilidades
     {
         Activo = 0,
         Inactivo = 1,
+        Terminado = 2,
     }
 }

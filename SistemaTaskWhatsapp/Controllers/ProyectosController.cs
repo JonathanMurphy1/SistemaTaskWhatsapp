@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Models.ViewModels;
+using SistemaTaskWhatsapp.Utilidades;
 using System.Threading.Tasks;
 
 namespace SistemaTaskWhatsapp.Controllers
@@ -49,10 +50,85 @@ namespace SistemaTaskWhatsapp.Controllers
                 return View(model);
             }
 
+            model.Proyecto.FechaRegistro = DateTime.Now;
+
             await _contenedorTrabajo.Proyecto.AddAsync(model.Proyecto);
             await _contenedorTrabajo.SaveAsync();
 
             return RedirectToAction("Index");
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var proyecto = await _contenedorTrabajo.Proyecto.GetByIdAsync(id);
+
+            if(proyecto == null)
+            {
+                return RedirectToAction("Index");
+            }
+
+            var model = new ProyectoVM
+            {
+                Proyecto = proyecto,
+                ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown()
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(ProyectoVM model)
+        {
+            if (!ModelState.IsValid)
+            {
+                model.ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown();
+                return View(model);
+            }
+
+            var mismoNombre = await _contenedorTrabajo.Proyecto.GetFirstOrDefaultAsync(p => p.Id != model.Proyecto.Id && p.Nombre == model.Proyecto.Nombre);
+            if (mismoNombre != null)
+            {
+                ModelState.AddModelError("", "Ya existe un proyecto con ese nombre");
+                model.ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown();
+                return View(model);
+            }
+
+            _contenedorTrabajo.Proyecto.Update(model.Proyecto);
+            await _contenedorTrabajo.SaveAsync();
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Finalizar(int id)
+        {
+            var proyecto = await _contenedorTrabajo.Proyecto.GetByIdAsync(id);
+
+            if (proyecto == null || proyecto.Estado == EstadosProyecto.Terminado) return RedirectToAction("Index");
+
+            proyecto.FechaFin = DateTime.Now;
+            proyecto.Estado = EstadosProyecto.Terminado;
+
+            await _contenedorTrabajo.SaveAsync();
+
+            return RedirectToAction("Index");
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var proyecto = await _contenedorTrabajo.Proyecto.GetByIdAsync(id);
+
+            if (proyecto == null) return RedirectToAction("Index");
+
+            _contenedorTrabajo.Proyecto.Remove(proyecto);
+
+            await _contenedorTrabajo.SaveAsync();
+
+            return RedirectToAction("Index");
+        }
+
+
     }
 }

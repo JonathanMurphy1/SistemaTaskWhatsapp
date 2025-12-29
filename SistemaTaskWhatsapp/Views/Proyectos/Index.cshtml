@@ -1,4 +1,5 @@
 ﻿@model IEnumerable<SistemaTaskWhatsapp.Models.Proyecto>
+@using SistemaTaskWhatsapp.Utilidades
 
 @{
     ViewData["Title"] = "Lista de proyectos";
@@ -40,10 +41,16 @@
                             <td>@proyecto.Empresa.Nombre</td>
                             <td>@proyecto.Estado</td>
                             <td>@proyecto.Descripcion</td>
-                            <td>@proyecto.FechaRegistro</td>
-                            <td>@(proyecto.FechaFin == null ? "Vigente" : proyecto.FechaFin)</td>
-                            <td>
-                                <a class="btn btn-warning" asp-action="Edit" asp-route-id="@proyecto.Id">Editar</a>
+                            <td>@proyecto.FechaRegistro.ToString("dd/MM/yyyy")</td>
+                            <td>@(proyecto.FechaFin == null ? "Vigente" : proyecto.FechaFin?.ToString("dd/MM/yyyy"))</td>
+                            <td class="col-2">
+                                @if(proyecto.Estado != EstadosProyecto.Terminado)
+                                {
+                                    <button title="Finalizar" class="btn btn-success rounded" data-id="@proyecto.Id" data-nombre="@proyecto.Nombre" data-bs-toggle="modal" data-bs-target="#modalFinalizar">
+                                        <i class="bi bi-check"></i>
+                                    </button>
+                                    <a class="btn btn-warning" asp-action="Edit" asp-route-id="@proyecto.Id">Editar</a>
+                                }
                                 <button class="btn btn-danger" data-id="@proyecto.Id" data-nombre="@proyecto.Nombre" data-bs-toggle="modal" data-bs-target="#modalEliminar">Borrar</button>
                             </td>
                         </tr>
@@ -67,7 +74,7 @@
             <!-- Modal body -->
             <div class="modal-body">
                 <h5>Estas seguro de querer eliminar este proyecto? </h5>
-                <p id="mostrarNombre"></p>
+                <p class="mostrarNombre"></p>
             </div>
 
             <!-- Modal footer -->
@@ -75,8 +82,39 @@
                 <div class="d-flex justify-content-center gap-3">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                     <form asp-action="Delete" method="post">
-                        <input id="inputId" name="id" value="" type="hidden" />
+                        <input class="inputId" name="id" value="" type="hidden" />
                         <button type="submit" class="btn btn-danger">Borrar</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalFinalizar">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header bg-success">
+                <h4 class="modal-title text-white">Finalizar</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <h5>Estas seguro de querer finalizar este proyecto? </h5>
+                <p class="mostrarNombre"></p>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <div class="d-flex justify-content-center gap-3">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <form asp-action="Finalizar" method="post">
+                        <input class="inputId" name="id" value="" type="hidden" />
+                        <button type="submit" class="btn btn-success">Finalizar</button>
                     </form>
                 </div>
             </div>
