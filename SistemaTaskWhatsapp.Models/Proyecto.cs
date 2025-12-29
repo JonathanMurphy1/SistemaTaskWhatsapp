@@ -28,7 +28,7 @@ namespace SistemaTaskWhatsapp.Models
 
         public DateTime? FechaFin { get; set; }
 
-        public int EmpresaId { get; set; }
+        public int? EmpresaId { get; set; }
         [ForeignKey("EmpresaId")]
         public Empresa? Empresa { get; set; }
     }

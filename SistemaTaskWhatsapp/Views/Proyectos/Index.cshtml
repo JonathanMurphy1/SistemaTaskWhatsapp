@@ -38,7 +38,7 @@
                         <tr>
                             <td>@proyecto.Id</td>
                             <td>@proyecto.Nombre</td>
-                            <td>@proyecto.Empresa.Nombre</td>
+                            <td>@(proyecto.EmpresaId != null ? proyecto.Empresa.Nombre : "Sin asignar")</td>
                             <td>@proyecto.Estado</td>
                             <td>@proyecto.Descripcion</td>
                             <td>@proyecto.FechaRegistro.ToString("dd/MM/yyyy")</td>
