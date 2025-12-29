@@ -14,11 +14,12 @@ namespace SistemaTaskWhatsapp.Models
     {
         [Key]
         public int Id { get; set; }
+
         public int? UsuarioId { get; set; }
         [ForeignKey("UsuarioId")]
-        public Usuario? Usuario { get; set; }
 
-        [Required(ErrorMessage = "Ingrese el nombre")]
+        public Usuario? Usuario { get; set; }
+       
         public string Nombre { get; set; }
 
         [Required]
