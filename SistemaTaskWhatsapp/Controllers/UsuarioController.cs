@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Data;
 using SistemaTaskWhatsapp.Models;
 using SistemaTaskWhatsapp.Models.ViewModels;
+using SistemaTaskWhatsapp.Utilidades;
 
 namespace SistemaTaskWhatsapp.Controllers
 {
@@ -50,31 +53,60 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            return View();
+            var model = new UsuarioCreateVM
+            {
+                Supervisor = new Supervisor()
+            };
+            return View(model);
         }
 
         // POST: UsuarioController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(SistemaTaskWhatsapp.Models.Usuario nuevoUsuario)
+        public async Task<IActionResult> Create(UsuarioCreateVM model)
         {
-            //Se pone esta linea dos veces para evitar consultar la base de datos si el modelo no es valido de principio
-            if (!ModelState.IsValid) return View(nuevoUsuario);
+            if (model.Supervisor == null)
+            {
+                model.Supervisor = new Models.Supervisor();
+            }
 
-            await ValidarDuplicidadCampos(nuevoUsuario.Email,
-                                          nuevoUsuario.Telefono,
-                                          nuevoUsuario.Id
-                                          );
+            if (!ModelState.IsValid)
+            {
+                return View(model); 
+            }
 
-            if (!ModelState.IsValid) return View(nuevoUsuario);
+            var usuario = new Usuario
+            {
+                Nombre = model.Nombre,
+                Email = model.Email,
+                Password = model.Password,
+                Telefono = model.Telefono,
+                Rol = model.Rol
 
-            await _contenedorTrabajo.Usuario.AddAsync(nuevoUsuario);
+            };
+
+            await _contenedorTrabajo.Usuario.AddAsync(usuario);
             await _contenedorTrabajo.SaveAsync();
 
-            TempData["Mensaje"] = $"Usuario agregado exitosamente Id: {nuevoUsuario.Id} Nombre: {nuevoUsuario.Nombre}";
+            if (model.Rol == Roles.Supervisor)
+            {
+                var nuevoSupervisor = new Models.Supervisor
+                {
+                    Nombre = usuario.Nombre,
+                    UsuarioId = usuario.Id,
+                    Estado = model.Supervisor.Estado
+                };
+                
 
+                await _contenedorTrabajo.Supervisor.AddAsync(nuevoSupervisor);
+                await _contenedorTrabajo.SaveAsync();
+            }
+
+            TempData["Mensaje"] = $"Usuario con el nombre: {usuario.Nombre}";
             return RedirectToAction("Index");
+
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Edit(int id)

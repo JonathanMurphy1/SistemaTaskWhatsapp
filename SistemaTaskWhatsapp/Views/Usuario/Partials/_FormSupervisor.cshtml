@@ -1,0 +1,17 @@
+﻿@model SistemaTaskWhatsapp.Models.ViewModels.UsuarioCreateVM
+@using SistemaTaskWhatsapp.Utilidades
+
+<div class="col-6 row g-4 justify-content-center border rounded shadow p-3">
+    <h4 class="text-center">Datos del supervisor</h4>
+    <div class="col-6">
+        <div class="form-group">
+            <label asp-for="Supervisor.Estado">Estado:</label>
+            <select asp-for="Supervisor.Estado" class="form-control">
+                <option disabled selected value="">-- Seleccione estado --</option>
+                <option value="0">Inactivo</option>
+                <option value="1">Activo</option>
+            </select>
+            <span asp-validation-for="Supervisor.Estado" class="text-danger"></span>
+        </div>
+    </div>
+</div>

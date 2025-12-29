@@ -1,4 +1,5 @@
-﻿@model SistemaTaskWhatsapp.Models.Usuario
+﻿@model SistemaTaskWhatsapp.Models.ViewModels.UsuarioCreateVM
+@using SistemaTaskWhatsapp.Utilidades
 
 @{
     ViewData["Title"] = "Agregar Usuario";
@@ -40,8 +41,8 @@
                 <div class="col-6">
                     <div class="form-group">
                         <label asp-for="Rol">Rol:</label>
-                        <select asp-for="Rol" class="form-control">
-                            <option value="">-- Seleccione un rol --</option>
+                        <select id="selectRol" asp-for="Rol" class="form-control">
+                            <option disabled selected value="">-- Seleccione un rol --</option>
                             <option value="0">Administrador</option>
                             <option value="1">Supervisor</option>
                             <option value="2">Empleado</option>
@@ -49,6 +50,13 @@
                         <span asp-validation-for="Rol" class="text-danger"></span>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div> 
+        <!--Aqui se mostrara el formulario dependiendo del rol seleccionado-->
+        <div id="formularioDinamico" class="d-flex justify-content-center mt-5">
+            <div id="formSupervisor" style="display:none">
+                <partial name="Partials/_FormSupervisor" model="Model" />
             </div>
         </div>
     </div>
@@ -64,4 +72,25 @@
         </div>
      </div>
 </form>
+
+@section Scripts {
+    <script>
+        const select = document.getElementById("selectRol");
+        const formSupervisor = document.getElementById("formSupervisor");
+
+        function toggleSupervisorForm() {
+            const isSupervisor = select.value === "1";
+            formSupervisor.style.display = isSupervisor ? "block" : "none";
+
+            formSupervisor
+                .querySelectorAll("select, input")
+                .forEach(el => el.disabled = !isSupervisor);
+        }
+
+        select.addEventListener("change", toggleSupervisorForm);
+        window.addEventListener("load", toggleSupervisorForm);
+    </script>
+
+}
+
 
