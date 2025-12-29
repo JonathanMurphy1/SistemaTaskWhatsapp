@@ -17,10 +17,12 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository
             _db = db;  
             Usuario = new UsuarioRepository(_db);
             Empresa = new EmpresaRepository(_db);
+            Proyecto = new ProyectoRepository(_db);
         }
 
         public IUsuarioRepository Usuario {  get; private set; }
         public IEmpresaRepository Empresa { get; private set; }
+        public IProyectoRepository Proyecto { get; private set; }
 
         public void Dispose()
         {

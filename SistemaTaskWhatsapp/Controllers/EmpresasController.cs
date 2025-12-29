@@ -87,9 +87,14 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var empresaEliminar = await _contenedorTrabajo.Empresa.GetByIdAsync(id);
+            var empresaEliminar = await _contenedorTrabajo.Empresa.GetFirstOrDefaultAsync(e => e.Id == id, includeProperties:"Proyectos");
 
             if(empresaEliminar == null) return RedirectToAction("Index");
+
+            foreach(var proyecto in empresaEliminar.Proyectos)
+            {
+                proyecto.EmpresaId = null;
+            }
 
             _contenedorTrabajo.Empresa.Remove(empresaEliminar);
             await _contenedorTrabajo.SaveAsync();

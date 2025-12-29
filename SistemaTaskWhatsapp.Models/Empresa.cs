@@ -18,5 +18,7 @@ namespace SistemaTaskWhatsapp.Models
         public string Nombre { get; set; }
 
         public DateTime FechaRegistro { get; set; }
+
+        public IEnumerable<Proyecto>? Proyectos { get; set; }
     }
 }

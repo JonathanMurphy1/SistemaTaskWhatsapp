@@ -1,4 +1,6 @@
-﻿using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Data;
 using SistemaTaskWhatsapp.Models;
 using System;
@@ -16,6 +18,15 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository
         public EmpresaRepository(ApplicationDbContext db) : base(db)
         {
             _db = db;
+        }
+
+        public async Task<IEnumerable<SelectListItem>> GetEmpresasDropdown(int? id = null)
+        {
+            return await _db.Empresa.Select(e => new SelectListItem
+            {
+                Text = e.Nombre,
+                Value = e.Id.ToString()
+            }).ToListAsync();
         }
     }
 }
