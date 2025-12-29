@@ -225,63 +225,82 @@ namespace SistemaTaskWhatsapp.Data.Migrations
                 });
 
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Supervisor", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                b.Property<int>("Estado")
+                    .HasColumnType("int");
+
+                b.Property<string>("Nombre")
+                     .IsRequired()
+                     .HasColumnType("nvarchar(max)");
+
+                b.Property<int?>("UsuarioId")
+                    .HasColumnType("int");
+
+                b.HasKey("Id");
+
+                b.HasIndex("UsuarioId");
+
+                b.ToTable("Supervisor");
+
+            });
+
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Empresa", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("Id")
+                .ValueGeneratedOnAdd();
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                b.Property<DateTime>("FechaRegistro")
+                       .HasColumnType("datetime2");
 
-                    b.Property<int>("Estado")
-                        .HasColumnType("int");
+                b.Property<string>("Nombre")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("FechaRegistro")
-                        .HasColumnType("datetime2");
+                b.HasKey("Id");
 
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Empresa");
-                });
+                b.ToTable("Empresa");
+            });
 
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Proyecto", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Descripcion")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Descripcion")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("EmpresaId")
-                        .HasColumnType("int");
+                b.Property<int?>("EmpresaId")
+                    .HasColumnType("int");
 
-                    b.Property<int>("Estado")
-                        .HasColumnType("int");
+                b.Property<int>("Estado")
+                    .HasColumnType("int");
 
-                    b.Property<DateTime?>("FechaFin")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime?>("FechaFin")
+                    .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("FechaRegistro")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("FechaRegistro")
+                    .HasColumnType("datetime2");
 
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Nombre")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("EmpresaId");
+                b.HasIndex("EmpresaId");
 
-                    b.ToTable("Proyecto");
-                });
+                b.ToTable("Proyecto");
+            });
 
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Tarea", b =>
                 {
@@ -309,10 +328,9 @@ namespace SistemaTaskWhatsapp.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                       .IsRequired()
+                       .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("UsuarioId")
                     b.Property<int>("ProyectoId")
                         .HasColumnType("int");
 
@@ -327,6 +345,7 @@ namespace SistemaTaskWhatsapp.Data.Migrations
                     b.ToTable("Tarea");
                 });
 
+            
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Usuario", b =>
                 {
                     b.Property<int>("Id")
@@ -417,6 +436,8 @@ namespace SistemaTaskWhatsapp.Data.Migrations
                         .HasForeignKey("UsuarioId");
 
                     b.Navigation("Usuario");
+                });
+
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Proyecto", b =>
                 {
                     b.HasOne("SistemaTaskWhatsapp.Models.Empresa", "Empresa")
