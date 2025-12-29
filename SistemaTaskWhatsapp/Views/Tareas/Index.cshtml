@@ -1,0 +1,130 @@
+﻿@model IEnumerable<SistemaTaskWhatsapp.Models.Tarea>
+@using SistemaTaskWhatsapp.Utilidades
+
+@{
+    ViewData["Title"] = "Lista de tareas";
+}
+
+<div class="contenedor-principal">
+    <div class="d-flex justify-content-between">
+        <h3 class="col-3">@ViewData["Title"]</h3>
+        <a asp-action="Create" class="btn btn-success col-2">Nueva tarea</a>
+    </div>
+    <div class="mt-4">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Proyecto</th>
+                    <th>Descripción</th>
+                    <th>Fecha de inicio</th>
+                    <th>Fecha de entrega</th>
+                    <th>Fecha de finalización</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model == null || !Model.Any())
+                {
+                    <tr>
+                        <td colspan="9" class="text-center text-muted">No hay tareas registradas...</td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var tarea in Model)
+                    {
+                        <tr>
+                            <td>@tarea.Id</td>
+                            <td>@tarea.Nombre</td>
+                            <td>@(tarea.ProyectoId != null ? tarea.Proyecto?.Nombre : "Sin asignar")</td>
+                            <td>@tarea.Descripcion</td>
+                            <td>@tarea.FechaInicio.ToString("dd/MM/yyyy")</td>
+                            <td>@(tarea.FechaEntrega?.ToString("dd/MM/yyyy"))</td>
+                            <td>@(tarea.FechaTermino == null ? "Vigente" : tarea.FechaTermino?.ToString("dd/MM/yyyy"))</td>
+                            <td>@tarea.Estado</td>
+                            <td class="col-2">
+                                @if (tarea.Estado != EstadosTarea.Finalizada)
+                                {
+                                    <button title="Finalizar" class="btn btn-success rounded" data-id="@tarea.Id" data-nombre="@tarea.Nombre" data-bs-toggle="modal" data-bs-target="#modalFinalizar">
+                                        <i class="bi bi-check"></i>
+                                    </button>
+                                    <a class="btn btn-warning" asp-action="Edit" asp-route-id="@tarea.Id">Editar</a>
+                                }
+                                <button class="btn btn-danger" data-id="@tarea.Id" data-nombre="@tarea.Nombre" data-bs-toggle="modal" data-bs-target="#modalEliminar">Borrar</button>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEliminar">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header bg-danger">
+                <h4 class="modal-title text-white">Eliminar</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <h5>Estas seguro de querer eliminar esta tarea? </h5>
+                <p class="mostrarNombre"></p>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <div class="d-flex justify-content-center gap-3">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <form asp-action="Delete" method="post">
+                        <input class="inputId" name="id" value="" type="hidden" />
+                        <button type="submit" class="btn btn-danger">Borrar</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalFinalizar">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header bg-success">
+                <h4 class="modal-title text-white">Finalizar</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <h5>Estas seguro de querer finalizar esta tarea? </h5>
+                <p class="mostrarNombre"></p>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <div class="d-flex justify-content-center gap-3">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <form asp-action="Finalizar" method="post">
+                        <input class="inputId" name="id" value="" type="hidden" />
+                        <button type="submit" class="btn btn-success">Finalizar</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/tarea/tareaIndex.js"></script>
+}
