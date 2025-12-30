@@ -5,11 +5,11 @@ using SistemaTaskWhatsapp.Models;
 
 namespace SistemaTaskWhatsapp.Controllers
 {
-    public class SupervisoresController : Controller
+    public class EmpleadosController : Controller
     {
         private readonly IContenedorTrabajo _contenedorTrabajo;
 
-        public SupervisoresController(IContenedorTrabajo contenedorTrabajo)
+        public EmpleadosController(IContenedorTrabajo contenedorTrabajo)
         {
             _contenedorTrabajo = contenedorTrabajo;
         }
@@ -17,9 +17,9 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var listaSupervisores = await _contenedorTrabajo.Supervisor.GetAllAsync();
+            var listaEmpresas = await _contenedorTrabajo.Empleado.GetAllAsync();
 
-            return View(listaSupervisores);
+            return View(listaEmpresas);
         }
 
         [HttpGet]
@@ -29,22 +29,22 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Supervisor model)
+        public async Task<IActionResult> Create(Empleado model)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            var existeNombre = await _contenedorTrabajo.Supervisor.GetFirstOrDefaultAsync(s => s.Id == model.Id);
+            var existeNombre = await _contenedorTrabajo.Empleado.GetFirstOrDefaultAsync(e => e.Id == model.Id);
 
             if (existeNombre != null)
             {
-                ModelState.AddModelError("", "Ya existe un supervisor con ese id");
+                ModelState.AddModelError("", "Ya existe un empleado con ese id");
                 return View(model);
             }
 
-            await _contenedorTrabajo.Supervisor.AddAsync(model);
+            await _contenedorTrabajo.Empleado.AddAsync(model);
             await _contenedorTrabajo.SaveAsync();
 
             return RedirectToAction("Index");
@@ -53,7 +53,7 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var model = await _contenedorTrabajo.Supervisor.GetByIdAsync(id);
+            var model = await _contenedorTrabajo.Empleado.GetByIdAsync(id);
 
             if (model == null) return RedirectToAction("Index");
 
@@ -61,14 +61,14 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Supervisor model)
+        public async Task<IActionResult> Edit(Empleado model)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            _contenedorTrabajo.Supervisor.Update(model);
+            _contenedorTrabajo.Empleado.Update(model);
             await _contenedorTrabajo.SaveAsync();
 
             return RedirectToAction("Index");
@@ -77,11 +77,11 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var supervisorEliminar = await _contenedorTrabajo.Supervisor.GetByIdAsync(id);
+            var EmpleadoEliminar = await _contenedorTrabajo.Empleado.GetByIdAsync(id);
 
-            if (supervisorEliminar == null) return RedirectToAction("Index");
+            if (EmpleadoEliminar == null) return RedirectToAction("Index");
 
-            _contenedorTrabajo.Supervisor.Remove(supervisorEliminar);
+            _contenedorTrabajo.Empleado.Remove(EmpleadoEliminar);
             await _contenedorTrabajo.SaveAsync();
             return RedirectToAction("Index");
 
