@@ -25,7 +25,7 @@ namespace SistemaTaskWhatsapp.Models
         public DateTime FechaRegistro { get; set; }
 
         [Required]
-        public EstadosEmpleados Estado { get; set; }
+        public EstadosEmpleado Estado { get; set; }
 
         public Tarea? Tarea { get; set; }
     }
