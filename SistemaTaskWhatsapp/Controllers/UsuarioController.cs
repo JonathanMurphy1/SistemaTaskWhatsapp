@@ -20,28 +20,12 @@ namespace SistemaTaskWhatsapp.Controllers
             _contenedorTrabajo = contenedorTrabajo;
         }
 
-        // GET: UsuarioController
-        public ActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var listaUsuarios = await _contenedorTrabajo.Usuario.GetAllAsync();
+
+            return View(listaUsuarios);
         }
-
-        public async Task<IActionResult> GetAll()
-        {
-            var usuarios = await _contenedorTrabajo.Usuario.GetAllAsync();
-
-            var listaUsuarios = usuarios.Select(u => new
-            {
-                id = u.Id,
-                nombre = u.Nombre,
-                email = u.Email,
-                telefono = u.Telefono,
-                rol = u.Rol.ToString()
-            }).ToList();
-
-            return Json(new { data = listaUsuarios });
-        }
-
 
         // GET: UsuarioController/Details/5
         public ActionResult Details(int id)
