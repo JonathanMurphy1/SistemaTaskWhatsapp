@@ -20,14 +20,13 @@ namespace SistemaTaskWhatsapp.Models
 
         public Usuario? Usuario { get; set; }
        
-        public string Nombre { get; set; }
+        public string? Nombre { get; set; }
 
         public DateTime FechaRegistro { get; set; }
 
-        [Required]
         public EstadosEmpleado Estado { get; set; }
 
-        public Tarea? Tarea { get; set; }
+        public IEnumerable<Tarea>? Tarea { get; set; }
     }
 }
 

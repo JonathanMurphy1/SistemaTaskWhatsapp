@@ -53,15 +53,12 @@ namespace SistemaTaskWhatsapp.Controllers
             // Limpia validaciones que no aplican según el rol
             if (model.Rol != Roles.Supervisor)
             {
-                ModelState.Remove("Supervisor.Nombre");
                 ModelState.Remove("Supervisor.Estado");
             }
 
             if (model.Rol != Roles.Empleado)
             {
-                ModelState.Remove("Empleado.Nombre");
                 ModelState.Remove("Empleado.Estado");
-                ModelState.Remove("Empleado.FechaRegistro");
             }
 
             if (!ModelState.IsValid)
@@ -81,7 +78,6 @@ namespace SistemaTaskWhatsapp.Controllers
             await _contenedorTrabajo.Usuario.AddAsync(usuario);
             await _contenedorTrabajo.SaveAsync();
 
-            // SUPERVISOR
             if (model.Rol == Roles.Supervisor)
             {
                 var nuevoSupervisor = new Supervisor
@@ -94,14 +90,13 @@ namespace SistemaTaskWhatsapp.Controllers
                 await _contenedorTrabajo.Supervisor.AddAsync(nuevoSupervisor);
             }
 
-            // EMPLEADO
             if (model.Rol == Roles.Empleado)
             {
                 var nuevoEmpleado = new Empleado
                 {
                     Nombre = model.Nombre,
                     UsuarioId = usuario.Id,
-                    FechaRegistro = model.Empleado.FechaRegistro,
+                    FechaRegistro = DateTime.Now,
                     Estado = model.Empleado.Estado
                 };
 
