@@ -28,7 +28,7 @@ namespace SistemaTaskWhatsapp.Models
         public string? ComentarioEmpleado { get; set; }
 
         [Required(ErrorMessage = "Elija un estado para este reporte")]
-        public EstadosReporte Estado { get; set; }
+        public EstadosReporte? Estado { get; set; }
 
         public DateTime FechaSubida { get; set; }
     }
