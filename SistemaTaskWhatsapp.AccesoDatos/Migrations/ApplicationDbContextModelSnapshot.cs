@@ -524,6 +524,7 @@ namespace SistemaTaskWhatsapp.Data.Migrations
                         .HasForeignKey("UsuarioId");
 
                     b.Navigation("Usuario");
+                });
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Reporte", b =>
                 {
                     b.HasOne("SistemaTaskWhatsapp.Models.Tarea", "Tarea")
