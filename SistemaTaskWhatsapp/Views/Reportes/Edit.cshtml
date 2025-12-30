@@ -1,0 +1,59 @@
+﻿@model SistemaTaskWhatsapp.Models.ViewModels.ReporteVM
+
+@{
+    ViewData["Title"] = "Editar reporte";
+}
+
+<div class="contenedor-principal">
+    <div class="text-center">
+        <h3 class="col-3">@ViewData["Title"]</h3>
+    </div>
+    <div class="col-5 mt-4 border rounded shadow p-3">
+        <form asp-action="Edit" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <input type="hidden" asp-for="Reporte.Id"/>
+            <input type="hidden" asp-for="Reporte.FechaSubida" />
+            <div class="form-group">
+                <label for="tarea">Tarea:</label>
+                <select id="tarea" asp-for="Reporte.TareaId" asp-items="@Model.ListaTareas" class="form-select">
+                    <option disabled selected value="">--Elija una tarea--</option>
+                </select>
+                <span asp-validation-for="Reporte.TareaId" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label for="contenido">Contenido:</label>
+                <textarea type="text" id="contenido" asp-for="Reporte.Contenido" class="form-control" placeholder="Escriba el contenido del reporte..."></textarea>
+                <span asp-validation-for="Reporte.Contenido" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label for="inconvenientes">Inconvenientes:</label>
+                <textarea type="text" id="inconvenientes" asp-for="Reporte.Inconvenientes" class="form-control" placeholder="Escriba los inconvenientes al realizar la tarea si es que hubo..."></textarea>
+                <span asp-validation-for="Reporte.Inconvenientes" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label for="comentarios">Comentarios:</label>
+                <textarea type="text" id="comentarios" asp-for="Reporte.ComentarioEmpleado" class="form-control" placeholder="Escribe un comentario o sugerencia..."></textarea>
+                <span asp-validation-for="Reporte.ComentarioEmpleado" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label for="estado">Estado:</label>
+                <select id="estado" asp-for="Reporte.Estado" class="form-select">
+                    <option disabled selected value="">--Elija un estado--</option>
+                    <option value="0">Pendiente de revisar</option>
+                    <option value="1">Aceptado</option>
+                    <option value="2">Rechazado</option>
+                </select>
+                <span asp-validation-for="Reporte.Estado" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="d-flex justify-content-center gap-2 mt-3">
+                <a asp-action="Index" class="btn btn-secondary">Volver</a>
+                <button type="submit" class="btn btn-success">Editar</button>
+            </div>
+        </form>
+    </div>
+</div>
