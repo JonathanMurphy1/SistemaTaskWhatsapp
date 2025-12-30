@@ -39,7 +39,8 @@ namespace SistemaTaskWhatsapp.Controllers
         {
             var model = new UsuarioCreateVM
             {
-                Supervisor = new Supervisor()
+                Supervisor = new Supervisor(),
+                Empleado = new Empleado()
             };
             return View(model);
         }
@@ -49,14 +50,23 @@ namespace SistemaTaskWhatsapp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(UsuarioCreateVM model)
         {
-            if (model.Supervisor == null)
+            // Limpia validaciones que no aplican según el rol
+            if (model.Rol != Roles.Supervisor)
             {
-                model.Supervisor = new Models.Supervisor();
+                ModelState.Remove("Supervisor.Nombre");
+                ModelState.Remove("Supervisor.Estado");
+            }
+
+            if (model.Rol != Roles.Empleado)
+            {
+                ModelState.Remove("Empleado.Nombre");
+                ModelState.Remove("Empleado.Estado");
+                ModelState.Remove("Empleado.FechaRegistro");
             }
 
             if (!ModelState.IsValid)
             {
-                return View(model); 
+                return View(model);
             }
 
             var usuario = new Usuario
@@ -66,29 +76,42 @@ namespace SistemaTaskWhatsapp.Controllers
                 Password = model.Password,
                 Telefono = model.Telefono,
                 Rol = model.Rol
-
             };
 
             await _contenedorTrabajo.Usuario.AddAsync(usuario);
             await _contenedorTrabajo.SaveAsync();
 
+            // SUPERVISOR
             if (model.Rol == Roles.Supervisor)
             {
-                var nuevoSupervisor = new Models.Supervisor
+                var nuevoSupervisor = new Supervisor
                 {
-                    Nombre = usuario.Nombre,
+                    Nombre = model.Nombre,
                     UsuarioId = usuario.Id,
                     Estado = model.Supervisor.Estado
                 };
-                
 
                 await _contenedorTrabajo.Supervisor.AddAsync(nuevoSupervisor);
-                await _contenedorTrabajo.SaveAsync();
             }
 
-            TempData["Mensaje"] = $"Usuario con el nombre: {usuario.Nombre}";
-            return RedirectToAction("Index");
+            // EMPLEADO
+            if (model.Rol == Roles.Empleado)
+            {
+                var nuevoEmpleado = new Empleado
+                {
+                    Nombre = model.Nombre,
+                    UsuarioId = usuario.Id,
+                    FechaRegistro = model.Empleado.FechaRegistro,
+                    Estado = model.Empleado.Estado
+                };
 
+                await _contenedorTrabajo.Empleado.AddAsync(nuevoEmpleado);
+            }
+
+            await _contenedorTrabajo.SaveAsync();
+
+            TempData["Mensaje"] = $"Usuario con el nombre: {usuario.Nombre} creado correctamente";
+            return RedirectToAction("Index");
         }
 
 

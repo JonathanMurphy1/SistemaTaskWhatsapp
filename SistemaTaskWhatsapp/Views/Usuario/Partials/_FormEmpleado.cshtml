@@ -1,0 +1,20 @@
+﻿@model SistemaTaskWhatsapp.Models.ViewModels.UsuarioCreateVM
+@using SistemaTaskWhatsapp.Utilidades
+
+<div class="mt-3">
+    <div class="form-group">
+        <label asp-for="Empleado.Estado">Estado:</label>
+        <select asp-for="Empleado.Estado" class="form-control">
+            <option disabled selected value="">-- Seleccione estado --</option>
+            <option value="0">Inactivo</option>
+            <option value="1">Activo</option>
+        </select>
+        <span asp-validation-for="Empleado.Estado" class="text-danger"></span>
+    </div>
+    <div class="form-group mt-3">
+        <label asp-for="Empleado.FechaRegistro">Fecha de registro:</label>
+        <input asp-for="Empleado.FechaRegistro" type="date" class="form-control" />
+        <span asp-validation-for="Empleado.FechaRegistro" class="text-danger"></span>
+    </div>
+</div>
+
