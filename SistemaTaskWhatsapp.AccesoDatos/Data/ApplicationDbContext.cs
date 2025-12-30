@@ -13,8 +13,8 @@ namespace SistemaTaskWhatsapp.Data
 
         //Poner aqui todos los modelos que se vayan creando
         public DbSet<Usuario> Usuario { get; set; }
-
         public DbSet<Supervisor> Supervisor { get; set; }
+        public DbSet<Empleado> Empleado { get; set; }
         public DbSet<Empresa> Empresa { get; set; }
         public DbSet<Proyecto> Proyecto { get; set; }
         public DbSet<Tarea> Tarea { get; set; }
