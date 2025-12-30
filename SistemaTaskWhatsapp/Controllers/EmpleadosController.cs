@@ -17,9 +17,9 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var listaEmpresas = await _contenedorTrabajo.Empleado.GetAllAsync();
+            var listaEmpleados = await _contenedorTrabajo.Empleado.GetAllAsync();
 
-            return View(listaEmpresas);
+            return View(listaEmpleados);
         }
 
         [HttpGet]
