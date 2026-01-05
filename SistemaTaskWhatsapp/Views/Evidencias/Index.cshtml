@@ -16,7 +16,7 @@
                     <th>Id</th>
                     <th>Url</th>
                     <th>Descripción</th>
-                    <th>Id reporte</th>
+                    <th>Reporte</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -35,17 +35,9 @@
                             <td>@evidencia.Id</td>
                             <td>@evidencia.Url</td>
                             <td>@evidencia.Descripcion</td>
-                            <td>@evidencia.ReporteId</td>
+                            <td>@evidencia.Reporte?.Nombre</td>
                             <td>
-                                <button class="btn btn-warning btnCambiarEstado"
-                                        data-id="@evidencia.Id"
-                                        data-url="@evidencia.Url"
-                                        data-descripcion="@evidencia.Descripcion"
-                                        data-reporteId="@evidencia.ReporteId"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalEstado">
-                                    Cambiar estado
-                                </button>
+                                <a class="btn btn-warning" asp-action="Edit" asp-route-id="@evidencia.Id">Editar</a>
                                 <button class="btn btn-danger" data-id="@evidencia.Id" data-bs-toggle="modal" data-bs-target="#modalEliminar">Borrar</button>
                             </td>
                         </tr>
@@ -81,7 +73,6 @@
                     </form>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

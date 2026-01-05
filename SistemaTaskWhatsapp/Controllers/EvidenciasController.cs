@@ -20,7 +20,7 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var listaEvidencias = await _contenedorTrabajo.Evidencia.GetAllAsync();
+            var listaEvidencias = await _contenedorTrabajo.Evidencia.GetAllAsync(includeProperties: "Reporte");
             return View(listaEvidencias);
         }
 
@@ -63,25 +63,36 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var model = await _contenedorTrabajo.Evidencia.GetByIdAsync(id);
+            var evidencia = await _contenedorTrabajo.Evidencia.GetByIdAsync(id);
 
-            if (model == null) return RedirectToAction("Index");
+            if (evidencia == null)
+            {
+                return RedirectToAction("Index");
+            }
+
+            var model = new EvidenciaVM
+            {
+                Evidencia = evidencia,
+                ListaReportes = await _contenedorTrabajo.Reporte.ListaReportes()
+            };
 
             return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Evidencia model)
+        public async Task<IActionResult> Edit(EvidenciaVM model)
         {
             if (!ModelState.IsValid)
             {
+                model.ListaReportes = await _contenedorTrabajo.Reporte.ListaReportes();
                 return View(model);
             }
 
-            _contenedorTrabajo.Evidencia.Update(model);
+            _contenedorTrabajo.Evidencia.Update(model.Evidencia);
             await _contenedorTrabajo.SaveAsync();
 
             return RedirectToAction("Index");
+
         }
 
         [HttpPost]
