@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Models;
+using SistemaTaskWhatsapp.Models.ViewModels;
 using SistemaTaskWhatsapp.Utilidades;
+using System.Threading.Tasks;
 
 namespace SistemaTaskWhatsapp.Controllers
 {
@@ -19,36 +21,43 @@ namespace SistemaTaskWhatsapp.Controllers
         public async Task<IActionResult> Index()
         {
             var listaEvidencias = await _contenedorTrabajo.Evidencia.GetAllAsync();
-
             return View(listaEvidencias);
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            var model = new EvidenciaVM
+            {
+                ListaReportes = await _contenedorTrabajo.Reporte.ListaReportes()
+            };
+
+            return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Evidencia model)
+        public async Task<IActionResult> Create(EvidenciaVM model)
         {
             if (!ModelState.IsValid)
             {
+                model.ListaReportes = await _contenedorTrabajo.Reporte.ListaReportes();
                 return View(model);
             }
 
-            var existeNombre = await _contenedorTrabajo.Evidencia.GetFirstOrDefaultAsync(e => e.Id == model.Id);
+            var existeNombre = await _contenedorTrabajo.Evidencia.GetFirstOrDefaultAsync(e => e.Id == model.Evidencia.Id);
 
             if (existeNombre != null)
             {
                 ModelState.AddModelError("", "Ya existe una evidencia con ese id");
+                model.ListaReportes = await _contenedorTrabajo.Reporte.ListaReportes();
                 return View(model);
             }
 
-            await _contenedorTrabajo.Evidencia.AddAsync(model);
+            await _contenedorTrabajo.Evidencia.AddAsync(model.Evidencia);
             await _contenedorTrabajo.SaveAsync();
 
             return RedirectToAction("Index");
+
         }
 
         [HttpGet]
