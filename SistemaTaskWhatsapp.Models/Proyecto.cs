@@ -31,5 +31,6 @@ namespace SistemaTaskWhatsapp.Models
         public int? EmpresaId { get; set; }
         [ForeignKey("EmpresaId")]
         public Empresa? Empresa { get; set; }
+
     }
 }
