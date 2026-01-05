@@ -22,8 +22,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const nombre = this.dataset.nombre;
             const estado = this.dataset.estado;
 
-            document.getElementById("estadoSupervisorId").value = id;
-            document.getElementById("nombreSupervisor").innerText = nombre;
+            document.getElementById("estadoEmpleadoId").value = id;
+            document.getElementById("nombreEmpleado").innerText = nombre;
             document.getElementById("estadoSelect").value = estado;
         });
     });

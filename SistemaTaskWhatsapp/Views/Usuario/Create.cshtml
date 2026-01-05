@@ -14,29 +14,28 @@
             <div class="d-flex gap-5">
                 <div class="col-6">
                     <div class="form-group">
-                        <label asp-for="Nombre">Nombre: </label>
-                        <input asp-for="Nombre" class="form-control" placeholder="Ingrese el nombre" />
+                        <label asp-for="Nombre">Nombre:</label>
+                        <input asp-for="Nombre" class="form-control" />
                         <span asp-validation-for="Nombre" class="text-danger"></span>
                     </div>
                     <br />
                     <div class="form-group">
-                        <label asp-for="Email">Email: </label>
-                        <input asp-for="Email" class="form-control uppercase" placeholder="Ingrese el email" />
+                        <label asp-for="Email">Email:</label>
+                        <input asp-for="Email" class="form-control" />
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
                     <br />
                     <div class="form-group">
-                        <label asp-for="Password">Contraseña: </label>
-                        <input asp-for="Password" class="form-control" placeholder="Ingrese la contraseña" />
+                        <label asp-for="Password">Contraseña:</label>
+                        <input asp-for="Password" class="form-control" />
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
                     <br />
                     <div class="form-group">
-                        <label asp-for="Telefono">Telefono: </label>
-                        <input maxlength="10" asp-for="Telefono" class="form-control" placeholder="Ingrese el telefono" />
+                        <label asp-for="Telefono">Telefono:</label>
+                        <input asp-for="Telefono" class="form-control" maxlength="10" />
                         <span asp-validation-for="Telefono" class="text-danger"></span>
                     </div>
-                    <br />
                 </div>
                 <div class="col-6">
                     <div class="form-group">
@@ -49,48 +48,53 @@
                         </select>
                         <span asp-validation-for="Rol" class="text-danger"></span>
                     </div>
+
+                    <!-- Formularios dinámicos -->
+                    <div id="formularioDinamico" class="mt-3">
+                        <div id="formSupervisor" style="display:none">
+                            <partial name="Partials/_FormSupervisor" model="Model" />
+                        </div>
+                        <div id="formEmpleado" style="display:none">
+                            <partial name="Partials/_FormEmpleado" model="Model" />
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div> 
-        <!--Aqui se mostrara el formulario dependiendo del rol seleccionado-->
-        <div id="formularioDinamico" class="d-flex justify-content-center mt-5">
-            <div id="formSupervisor" style="display:none">
-                <partial name="Partials/_FormSupervisor" model="Model" />
+            </div> 
+            <div class="d-flex justify-content-center gap-2 mt-4">
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-return-left"></i> Volver
+                </a>
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-floppy2-fill"></i> Guardar
+                </button>
             </div>
         </div>
     </div>
-    <br />
-    <br />
-        <div class="d-flex justify-content-center gap-2">
-             <a asp-action="Index" class="btn btn-secondary">
-                <i class="bi bi-arrow-return-left"></i> Volver
-             </a>
-             <button type="submit" class="btn btn-success">
-                <i class="bi bi-floppy2-fill"></i> Guardar
-             </button>
-        </div>
-     </div>
 </form>
 
 @section Scripts {
     <script>
-        const select = document.getElementById("selectRol");
+        const selectRol = document.getElementById("selectRol");
         const formSupervisor = document.getElementById("formSupervisor");
+        const formEmpleado = document.getElementById("formEmpleado");
 
-        function toggleSupervisorForm() {
-            const isSupervisor = select.value === "1";
+        function toggleForms() {
+            const rol = selectRol.value;
+
+            // Supervisor
+            const isSupervisor = rol === "1";
             formSupervisor.style.display = isSupervisor ? "block" : "none";
-
-            formSupervisor
-                .querySelectorAll("select, input")
+            formSupervisor.querySelectorAll("input, select")
                 .forEach(el => el.disabled = !isSupervisor);
+
+            // Empleado
+            const isEmpleado = rol === "2";
+            formEmpleado.style.display = isEmpleado ? "block" : "none";
+            formEmpleado.querySelectorAll("input, select")
+                .forEach(el => el.disabled = !isEmpleado);
         }
 
-        select.addEventListener("change", toggleSupervisorForm);
-        window.addEventListener("load", toggleSupervisorForm);
+        selectRol.addEventListener("change", toggleForms);
+        window.addEventListener("load", toggleForms);
     </script>
-
 }
-
-

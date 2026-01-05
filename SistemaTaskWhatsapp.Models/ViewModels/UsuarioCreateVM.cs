@@ -27,5 +27,7 @@ namespace SistemaTaskWhatsapp.Models.ViewModels
 
         public Supervisor? Supervisor { get; set; }
 
+        public Empleado? Empleado { get; set; }
+
     }
 }

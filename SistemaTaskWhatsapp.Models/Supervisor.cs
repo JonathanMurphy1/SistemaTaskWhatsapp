@@ -19,10 +19,9 @@ namespace SistemaTaskWhatsapp.Models
         [ForeignKey("UsuarioId")]
 
         public Usuario? Usuario { get; set; }
-       
-        public string Nombre { get; set; }
 
-        [Required]
+        public string? Nombre { get; set; }
+
         public EstadosSupervisor Estado { get; set; }
     }
 }

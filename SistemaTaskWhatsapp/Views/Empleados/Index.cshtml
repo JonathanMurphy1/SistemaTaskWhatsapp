@@ -1,7 +1,7 @@
-﻿@model IEnumerable<SistemaTaskWhatsapp.Models.Supervisor>
+﻿@model IEnumerable<SistemaTaskWhatsapp.Models.Empleado>
 
 @{
-    ViewData["Title"] = "Lista de supervisores";
+    ViewData["Title"] = "Lista de empleados";
 }
 
 <div class="contenedor-principal">
@@ -14,6 +14,7 @@
                 <tr>
                     <th>Id</th>
                     <th>Nombre</th>
+                    <th>Fecha de registro</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
@@ -22,27 +23,28 @@
                 @if(Model == null || !Model.Any())
                 {
                     <tr>
-                        <td colspan="4" class="text-center text-muted" >No hay supervisores registrados...</td>
+                        <td colspan="5" class="text-center text-muted" >No hay empleados registrados...</td>
                     </tr>
                 }
                 else
                 {
-                    foreach(var supervisor in Model)
+                    foreach(var empleado in Model)
                     {
                         <tr>
-                            <td>@supervisor.Id</td>
-                            <td>@supervisor.Nombre</td>
-                            <td>@supervisor.Estado</td>
+                            <td>@empleado.Id</td>
+                            <td>@empleado.Nombre</td>
+                            <td>@empleado.FechaRegistro</td>
+                            <td>@empleado.Estado</td>
                             <td>
                                 <button class="btn btn-warning btnCambiarEstado"
-                                        data-id="@supervisor.Id"
-                                        data-nombre="@supervisor.Nombre"
-                                        data-estado="@supervisor.Estado"
+                                        data-id="@empleado.Id"
+                                        data-nombre="@empleado.Nombre"
+                                        data-estado="@empleado.Estado"
                                         data-bs-toggle="modal"
                                         data-bs-target="#modalEstado">
                                     Cambiar estado
                                 </button>
-                                <button class="btn btn-danger" data-id="@supervisor.Id" data-nombre="@supervisor.Nombre" data-bs-toggle="modal" data-bs-target="#modalEliminar">Borrar</button>
+                                <button class="btn btn-danger" data-id="@empleado.Id" data-nombre="@empleado.Nombre" data-bs-toggle="modal" data-bs-target="#modalEliminar">Borrar</button>
                             </td>
                         </tr>
                     }
@@ -64,7 +66,7 @@
 
             <!-- Modal body -->
             <div class="modal-body">
-                <h5>Estas seguro de querer eliminar este supervisor? </h5>
+                <h5>Estas seguro de querer eliminar este empleado? </h5>
                 <p id="mostrarNombre"></p>
             </div>
 
@@ -95,10 +97,10 @@
 
             <!-- Modal Body -->
             <div class="modal-body">
-                <p><strong>Supervisor:</strong> <span id="nombreSupervisor"></span></p>
+                <p><strong>Empleado:</strong> <span id="nombreEmpleado"></span></p>
 
                 <form asp-action="CambiarEstado" method="post">
-                    <input type="hidden" id="estadoSupervisorId" name="id" />
+                    <input type="hidden" id="estadoEmpleadoId" name="id" />
                     <div class="form-group">
                         <label>Estado</label>
                         <select id="estadoSelect" name="estado" class="form-select">
@@ -123,5 +125,5 @@
 
 
 @section Scripts {
-    <script src="~/js/supervisor/supervisorIndex.js"></script>
+    <script src="~/js/empleado/empleadoIndex.js"></script>
 }

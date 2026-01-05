@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Models;
+using SistemaTaskWhatsapp.Utilidades;
 
 namespace SistemaTaskWhatsapp.Controllers
 {
@@ -17,9 +18,9 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var listaEmpresas = await _contenedorTrabajo.Empleado.GetAllAsync();
+            var listaEmpleados = await _contenedorTrabajo.Empleado.GetAllAsync();
 
-            return View(listaEmpresas);
+            return View(listaEmpleados);
         }
 
         [HttpGet]
@@ -85,6 +86,22 @@ namespace SistemaTaskWhatsapp.Controllers
             await _contenedorTrabajo.SaveAsync();
             return RedirectToAction("Index");
 
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CambiarEstado(int id, EstadosEmpleado estado)
+        {
+            var empleado = await _contenedorTrabajo.Empleado.GetFirstOrDefaultAsync(e => e.Id == id);
+
+            if (empleado == null)
+                return NotFound();
+
+            empleado.Estado = estado;
+
+            _contenedorTrabajo.Empleado.Update(empleado);
+            await _contenedorTrabajo.SaveAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
     }
