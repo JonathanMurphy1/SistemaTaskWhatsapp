@@ -25,7 +25,7 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository
             return await _db.Empleado.Where(e => e.Estado != Utilidades.EstadosEmpleado.Inactivo).
                 Select(es => new SelectListItem
                 {
-                    Text = es.Nombre,
+                    Text = $"{es.Nombre} (Email: {es.Usuario.Email})",
                     Value = es.Id.ToString()
                 }).ToListAsync();
         }

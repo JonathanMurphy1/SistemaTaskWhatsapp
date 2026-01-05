@@ -1,13 +1,13 @@
 ﻿@model SistemaTaskWhatsapp.Models.ViewModels.ColaboradoresVM
 
 @{
-    ViewData["Title"] = "Empleados asignados";
+    ViewData["Title"] = "Colaboradores";
     int proyectoId = ViewBag.ProyectoId;
 }
 
 <div class="contenedor-principal">
     <div class="d-flex justify-content-between mb-2">
-        <h2 class="text-center">@ViewData["Title"]</h2>
+        <h2 class="text-center">@Model.Tarea.Nombre - @ViewData["Title"]</h2>
         <a asp-controller="TareaPanel" asp-action="Index" asp-route-id="@proyectoId" class="btn btn-secondary">Volver</a>
     </div>
 
@@ -20,7 +20,9 @@
                     <option disabled selected value="">--Elija un colaborador--</option>
                 </select>
             </div>
-            <input type="hidden" name="tareaId" value="@Model.Tarea.Id"/>
+            <input type="hidden" name="tareaId" value="@Model.Tarea?.Id"/>
+            <br />
+            <button type="submit" class="btn btn-success">Agregar</button>
         </form>
     </div>
     
@@ -35,19 +37,19 @@
                 @if(!Model.Tarea.TareaEmpleados.Any())
                 {
                     <tr>
-                        <td colspan="2" class="text-center text-muted">No hay empleados asignados...</td>
+                        <td colspan="2" class="text-center text-muted">No hay colaboradores...</td>
                     </tr>
                 }
                 else
                 {
-                        @foreach (var empleado in Model.Tarea.TareaEmpleados)
+                        @foreach (var tareaEmpleado in Model.Tarea.TareaEmpleados)
                         {
                             <tr>
-                                <td>@empleado.Empleado?.Nombre</td>
+                                <td>@tareaEmpleado.Empleado?.Nombre (Email: @tareaEmpleado.Empleado.Usuario.Email)</td>
                                 <td>
                                     <form asp-action="Delete" method="post" >
-                                        <input type="hidden" value="@empleado.EmpleadoId" name="empleadoId"/>
-                                        <input type="hidden" value="@empleado.TareaId" name="tareaId" />
+                                        <input type="hidden" value="@tareaEmpleado.Id" name="tareaEmpleadoId"/>
+                                        <input type="hidden" value="@tareaEmpleado.TareaId" name="tareaId" />    
                                         <button type="submit" class="btn btn-danger">Quitar</button>
                                     </form>
                                 </td>
