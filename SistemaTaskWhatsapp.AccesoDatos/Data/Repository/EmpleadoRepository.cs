@@ -1,4 +1,6 @@
-﻿using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Data;
 using SistemaTaskWhatsapp.Models;
 using System;
@@ -16,6 +18,16 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository
         public EmpleadoRepository(ApplicationDbContext db) : base(db)
         {
             _db = db;
+        }
+
+        public async Task<IEnumerable<SelectListItem>> ObtenerListaEmpleados()
+        {
+            return await _db.Empleado.Where(e => e.Estado != Utilidades.EstadosEmpleado.Inactivo).
+                Select(es => new SelectListItem
+                {
+                    Text = es.Nombre,
+                    Value = es.Id.ToString()
+                }).ToListAsync();
         }
     }
 }

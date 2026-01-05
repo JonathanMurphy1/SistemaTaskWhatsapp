@@ -27,6 +27,9 @@ namespace SistemaTaskWhatsapp.Models
         public EstadosEmpleado Estado { get; set; }
 
         public IEnumerable<Tarea>? Tarea { get; set; }
+
+        //Propiedades de navegacion
+        public ICollection<TareaEmpleado>? TareasEmpleado { get; set; }
     }
 }
 

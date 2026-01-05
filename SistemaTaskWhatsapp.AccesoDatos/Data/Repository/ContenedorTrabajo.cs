@@ -22,6 +22,7 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository
             Proyecto = new ProyectoRepository(_db);
             Tarea = new TareaRepository(_db);
             Reporte = new ReporteRepository(_db);
+            TareaEmpleado = new TareaEmpleadoRepository(_db);
         }
 
         public IUsuarioRepository Usuario {  get; private set; }
@@ -31,6 +32,7 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository
         public IReporteRepository Reporte { get; private set; }
         public ISupervisorRepository Supervisor { get; private set; }
         public IEmpleadoRepository Empleado { get; private set; }
+        public ITareaEmpleadoRepository TareaEmpleado { get; private set; }
 
         public void Dispose()
         {
