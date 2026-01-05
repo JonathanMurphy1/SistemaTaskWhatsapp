@@ -10,3 +10,21 @@ modalEliminar.addEventListener('show.bs.modal', (e) => {
     modalEliminar.querySelector('#inputId').value = id;
 
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const botones = document.querySelectorAll(".btnCambiarEstado");
+
+    botones.forEach(boton => {
+        boton.addEventListener("click", function () {
+
+            const id = this.dataset.id;
+            const nombre = this.dataset.nombre;
+            const estado = this.dataset.estado;
+
+            document.getElementById("estadoEmpleadoId").value = id;
+            document.getElementById("nombreEmpleado").innerText = nombre;
+            document.getElementById("estadoSelect").value = estado;
+        });
+    });
+});
