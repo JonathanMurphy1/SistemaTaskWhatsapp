@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository
 {
-    public class EvidecniaRepository : Repository<Evidencia>, IEvidenciaRepository
+    public class EvidenciaRepository : Repository<Evidencia>, IEvidenciaRepository
     {
         private readonly ApplicationDbContext _db;
 
-        public EvidecniaRepository(ApplicationDbContext db) : base(db)
+        public EvidenciaRepository(ApplicationDbContext db) : base(db)
         {
             _db = db;
         }
