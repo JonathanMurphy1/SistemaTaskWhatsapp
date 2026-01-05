@@ -23,7 +23,7 @@
                 @if(Model == null || !Model.Any())
                 {
                     <tr>
-                        <td colspan="4" class="text-center text-muted" >No hay empleados registrados...</td>
+                        <td colspan="5" class="text-center text-muted" >No hay empleados registrados...</td>
                     </tr>
                 }
                 else
@@ -36,7 +36,14 @@
                             <td>@empleado.FechaRegistro</td>
                             <td>@empleado.Estado</td>
                             <td>
-                                <a class="btn btn-warning" asp-action="Edit" asp-route-id="@empleado.Id">Editar</a>
+                                <button class="btn btn-warning btnCambiarEstado"
+                                        data-id="@empleado.Id"
+                                        data-nombre="@empleado.Nombre"
+                                        data-estado="@empleado.Estado"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalEstado">
+                                    Cambiar estado
+                                </button>
                                 <button class="btn btn-danger" data-id="@empleado.Id" data-nombre="@empleado.Nombre" data-bs-toggle="modal" data-bs-target="#modalEliminar">Borrar</button>
                             </td>
                         </tr>
@@ -74,6 +81,44 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEstado" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title text-white">Cambiar estado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <p><strong>Empleado:</strong> <span id="nombreEmpleado"></span></p>
+
+                <form asp-action="CambiarEstado" method="post">
+                    <input type="hidden" id="estadoEmpleadoId" name="id" />
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <select id="estadoSelect" name="estado" class="form-select">
+                            <option value="0">Inactivo</option>
+                            <option value="1">Activo</option>
+                        </select>
+                    </div>
+
+                    <div class="mt-3 d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-warning">
+                            Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
