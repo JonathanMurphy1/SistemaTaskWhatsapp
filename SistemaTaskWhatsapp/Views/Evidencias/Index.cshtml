@@ -35,14 +35,14 @@
                             <td>@evidencia.Descripcion</td>
                             <td>@evidencia.Reporte?.Nombre</td>
                             <td>
-                                <a class="btn btn-warning" asp-action="Edit" asp-route-id="@evidencia.Id">Editar</a>
-                                <button class="btn btn-danger" data-id="@evidencia.Id" data-bs-toggle="modal" data-bs-target="#modalEliminar">Borrar</button>
                                 <button class="btn btn-primary btnPreviewEvidencia"
                                         data-url="@evidencia.Url"
                                         data-bs-toggle="modal"
                                         data-bs-target="#modalPreviewEvidencia">
                                     Evidencia
                                 </button>
+                                <a class="btn btn-warning" asp-action="Edit" asp-route-id="@evidencia.Id">Editar</a>
+                                <button class="btn btn-danger" data-id="@evidencia.Id" data-bs-toggle="modal" data-bs-target="#modalEliminar">Borrar</button>
                             </td>
                         </tr>
                     }

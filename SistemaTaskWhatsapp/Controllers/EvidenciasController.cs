@@ -113,19 +113,67 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(EvidenciaVM model)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(EvidenciaVM model, IFormFile archivo)
         {
+            ModelState.Remove("Evidencia.Url");
+            ModelState.Remove("archivo");
+
             if (!ModelState.IsValid)
             {
                 model.ListaReportes = await _contenedorTrabajo.Reporte.ListaReportes();
                 return View(model);
             }
 
-            _contenedorTrabajo.Evidencia.Update(model.Evidencia);
+            var evidenciaDB = await _contenedorTrabajo.Evidencia.GetByIdAsync(model.Evidencia.Id);
+
+            if (evidenciaDB == null)
+                return RedirectToAction("Index");
+
+            evidenciaDB.Descripcion = model.Evidencia.Descripcion;
+            evidenciaDB.ReporteId = model.Evidencia.ReporteId;
+
+            if (archivo != null && archivo.Length > 0)
+            {
+                //Eliminar archivo anterior
+                if (!string.IsNullOrEmpty(evidenciaDB.Url))
+                {
+                    string rutaAnterior = Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot",
+                        evidenciaDB.Url.TrimStart('/')
+                    );
+
+                    if (System.IO.File.Exists(rutaAnterior))
+                        System.IO.File.Delete(rutaAnterior);
+                }
+
+                string carpetaDestino = Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "wwwroot",
+                    "uploads",
+                    "evidencias"
+                );
+
+                if (!Directory.Exists(carpetaDestino))
+                    Directory.CreateDirectory(carpetaDestino);
+
+                string extension = Path.GetExtension(archivo.FileName).ToLower();
+                string nombreArchivo = Guid.NewGuid().ToString() + extension;
+                string rutaCompleta = Path.Combine(carpetaDestino, nombreArchivo);
+
+                using (var stream = new FileStream(rutaCompleta, FileMode.Create))
+                {
+                    await archivo.CopyToAsync(stream);
+                }
+
+                evidenciaDB.Url = "/uploads/evidencias/" + nombreArchivo;
+            }
+
+            _contenedorTrabajo.Evidencia.Update(evidenciaDB);
             await _contenedorTrabajo.SaveAsync();
 
             return RedirectToAction("Index");
-
         }
 
         [HttpPost]
