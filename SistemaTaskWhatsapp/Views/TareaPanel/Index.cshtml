@@ -39,7 +39,7 @@
                             <p><strong>Fecha de Inicio:</strong> @vm.Tarea.FechaInicio.ToString("dd/MM/yyyy")</p>
                             <p><strong>Fecha de entrega:</strong> @vm.Tarea.FechaEntrega?.ToString("dd/MM/yyyy")</p>
                             <p><strong>Fecha de finalización:</strong> @(vm.Tarea.FechaTermino != null ? vm.Tarea.FechaTermino?.ToString("dd/MM/yyyy") : "Vigente")</p>
-                            <strong>Empleados asignados:</strong> <span class="badge rounded-pill bg-warning">@(vm.Tarea.TareaEmpleados.Count() > 0 ? vm.Tarea.TareaEmpleados.Count() : "Sin asignar")</span>
+                            <strong>Colaboradores:</strong> <span class="badge rounded-pill bg-warning">@(vm.Tarea.TareaEmpleados.Count() > 0 ? vm.Tarea.TareaEmpleados.Count() : "Sin asignar")</span>
                             <br />
                             <strong>Reportes por revisar:</strong> <span class="badge rounded-pill bg-warning">@vm.ReportesPendientesRevisar</span>
                         </div>
