@@ -50,6 +50,25 @@ namespace SistemaTaskWhatsapp.Controllers
             return RedirectToAction("Index", new { id = model.TareaId });
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ObtenerRevision(int reporteId)
+        {
+            var revision = await _contenedorTrabajo.Retroalimentacion.GetFirstOrDefaultAsync(r => r.Id == reporteId, includeProperties:"Reporte,Supervisor");
+
+            if(revision == null) return NotFound();
+
+            var datos = new
+            {
+                Comentario = revision.Comentario,
+                Estado = revision.Reporte.Estado,
+                Fecha = revision.Fecha.ToString("dd/MM/yyyy"),
+                Supervisor = revision.Supervisor?.Nombre ?? "Sin supervisor"
+            };
+
+            return Json(datos);
+        }
+
+
         //[HttpGet]
         //public async Task<IActionResult> Create()
         //{
