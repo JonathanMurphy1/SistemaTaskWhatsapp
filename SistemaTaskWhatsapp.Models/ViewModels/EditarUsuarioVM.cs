@@ -28,5 +28,9 @@ namespace SistemaTaskWhatsapp.Models.ViewModels
 
         [Required(ErrorMessage = "Elija un rol")]
         public Roles Rol { get; set; }
+
+        public Supervisor? Supervisor { get; set; }
+
+        public Empleado? Empleado { get; set; }
     }
 }

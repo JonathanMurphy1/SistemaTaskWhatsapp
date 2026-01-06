@@ -20,6 +20,9 @@ namespace SistemaTaskWhatsapp.Models
         [ForeignKey("TareaId")]
         public Tarea? Tarea { get; set; }
 
+        [Required(ErrorMessage = "El nombre del reporte es obligatorio")]
+        public string Nombre { get; set; }
+
         [Required(ErrorMessage = "El contenido del reporte es obligatorio")]
         public string Contenido { get; set; }
 
