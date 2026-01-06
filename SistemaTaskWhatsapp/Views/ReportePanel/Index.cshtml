@@ -5,6 +5,7 @@
 @{
     ViewData["Title"] = "Panel de reportes";
     int proyectoId = ViewBag.ProyectoId;
+    int tareaId = ViewBag.TareaId;
 }
 
 <div class="text-center">
@@ -47,13 +48,45 @@
                             <div class="d-flex justify-content-center">
                                 @if(vm.Estado == EstadosReporte.PendienteRevisar)
                                 {
-                                    <button class="btn btn-primary"><i class="bi bi-clipboard-check"></i> Revisar</button>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalRevisar"><i class="bi bi-clipboard-check"></i> Revisar</button>
                                 }
                             </div>
                         </div>
                     </div>
                 }
             }
+        </div>
+    </div>
+</div>
+
+<!--Modal Revisar-->
+<div class="modal fade" id="modalRevisar">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h4 class="modal-title text-white">Retroalimentación</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-action="Revisar">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="inputComentario" class="fw-bold">Comentarios:</label>
+                        <textarea style="height:300px;" id="inputComentario" class="form-control" name="comentario" 
+                            placeholder="Escriba algun comentario sobre el reporte o actividad realizada..."></textarea>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label class="fw-bold">Estado:</label>
+                        <label for="aceptado" class="form-check-label">Aceptado:</label>
+                        <input name="estadoReporte" id="aceptado" type="radio" class="form-check-input" value="1"/>
+                        <label for="rechazado" class="form-check-label">Rechazado:</label>
+                        <input name="estadoReporte" id="rechazado" type="radio" class="form-check-input" value="2" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-success">Mandar</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

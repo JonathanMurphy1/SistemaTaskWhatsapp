@@ -21,7 +21,8 @@ namespace SistemaTaskWhatsapp.Controllers
             var lista = await _contenedorTrabajo.Reporte.GetAllAsync(r => r.TareaId == id, includeProperties: "Tarea");
             var tarea = await _contenedorTrabajo.Tarea.GetByIdAsync(id);
 
-            ViewBag.ProyectoId = tarea.ProyectoId; 
+            ViewBag.ProyectoId = tarea.ProyectoId;
+            ViewBag.TareaId = tarea.Id;
 
             return View(lista);
         }

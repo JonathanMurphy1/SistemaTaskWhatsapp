@@ -17,6 +17,7 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository
         ISupervisorRepository Supervisor { get; }
         IEmpleadoRepository Empleado { get; }
         ITareaEmpleadoRepository TareaEmpleado { get; }
+        IRetroalimentacionRepository Retroalimentacion { get; }
 
         Task SaveAsync();
     }
