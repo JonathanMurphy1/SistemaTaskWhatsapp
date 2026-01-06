@@ -9,8 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository
 {
-    public interface IEmpleadoRepository : IRepository<Empleado>
+    public interface ITareaEmpleadoRepository : IRepository<TareaEmpleado>
     {
-        Task<IEnumerable<SelectListItem>> ObtenerListaEmpleados();
     }
 }

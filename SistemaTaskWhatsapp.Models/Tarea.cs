@@ -34,5 +34,8 @@ namespace SistemaTaskWhatsapp.Models
         public DateTime? FechaEntrega { get; set; }
 
         public EstadosTarea Estado { get; set; }
+
+        //Propiedades de navegación
+        public ICollection<TareaEmpleado>? TareaEmpleados { get; set; }
     }
 }
