@@ -48,7 +48,7 @@
                             <div class="d-flex justify-content-center">
                                 @if(vm.Estado == EstadosReporte.PendienteRevisar)
                                 {
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalRevisar"><i class="bi bi-clipboard-check"></i> Revisar</button>
+                                    <button class="btn btn-primary" data-reporteId="@vm.Id" data-bs-toggle="modal" data-bs-target="#modalRevisar"><i class="bi bi-clipboard-check"></i> Revisar</button>
                                 }
                             </div>
                         </div>
@@ -67,19 +67,21 @@
                 <h4 class="modal-title text-white">Retroalimentación</h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="post" asp-action="Revisar">
+            <form id="formRevisar" method="post" asp-action="Revisar">
                 <div class="modal-body">
+                    <input type="hidden" name="TareaId" value="@tareaId"/>
+                    <input class="reporte-id" type="hidden" name="ReporteId" value="" />
                     <div class="form-group">
                         <label for="inputComentario" class="fw-bold">Comentarios:</label>
-                        <textarea style="height:300px;" id="inputComentario" class="form-control" name="comentario" 
+                        <textarea style="height:300px;" id="inputComentario" class="form-control comentario-input" name="Comentario" 
                             placeholder="Escriba algun comentario sobre el reporte o actividad realizada..."></textarea>
                     </div>
                     <div class="form-group mt-3">
                         <label class="fw-bold">Estado:</label>
                         <label for="aceptado" class="form-check-label">Aceptado:</label>
-                        <input name="estadoReporte" id="aceptado" type="radio" class="form-check-input" value="1"/>
+                        <input name="EstadoReporte" id="aceptado" type="radio" class="form-check-input" value="1"/>
                         <label for="rechazado" class="form-check-label">Rechazado:</label>
-                        <input name="estadoReporte" id="rechazado" type="radio" class="form-check-input" value="2" />
+                        <input name="EstadoReporte" id="rechazado" type="radio" class="form-check-input" value="2" />
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -90,3 +92,7 @@
         </div>
     </div>
 </div>
+
+@section Scripts{
+    <script src="~/js/reporte-panel/repote-panel-index.js"></script>
+}

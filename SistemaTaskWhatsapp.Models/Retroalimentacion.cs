@@ -21,7 +21,6 @@ namespace SistemaTaskWhatsapp.Models
 
         public bool VistoEmpleado { get; set; } = false;
 
-        [Required(ErrorMessage = "El supervisor es obligatorio")]
         public int? SupervisorId { get; set; }
         [ForeignKey("SupervisorId")]
         public Supervisor? Supervisor { get; set; }

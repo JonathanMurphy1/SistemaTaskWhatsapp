@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
+using SistemaTaskWhatsapp.Models;
 using SistemaTaskWhatsapp.Models.ViewModels;
 using SistemaTaskWhatsapp.Utilidades;
 using System.Threading.Tasks;
@@ -25,6 +26,28 @@ namespace SistemaTaskWhatsapp.Controllers
             ViewBag.TareaId = tarea.Id;
 
             return View(lista);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Revisar(RevisarVM model)
+        {
+            if (!ModelState.IsValid) return RedirectToAction("Index", new { id = model.TareaId });
+
+            var retroalimentacion = new Retroalimentacion
+            {
+                Comentario = model.Comentario,
+                Fecha = DateTime.Now,
+                SupervisorId = null,
+                ReporteId = model.ReporteId,
+            };
+
+            await _contenedorTrabajo.Retroalimentacion.AddAsync(retroalimentacion);
+
+            var reporte = await _contenedorTrabajo.Reporte.GetByIdAsync(model.ReporteId);
+            reporte.Estado = model.EstadoReporte;
+
+            await _contenedorTrabajo.SaveAsync();
+            return RedirectToAction("Index", new { id = model.TareaId });
         }
 
         //[HttpGet]
