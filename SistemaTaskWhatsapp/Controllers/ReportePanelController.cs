@@ -19,7 +19,7 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(int id)
         {
-            var lista = await _contenedorTrabajo.Reporte.GetAllAsync(r => r.TareaId == id, includeProperties: "Tarea");
+            var lista = await _contenedorTrabajo.Reporte.GetAllAsync(r => r.TareaId == id, includeProperties: "Tarea,Empleado.Usuario");
             var tarea = await _contenedorTrabajo.Tarea.GetByIdAsync(id);
 
             ViewBag.ProyectoId = tarea.ProyectoId;
@@ -62,10 +62,30 @@ namespace SistemaTaskWhatsapp.Controllers
                 Comentario = revision.Comentario,
                 Estado = revision.Reporte.Estado,
                 Fecha = revision.Fecha.ToString("dd/MM/yyyy"),
-                Supervisor = revision.Supervisor?.Nombre ?? "Sin supervisor"
+                Supervisor = revision.Supervisor?.Nombre ?? "Sin supervisor",
+                RevisionId = revision.Id,
             };
 
             return Json(datos);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditarRevision(RevisarVM model)
+        {
+            if (!ModelState.IsValid || model.RevisionId == null) return RedirectToAction("Index", new { id = model.TareaId });
+
+            var retroalimentacionBd = await _contenedorTrabajo.Retroalimentacion.GetByIdAsync((int)model.RevisionId);
+
+            retroalimentacionBd.Comentario = model.Comentario;
+            retroalimentacionBd.Fecha = DateTime.Now;
+
+            var reporteBd = await _contenedorTrabajo.Reporte.GetByIdAsync(model.ReporteId);
+            reporteBd.Estado = model.EstadoReporte;
+
+            await _contenedorTrabajo.SaveAsync();
+
+            return RedirectToAction("Index", new {id =  model.TareaId});
         }
 
 

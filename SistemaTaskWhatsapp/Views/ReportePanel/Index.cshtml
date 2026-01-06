@@ -34,7 +34,27 @@
                             </div>
                         </div>
                         <div class="card-body text-start">
-                            <strong>Estado:</strong> <span class="badge bg-info">@Html.DisplayFor(m => vm.Estado)</span>
+                            @{
+                                string estadoColor;
+                                switch(vm.Estado)
+                                {
+                                    case EstadosReporte.PendienteRevisar:
+                                        estadoColor = "warning";
+                                        break;
+                                    case EstadosReporte.Aceptado:
+                                        estadoColor = "success";
+                                        break;
+                                    case EstadosReporte.Rechazado:
+                                        estadoColor = "danger";
+                                        break;
+                                    default:
+                                        estadoColor = "dark";
+                                        break;
+                                }
+                            }
+                            <strong>Colaborador:</strong> <span>@vm.Empleado.Usuario.Nombre</span>
+                            <br />
+                            <strong>Estado:</strong> <span class="badge bg-@estadoColor">@Html.DisplayFor(m => vm.Estado)</span>
                             <br />
                             <strong>Contenido:</strong>
                             <p>@vm.Contenido</p>
@@ -109,6 +129,7 @@
                 <div class="modal-body">
                     <input type="hidden" name="TareaId" value="@tareaId" />
                     <input class="reporte-id" type="hidden" name="ReporteId" value="" />
+                    <input class="revision-id" type="hidden" name="RevisionId" value="" />
                     <strong>Revisado por: </strong><span class="nombre-supervisor"></span>
                     <br />
                     <strong>Fecha: </strong><span class="mostrar-fecha"></span>

@@ -40,11 +40,13 @@ modalDetalle.addEventListener('show.bs.modal', (e) => {
             modalDetalle.querySelector('.comentario-input').value = data.comentario;
             modalDetalle.querySelector('.mostrar-fecha').innerText = data.fecha;
             modalDetalle.querySelector('.nombre-supervisor').innerText = data.supervisor;
+            modalDetalle.querySelector('.revision-id').value = data.revisionId;
+
 
             if (data.estado === 1) {
                 modalDetalle.querySelector('#aceptado').checked = true;
             } else if (data.estado === 2) {
-                modalDetalle.querySelector('rechazado').checked = true;
+                modalDetalle.querySelector('#rechazado').checked = true;
             }
         })
         .catch(() => {

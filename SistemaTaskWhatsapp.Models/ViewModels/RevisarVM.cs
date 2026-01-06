@@ -10,6 +10,7 @@ namespace SistemaTaskWhatsapp.Models.ViewModels
 {
     public class RevisarVM
     {
+        public int? RevisionId { get; set; }
         [Required]
         public int TareaId { get; set; }
         [Required]
