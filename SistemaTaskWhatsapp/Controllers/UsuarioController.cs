@@ -109,18 +109,12 @@ namespace SistemaTaskWhatsapp.Controllers
             return RedirectToAction("Index");
         }
 
-
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
             var usuario = await _contenedorTrabajo.Usuario.GetByIdAsync(id);
-
             if (usuario == null)
-            {
-                TempData["Mensaje"] = "No se encontró el usuario";
-                TempData["Error"] = "Error";
                 return RedirectToAction("Index");
-            }
 
             var model = new EditarUsuarioVM
             {
@@ -129,8 +123,24 @@ namespace SistemaTaskWhatsapp.Controllers
                 Email = usuario.Email,
                 Password = usuario.Password,
                 Telefono = usuario.Telefono,
-                Rol = usuario.Rol
+                Rol = usuario.Rol,
+                Supervisor = new Supervisor(),
+                Empleado = new Empleado()
             };
+
+            if (usuario.Rol == Roles.Supervisor)
+            {
+                model.Supervisor = await _contenedorTrabajo.Supervisor
+                    .GetFirstOrDefaultAsync(s => s.UsuarioId == usuario.Id)
+                    ?? new Supervisor();
+            }
+
+            if (usuario.Rol == Roles.Empleado)
+            {
+                model.Empleado = await _contenedorTrabajo.Empleado
+                    .GetFirstOrDefaultAsync(e => e.UsuarioId == usuario.Id)
+                    ?? new Empleado();
+            }
 
             return View(model);
         }
@@ -139,6 +149,20 @@ namespace SistemaTaskWhatsapp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(EditarUsuarioVM model)
         {
+            //validaciones
+            model.Supervisor ??= new Supervisor();
+            model.Empleado ??= new Empleado();
+
+            if (model.Rol != Roles.Supervisor)
+            {
+                ModelState.Remove("Supervisor.Estado");
+            }
+
+            if (model.Rol != Roles.Empleado)
+            {
+                ModelState.Remove("Empleado.Estado");
+            }
+
             if (!ModelState.IsValid)
                 return View(model);
 
@@ -155,6 +179,7 @@ namespace SistemaTaskWhatsapp.Controllers
                 return RedirectToAction("Index");
             }
 
+            //Usuario
             usuario.Nombre = model.Nombre;
             usuario.Email = model.Email;
             usuario.Telefono = model.Telefono;
@@ -162,6 +187,82 @@ namespace SistemaTaskWhatsapp.Controllers
             usuario.Rol = model.Rol;
 
             _contenedorTrabajo.Usuario.Update(usuario);
+
+            //Supervisor
+            if (model.Rol == Roles.Supervisor)
+            {
+                var supervisor = await _contenedorTrabajo.Supervisor
+                    .GetFirstOrDefaultAsync(s => s.UsuarioId == usuario.Id);
+
+                if (supervisor == null)
+                {
+                    //Crea al supervisor si no existe al actualizar el rol
+                    supervisor = new Supervisor
+                    {
+                        UsuarioId = usuario.Id,
+                        Nombre = usuario.Nombre,
+                        Estado = model.Supervisor.Estado
+                    };
+
+                    await _contenedorTrabajo.Supervisor.AddAsync(supervisor);
+                }
+                else
+                {
+                    //Actualiza al supervisor si ya existe
+                    supervisor.Nombre = model.Nombre;
+                    supervisor.Estado = model.Supervisor.Estado;
+
+                    _contenedorTrabajo.Supervisor.Update(supervisor);
+                }
+            }
+            else
+            {
+                //Borrar al supervisor si se cambia de rol
+                var supervisor = await _contenedorTrabajo.Supervisor
+                    .GetFirstOrDefaultAsync(s => s.UsuarioId == usuario.Id);
+
+                if (supervisor != null)
+                    _contenedorTrabajo.Supervisor.Remove(supervisor);
+            }
+
+            //Empleado
+            if (model.Rol == Roles.Empleado)
+            {
+                var empleado = await _contenedorTrabajo.Empleado
+                    .GetFirstOrDefaultAsync(e => e.UsuarioId == usuario.Id);
+
+                if (empleado == null)
+                {
+                    //Crea al empleado si no existe al actualizar el rol
+                    empleado = new Empleado
+                    {
+                        UsuarioId = usuario.Id,
+                        Nombre = usuario.Nombre,
+                        Estado = model.Empleado.Estado,
+                        FechaRegistro = DateTime.Now
+                    };
+
+                    await _contenedorTrabajo.Empleado.AddAsync(empleado);
+                }
+                else
+                {   
+                    //Actualiza al empleado si ya existe
+                    empleado.Nombre = model.Nombre;
+                    empleado.Estado = model.Empleado.Estado;
+
+                    _contenedorTrabajo.Empleado.Update(empleado);
+                }
+            }
+            else
+            {
+                //Borrar al empleado si se cambia de rol
+                var empleado = await _contenedorTrabajo.Empleado
+                    .GetFirstOrDefaultAsync(e => e.UsuarioId == usuario.Id);
+
+                if (empleado != null)
+                    _contenedorTrabajo.Empleado.Remove(empleado);
+            }
+
             await _contenedorTrabajo.SaveAsync();
 
             TempData["Mensaje"] = $"Se modificó correctamente el usuario con Id: {model.Id}";
