@@ -12,5 +12,7 @@ namespace SistemaTaskWhatsapp.Models.ViewModels
         public Reporte? Reporte { get; set; }
 
         public IEnumerable<SelectListItem>? ListaTareas { get; set; }
+
+        public IEnumerable<SelectListItem>? ListaEmpleados { get; set; }
     }
 }
