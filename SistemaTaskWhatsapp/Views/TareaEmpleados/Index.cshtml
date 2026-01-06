@@ -1,0 +1,61 @@
+﻿@model SistemaTaskWhatsapp.Models.ViewModels.ColaboradoresVM
+
+@{
+    ViewData["Title"] = "Colaboradores";
+    int proyectoId = ViewBag.ProyectoId;
+}
+
+<div class="contenedor-principal">
+    <div class="d-flex justify-content-between mb-2">
+        <h2 class="text-center">@Model.Tarea.Nombre - @ViewData["Title"]</h2>
+        <a asp-controller="TareaPanel" asp-action="Index" asp-route-id="@proyectoId" class="btn btn-secondary">Volver</a>
+    </div>
+
+    <div class="border rounded shadow p-4 mb-3 col-6">
+        <h4>Agregar nuevo colaborador</h4>
+        <form method="post" asp-action="Create">
+            <div class="form-group">
+                <label for="colaborador">Colaborador: </label>
+                <select id="colaborador" class="form-select" asp-items="@Model.ListaEmpleados" name="colaboradorId">
+                    <option disabled selected value="">--Elija un colaborador--</option>
+                </select>
+            </div>
+            <input type="hidden" name="tareaId" value="@Model.Tarea?.Id"/>
+            <br />
+            <button type="submit" class="btn btn-success">Agregar</button>
+        </form>
+    </div>
+    
+    <table class="table table-bordered table-striped table-hover shadow">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Quitar</th>
+            </tr>
+        </thead>
+        <tbody>
+                @if(!Model.Tarea.TareaEmpleados.Any())
+                {
+                    <tr>
+                        <td colspan="2" class="text-center text-muted">No hay colaboradores...</td>
+                    </tr>
+                }
+                else
+                {
+                        @foreach (var tareaEmpleado in Model.Tarea.TareaEmpleados)
+                        {
+                            <tr>
+                                <td>@tareaEmpleado.Empleado?.Nombre (Email: @tareaEmpleado.Empleado.Usuario.Email)</td>
+                                <td>
+                                    <form asp-action="Delete" method="post" >
+                                        <input type="hidden" value="@tareaEmpleado.Id" name="tareaEmpleadoId"/>
+                                        <input type="hidden" value="@tareaEmpleado.TareaId" name="tareaId" />    
+                                        <button type="submit" class="btn btn-danger">Quitar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                }
+        </tbody>
+    </table>
+</div>

@@ -21,5 +21,6 @@ namespace SistemaTaskWhatsapp.Data
         public DbSet<Reporte> Reporte { get; set; }
         public DbSet<Evidencia> Evidencia { get; set; }
 
+        public DbSet<TareaEmpleado> TareaEmpleado { get;set; }
     }
 }
