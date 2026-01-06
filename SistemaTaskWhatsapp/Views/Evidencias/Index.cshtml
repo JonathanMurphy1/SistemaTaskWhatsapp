@@ -14,7 +14,6 @@
             <thead>
                 <tr>
                     <th>Id</th>
-                    <th>Url</th>
                     <th>Descripción</th>
                     <th>Reporte</th>
                     <th>Acciones</th>
@@ -33,12 +32,17 @@
                     {
                         <tr>
                             <td>@evidencia.Id</td>
-                            <td>@evidencia.Url</td>
                             <td>@evidencia.Descripcion</td>
                             <td>@evidencia.Reporte?.Nombre</td>
                             <td>
                                 <a class="btn btn-warning" asp-action="Edit" asp-route-id="@evidencia.Id">Editar</a>
                                 <button class="btn btn-danger" data-id="@evidencia.Id" data-bs-toggle="modal" data-bs-target="#modalEliminar">Borrar</button>
+                                <button class="btn btn-primary btnPreviewEvidencia"
+                                        data-url="@evidencia.Url"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalPreviewEvidencia">
+                                    Evidencia
+                                </button>
                             </td>
                         </tr>
                     }
@@ -72,6 +76,29 @@
                         <button type="submit" class="btn btn-danger">Borrar</button>
                     </form>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Preview Evidencia -->
+<div class="modal fade" id="modalPreviewEvidencia" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Vista previa del archivo</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="previewContainer" class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
+                    <p class="text-muted">Cargando vista previa...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a id="btnDescargarArchivo" class="btn btn-success" target="_blank" download>
+                    <i class="fa-solid fa-download"></i> Descargar
+                </a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>

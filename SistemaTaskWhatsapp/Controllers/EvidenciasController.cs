@@ -11,6 +11,7 @@ namespace SistemaTaskWhatsapp.Controllers
     public class EvidenciasController : Controller
     {
         private readonly IContenedorTrabajo _contenedorTrabajo;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
         public EvidenciasController(IContenedorTrabajo contenedorTrabajo)
         {
@@ -29,6 +30,7 @@ namespace SistemaTaskWhatsapp.Controllers
         {
             var model = new EvidenciaVM
             {
+                Evidencia = new Evidencia(),
                 ListaReportes = await _contenedorTrabajo.Reporte.ListaReportes()
             };
 
@@ -36,28 +38,59 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(EvidenciaVM model)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(EvidenciaVM model, IFormFile archivo)
         {
+            ModelState.Remove("Evidencia.Url");
+            ModelState.Remove("archivo");
+
             if (!ModelState.IsValid)
             {
                 model.ListaReportes = await _contenedorTrabajo.Reporte.ListaReportes();
                 return View(model);
             }
 
-            var existeNombre = await _contenedorTrabajo.Evidencia.GetFirstOrDefaultAsync(e => e.Id == model.Evidencia.Id);
-
-            if (existeNombre != null)
+            if (archivo == null || archivo.Length == 0)
             {
-                ModelState.AddModelError("", "Ya existe una evidencia con ese id");
+                ModelState.AddModelError("", "Debe seleccionar un archivo");
                 model.ListaReportes = await _contenedorTrabajo.Reporte.ListaReportes();
                 return View(model);
             }
+
+            //Crear la ruta fisica de la carpeta
+            string carpetaDestino = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot",
+                "uploads",
+                "evidencias"
+            );
+
+            if (!Directory.Exists(carpetaDestino))
+                Directory.CreateDirectory(carpetaDestino);
+
+            string extension = Path.GetExtension(archivo.FileName).ToLower();
+            string nombreArchivo = Guid.NewGuid().ToString() + extension;
+            string rutaCompleta = Path.Combine(carpetaDestino, nombreArchivo);
+
+            var extensionesPermitidas = new[] { ".jpg", ".jpeg", ".png", ".pdf", ".doc", ".docx" };
+            if (!extensionesPermitidas.Contains(extension))
+            {
+                ModelState.AddModelError("", "Tipo de archivo no permitido");
+                model.ListaReportes = await _contenedorTrabajo.Reporte.ListaReportes();
+                return View(model);
+            }
+
+            using (var stream = new FileStream(rutaCompleta, FileMode.Create))
+            {
+                await archivo.CopyToAsync(stream);
+            }
+
+            model.Evidencia.Url = "/uploads/evidencias/" + nombreArchivo;
 
             await _contenedorTrabajo.Evidencia.AddAsync(model.Evidencia);
             await _contenedorTrabajo.SaveAsync();
 
             return RedirectToAction("Index");
-
         }
 
         [HttpGet]
@@ -98,14 +131,31 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var EvidenciaEliminar = await _contenedorTrabajo.Evidencia.GetByIdAsync(id);
+            var evidencia = await _contenedorTrabajo.Evidencia.GetByIdAsync(id);
 
-            if (EvidenciaEliminar == null) return RedirectToAction("Index");
+            if (evidencia == null)
+                return RedirectToAction("Index");
 
-            _contenedorTrabajo.Evidencia.Remove(EvidenciaEliminar);
+            //Ruta fisica del archivo
+            if (!string.IsNullOrEmpty(evidencia.Url))
+            {
+                string rutaFisica = Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "wwwroot",
+                    evidencia.Url.TrimStart('/')
+                );
+
+                if (System.IO.File.Exists(rutaFisica))
+                {
+                    System.IO.File.Delete(rutaFisica);
+                }
+            }
+
+            _contenedorTrabajo.Evidencia.Remove(evidencia);
             await _contenedorTrabajo.SaveAsync();
-            return RedirectToAction("Index");
 
+            return RedirectToAction("Index");
         }
+
     }
 }

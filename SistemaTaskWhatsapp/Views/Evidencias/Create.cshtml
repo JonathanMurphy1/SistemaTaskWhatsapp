@@ -9,14 +9,13 @@
         <h3 class="col-3">@ViewData["Title"]</h3>
     </div>
     <div class="col-5 mt-4 border rounded shadow p-3">
-        <form asp-action="Create" method="post">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="All" class="text-danger"></div>
             <div class="form-group">
-                <label for="url">Url:</label>
-                <input type="text" id="url" asp-for="Evidencia.Url" class="form-control" placeholder="Ingrese la url..." />
-                <span asp-validation-for="Evidencia.Url" class="text-danger"></span>
+                <label>Evidencia:</label>
+                <input type="file" name="archivo" class="form-control form-control-sm" accept=".jpg,.png,.jpeg,.pdf,.doc,.docx" required />
             </div>
-            <br/>
+            <br/> 
             <div class="form-group">
                 <label for="descripcion">Descripción:</label>
                 <textarea type="text" id="descripcion" asp-for="Evidencia.Descripcion" class="form-control" placeholder="Escriba una descripción acerca de la evidencia..."></textarea>
@@ -36,8 +35,5 @@
                 <button type="submit" class="btn btn-success">Registrar</button>
             </div>
         </form>
-    </div>
-
-
-    
+    </div> 
 </div>
