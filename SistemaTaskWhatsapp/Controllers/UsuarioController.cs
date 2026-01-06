@@ -173,22 +173,26 @@ namespace SistemaTaskWhatsapp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            bool resultado = await _contenedorTrabajo.Usuario.RemoveByIdAsync(id);
+            var usuario = await _contenedorTrabajo.Usuario.GetByIdAsync(id);
+            if (usuario == null) return RedirectToAction("Index");
 
-            if (!resultado)
-            {
-                TempData["Mensaje"] = $"Hubo un error al tratar de borrar el usuario Id: {id}";
-                TempData["error"] = "Error";
-                return RedirectToAction("Index");
-            }
+            var supervisor = await _contenedorTrabajo.Supervisor
+                .GetFirstOrDefaultAsync(s => s.UsuarioId == id);
 
+            if (supervisor != null)
+                _contenedorTrabajo.Supervisor.Remove(supervisor);
+
+            var empleado = await _contenedorTrabajo.Empleado
+                .GetFirstOrDefaultAsync(e => e.UsuarioId == id);
+
+            if (empleado != null)
+                _contenedorTrabajo.Empleado.Remove(empleado);
+
+            _contenedorTrabajo.Usuario.Remove(usuario);
             await _contenedorTrabajo.SaveAsync();
-
-            TempData["Mensaje"] = $"Usuario borrado correctamente Id: {id}";
 
             return RedirectToAction("Index");
         }
-
 
         //Funciones
         private async Task ValidarDuplicidadCampos(string email, string telefono, int? id = null)

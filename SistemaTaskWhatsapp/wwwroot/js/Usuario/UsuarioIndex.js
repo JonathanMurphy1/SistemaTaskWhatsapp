@@ -10,3 +10,6 @@ modalEliminar.addEventListener('show.bs.modal', (e) => {
     modalEliminar.querySelector('#inputId').value = id;
 
 });
+
+
+
