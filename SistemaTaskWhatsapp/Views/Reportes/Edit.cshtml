@@ -15,7 +15,7 @@
             <input type="hidden" asp-for="Reporte.FechaSubida" />
             <div class="form-group">
                 <label for="nombre">Nombre:</label>
-                <textarea type="text" id="nombre" asp-for="Reporte.Nombre" class="form-control" placeholder="Escriba el nombre del reporte..."></textarea>
+                <input type="text" id="nombre" asp-for="Reporte.Nombre" class="form-control" placeholder="Escriba el nombre del reporte..."/>
                 <span asp-validation-for="Reporte.Nombre" class="text-danger"></span>
             </div>
             <br />
