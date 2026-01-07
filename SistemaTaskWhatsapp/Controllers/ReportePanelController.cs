@@ -19,8 +19,8 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(int id)
         {
-            var lista = await _contenedorTrabajo.Reporte.GetAllAsync(r => r.TareaId == id, includeProperties: "Tarea,Empleado.Usuario");
-
+            var lista = await _contenedorTrabajo.Reporte.GetAllAsync(r => r.TareaId == id, includeProperties: "Tarea,Evidencias,Empleado.Usuario");
+            
             lista = lista.OrderByDescending(r => r.Estado == EstadosReporte.PendienteRevisar)
                 .ThenBy(r => r.FechaSubida).ToList();
             
