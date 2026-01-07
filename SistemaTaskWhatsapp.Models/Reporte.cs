@@ -34,5 +34,7 @@ namespace SistemaTaskWhatsapp.Models
         public EstadosReporte? Estado { get; set; }
 
         public DateTime FechaSubida { get; set; }
+
+        public ICollection<Evidencia>? Evidencias { get; set; }
     }
 }

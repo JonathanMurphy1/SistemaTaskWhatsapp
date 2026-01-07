@@ -18,7 +18,7 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(int id)
         {
-            var lista = await _contenedorTrabajo.Reporte.GetAllAsync(r => r.TareaId == id, includeProperties: "Tarea");
+            var lista = await _contenedorTrabajo.Reporte.GetAllAsync(r => r.TareaId == id, includeProperties: "Tarea,Evidencias");
             var tarea = await _contenedorTrabajo.Tarea.GetByIdAsync(id);
 
             ViewBag.ProyectoId = tarea.ProyectoId; 
