@@ -1,50 +1,67 @@
 ﻿@model IEnumerable<SistemaTaskWhatsapp.Models.ViewModels.ProyectoHomeVM>
+@using SistemaTaskWhatsapp.Utilidades
 
 @{
     ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Bienvenido <i class="bi bi-person-workspace"></i></h1>
-    <h3 class="display-4">Sistema de tareas con whatsapp</h3>
-    <div class="container border rounded shadow">
-        <h3>Proyectos</h3>
+<div class="contenedor">
+    <h1 class="text-center display-4 fw-bold">Bienvenido <i class="bi bi-person-workspace"></i></h1>
+    <h3 class="text-center display-4">Sistema de tareas con whatsapp</h3>
+    <div class="container p-4 border rounded shadow">
+        <h3 class="text-center">Proyectos</h3>
         <br />
-        <div class="contenedor-cartas p-4 row gap-4">
             @if(!Model.Any())
             {
                 <span class="text-center text-muted">No hay proyectos</span>
             }
             else
             {
-                foreach(var vm in Model)
-                {
-                    <div class="col-4 card shadow" >
-                        <div class="card-header">
-                            <div class="d-flex justify-content-between">
-                                <h3 class="card-title">@vm.Proyecto.Nombre</h3>
-                                <h3 class="card-title">Id: #@vm.Proyecto.Id</h3>
+                <div class="contenedor-cartas row row-cols-1 row-cols-md-3 gap-3">
+                    @foreach(var vm in Model)
+                    {
+                        string estadoColor;
+                        switch (vm.Proyecto.Estado)
+                        {
+                            case EstadosProyecto.Activo:
+                                estadoColor = "primary";
+                                break;
+                            case EstadosProyecto.Terminado:
+                                estadoColor = "success";
+                                break;
+                            case EstadosProyecto.Inactivo:
+                                estadoColor = "secondary";
+                                break;
+                            default:
+                                estadoColor = "dark";
+                                break;
+                        }
+                        <div class="col card shadow">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between">
+                                    <h3 class="card-title">@vm.Proyecto.Nombre</h3>
+                                    <h3 class="card-title">Id: #@vm.Proyecto.Id</h3>
+                                </div>
+                            </div>
+                            <div class="card-body text-start">
+                                <strong>Estado:</strong> <span class="badge bg-@estadoColor">@vm.Proyecto.Estado</span>
+                                <p><strong>Empresa:</strong> @vm.Proyecto.Empresa.Nombre</p>
+                                <strong>Descripción:</strong>
+                                <p>@vm.Proyecto.Descripcion</p>
+                                <p><strong>Fecha de registro:</strong> @vm.Proyecto.FechaRegistro.ToString("dd/MM/yyyy")</p>
+                                <p><strong>Fecha de finalización:</strong> @(vm.Proyecto.FechaFin != null ? vm.Proyecto.FechaFin?.ToString("dd/MM/yyyy") : "Vigente")</p>
+                                <strong>Tareas pendientes:</strong> <span class="badge rounded-pill bg-warning">@vm.TareasPendientes</span>
+                                <br />
+                                <strong>Reportes por revisar:</strong> <span class="badge rounded-pill bg-warning">@vm.ReportesPendientesRevisar</span>
+                            </div>
+                            <div class="card-footer">
+                                <div class="d-flex justify-content-center">
+                                    <a class="btn btn-primary" asp-controller="TareaPanel" asp-action="Index" asp-route-id="@vm.Proyecto.Id"><i class="bi bi-list-task"></i> Tareas</a>
+                                </div>
                             </div>
                         </div>
-                        <div class="card-body text-start">
-                            <strong>Estado:</strong> <span class="badge bg-info">@vm.Proyecto.Estado</span>
-                            <p><strong>Empresa:</strong> @vm.Proyecto.Empresa.Nombre</p>
-                            <strong>Descripción:</strong>
-                            <p>@vm.Proyecto.Descripcion</p>
-                            <p><strong>Fecha de registro:</strong> @vm.Proyecto.FechaRegistro.ToString("dd/MM/yyyy")</p>
-                            <p><strong>Fecha de finalización:</strong> @(vm.Proyecto.FechaFin != null ? vm.Proyecto.FechaFin?.ToString("dd/MM/yyyy") : "Vigente")</p>
-                            <strong>Tareas pendientes:</strong> <span class="badge rounded-pill bg-warning">@vm.TareasPendientes</span>
-                            <br />
-                            <strong>Reportes por revisar:</strong> <span class="badge rounded-pill bg-warning">@vm.ReportesPendientesRevisar</span>
-                        </div>
-                        <div class="card-footer">
-                            <div class="d-flex justify-content-center">
-                                <a class="btn btn-primary" asp-controller="TareaPanel" asp-action="Index" asp-route-id="@vm.Proyecto.Id"><i class="bi bi-list-task"></i> Tareas</a>
-                            </div>
-                        </div>
-                    </div>
-                }
+                    }
+                </div>
             }
-        </div>
     </div>
 </div>
