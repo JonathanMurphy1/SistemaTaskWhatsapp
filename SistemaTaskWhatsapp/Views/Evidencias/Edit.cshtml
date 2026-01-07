@@ -29,7 +29,6 @@
             <div class="form-group">
                 <label for="reporte">Reporte:</label>
                 <select id="reporte" asp-for="Evidencia.ReporteId" asp-items="@Model.ListaReportes" class="form-select">
-                    <option disabled selected value="">--Elija un reporte--</option>
                 </select>
                 <span asp-validation-for="Evidencia.ReporteId" class="text-danger"></span>
             </div>
