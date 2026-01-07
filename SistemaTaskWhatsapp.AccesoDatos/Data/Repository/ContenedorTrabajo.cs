@@ -24,6 +24,7 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository
             Reporte = new ReporteRepository(_db);
             Evidencia = new EvidenciaRepository(_db);
             TareaEmpleado = new TareaEmpleadoRepository(_db);
+            Retroalimentacion = new RetroalimentacionRepository(_db);
         }
 
         public IUsuarioRepository Usuario {  get; private set; }
@@ -35,6 +36,7 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository
         public IEmpleadoRepository Empleado { get; private set; }
         public IEvidenciaRepository Evidencia { get; private set; }
         public ITareaEmpleadoRepository TareaEmpleado { get; private set; }
+        public IRetroalimentacionRepository Retroalimentacion { get; private set; }
 
         public void Dispose()
         {
