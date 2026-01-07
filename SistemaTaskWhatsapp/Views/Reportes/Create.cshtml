@@ -26,6 +26,14 @@
             </div>
             <br />
             <div class="form-group">
+                <label for="colaborador">Colaborador:</label>
+                <select id="colaborador" asp-for="Reporte.EmpleadoId" asp-items="@Model.ListaEmpleados" class="form-select">
+                    <option disabled selected value="">--Elija un colaborador--</option>
+                </select>
+                <span asp-validation-for="Reporte.EmpleadoId" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
                 <label for="contenido">Contenido:</label>
                 <textarea type="text" id="contenido" asp-for="Reporte.Contenido" class="form-control" placeholder="Escriba el contenido del reporte..."></textarea>
                 <span asp-validation-for="Reporte.Contenido" class="text-danger"></span>

@@ -9,6 +9,13 @@ namespace SistemaTaskWhatsapp.Models.ViewModels
     public class TareaPanelVM
     {
         public Tarea? Tarea { get; set; }
+        public int ProyectoId { get; set; }
+        public IEnumerable<TareaCardVM>? Lista { get; set; }
+    }
+
+    public class TareaCardVM
+    {
+        public Tarea? Tarea { get; set; }
 
         public int ReportesPendientesRevisar { get; set; }
     }

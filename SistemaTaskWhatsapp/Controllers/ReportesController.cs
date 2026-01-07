@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
+using SistemaTaskWhatsapp.Models;
 using SistemaTaskWhatsapp.Models.ViewModels;
 using SistemaTaskWhatsapp.Utilidades;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var lista = await _contenedorTrabajo.Reporte.GetAllAsync(includeProperties: "Tarea");
+            var lista = await _contenedorTrabajo.Reporte.GetAllAsync(includeProperties: "Tarea,Empleado.Usuario");
 
             return View(lista);
         }
@@ -29,6 +30,7 @@ namespace SistemaTaskWhatsapp.Controllers
             var model = new ReporteVM
             {
                 ListaTareas = await _contenedorTrabajo.Tarea.ObtenerTareasVigentes(),
+                ListaEmpleados = await _contenedorTrabajo.Empleado.ObtenerListaEmpleados()
             };
 
             return View(model);
@@ -40,12 +42,29 @@ namespace SistemaTaskWhatsapp.Controllers
             if (!ModelState.IsValid)
             {
                 model.ListaTareas = await _contenedorTrabajo.Tarea.ObtenerTareasVigentes();
+                model.ListaEmpleados = await _contenedorTrabajo.Empleado.ObtenerListaEmpleados();
+
                 return View(model);
             }
 
             model.Reporte.FechaSubida = DateTime.Now;
 
             await _contenedorTrabajo.Reporte.AddAsync(model.Reporte);
+
+            var colaboradorExistente = await _contenedorTrabajo.TareaEmpleado.GetFirstOrDefaultAsync
+                (te => te.TareaId == model.Reporte.TareaId && te.EmpleadoId == model.Reporte.EmpleadoId);
+
+            if(colaboradorExistente == null)
+            {
+                var nuevoColaborador = new TareaEmpleado
+                {
+                    EmpleadoId = model.Reporte.EmpleadoId,
+                    TareaId = model.Reporte.TareaId
+                };
+
+                await _contenedorTrabajo.TareaEmpleado.AddAsync(nuevoColaborador);
+            }
+      
             await _contenedorTrabajo.SaveAsync();
 
             return RedirectToAction("Index");
@@ -62,6 +81,7 @@ namespace SistemaTaskWhatsapp.Controllers
             {
                 Reporte = reporte,
                 ListaTareas = await _contenedorTrabajo.Tarea.ObtenerTareasVigentes(),
+                ListaEmpleados = await _contenedorTrabajo.Empleado.ObtenerListaEmpleados()
             };
 
             return View(model);
@@ -73,10 +93,27 @@ namespace SistemaTaskWhatsapp.Controllers
             if (!ModelState.IsValid)
             {
                 model.ListaTareas = await _contenedorTrabajo.Tarea.ObtenerTareasVigentes();
+                model.ListaEmpleados = await _contenedorTrabajo.Empleado.ObtenerListaEmpleados();
+
                 return View(model);
             }
 
             _contenedorTrabajo.Reporte.Update(model.Reporte);
+
+            var colaboradorExistente = await _contenedorTrabajo.TareaEmpleado.GetFirstOrDefaultAsync
+                (te => te.TareaId == model.Reporte.TareaId && te.EmpleadoId == model.Reporte.EmpleadoId);
+
+            if (colaboradorExistente == null)
+            {
+                var nuevoColaborador = new TareaEmpleado
+                {
+                    EmpleadoId = model.Reporte.EmpleadoId,
+                    TareaId = model.Reporte.TareaId
+                };
+
+                await _contenedorTrabajo.TareaEmpleado.AddAsync(nuevoColaborador);
+            }
+
             await _contenedorTrabajo.SaveAsync();
 
             return RedirectToAction("Index");

@@ -17,6 +17,7 @@
                     <th>Id</th>
                     <th>Nombre</th>
                     <th>Tarea</th>
+                    <th>Colaborador</th>
                     <th>Contenido</th>
                     <th>Inconvenientes</th>
                     <th>Comentarios</th>
@@ -29,7 +30,7 @@
                 @if (Model == null || !Model.Any())
                 {
                     <tr>
-                        <td colspan="8" class="text-center text-muted">No hay reportes registrados...</td>
+                        <td colspan="9" class="text-center text-muted">No hay reportes registrados...</td>
                     </tr>
                 }
                 else
@@ -40,6 +41,7 @@
                             <td>@reporte.Id</td>
                             <td>@reporte.Nombre</td>
                             <td>@reporte.Tarea?.Nombre</td>
+                            <td>@reporte.Empleado.Usuario.Nombre (Email: @reporte.Empleado.Usuario.Email)</td>
                             <td>@reporte.Contenido</td>
                             <td>@(String.IsNullOrWhiteSpace(reporte.Inconvenientes) ? "Sin inconvenientes" : reporte.Inconvenientes)</td>
                             <td>@(String.IsNullOrWhiteSpace(reporte.ComentarioEmpleado) ? "Sin comentarios" : reporte.ComentarioEmpleado)</td>

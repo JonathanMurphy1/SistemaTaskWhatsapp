@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
+using SistemaTaskWhatsapp.Models;
 using SistemaTaskWhatsapp.Models.ViewModels;
 using SistemaTaskWhatsapp.Utilidades;
 using System.Threading.Tasks;
@@ -18,13 +19,79 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(int id)
         {
+<<<<<<< HEAD
             var lista = await _contenedorTrabajo.Reporte.GetAllAsync(r => r.TareaId == id, includeProperties: "Tarea,Evidencias");
+=======
+            var lista = await _contenedorTrabajo.Reporte.GetAllAsync(r => r.TareaId == id, includeProperties: "Tarea,Empleado.Usuario");
+>>>>>>> develop
             var tarea = await _contenedorTrabajo.Tarea.GetByIdAsync(id);
 
-            ViewBag.ProyectoId = tarea.ProyectoId; 
+            ViewBag.ProyectoId = tarea.ProyectoId;
+            ViewBag.TareaId = tarea.Id;
 
             return View(lista);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Revisar(RevisarVM model)
+        {
+            if (!ModelState.IsValid) return RedirectToAction("Index", new { id = model.TareaId });
+
+            var retroalimentacion = new Retroalimentacion
+            {
+                Comentario = model.Comentario,
+                Fecha = DateTime.Now,
+                SupervisorId = null,
+                ReporteId = model.ReporteId,
+            };
+
+            await _contenedorTrabajo.Retroalimentacion.AddAsync(retroalimentacion);
+
+            var reporte = await _contenedorTrabajo.Reporte.GetByIdAsync(model.ReporteId);
+            reporte.Estado = model.EstadoReporte;
+
+            await _contenedorTrabajo.SaveAsync();
+            return RedirectToAction("Index", new { id = model.TareaId });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerRevision(int reporteId)
+        {
+            var revision = await _contenedorTrabajo.Retroalimentacion.GetFirstOrDefaultAsync(r => r.Id == reporteId, includeProperties:"Reporte,Supervisor");
+
+            if(revision == null) return NotFound();
+
+            var datos = new
+            {
+                Comentario = revision.Comentario,
+                Estado = revision.Reporte.Estado,
+                Fecha = revision.Fecha.ToString("dd/MM/yyyy"),
+                Supervisor = revision.Supervisor?.Nombre ?? "Sin supervisor",
+                RevisionId = revision.Id,
+            };
+
+            return Json(datos);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditarRevision(RevisarVM model)
+        {
+            if (!ModelState.IsValid || model.RevisionId == null) return RedirectToAction("Index", new { id = model.TareaId });
+
+            var retroalimentacionBd = await _contenedorTrabajo.Retroalimentacion.GetByIdAsync((int)model.RevisionId);
+
+            retroalimentacionBd.Comentario = model.Comentario;
+            retroalimentacionBd.Fecha = DateTime.Now;
+
+            var reporteBd = await _contenedorTrabajo.Reporte.GetByIdAsync(model.ReporteId);
+            reporteBd.Estado = model.EstadoReporte;
+
+            await _contenedorTrabajo.SaveAsync();
+
+            return RedirectToAction("Index", new {id =  model.TareaId});
+        }
+
 
         //[HttpGet]
         //public async Task<IActionResult> Create()
