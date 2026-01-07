@@ -59,9 +59,9 @@
                             <strong>Contenido:</strong>
                             <p>@vm.Contenido</p>
                             <strong>Inconvenientes:</strong>
-                            <p>@vm.Inconvenientes</p>
+                            <p>@(vm.Inconvenientes ?? "Sin inconvenientes")</p>
                             <strong>Comentarios:</strong>
-                            <p>@vm.ComentarioEmpleado</p>
+                            <p>@(vm.ComentarioEmpleado ?? "Sin Comentarios")</p>
                             <p><strong>Fecha de subida:</strong> @vm.FechaSubida.ToString("dd/MM/yyyy")</p>
                         </div>
                         <div class="card-footer">

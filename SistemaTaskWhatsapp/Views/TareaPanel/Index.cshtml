@@ -48,7 +48,7 @@
                                 <a class="btn btn-primary" asp-controller="ReportePanel" asp-action="Index" asp-route-id="@vm.Tarea.Id"><i class="bi bi-file-earmark-text"></i> Reportes</a>
                                 @if(vm.Tarea.Estado != EstadosTarea.Finalizada)
                                 {
-                                    <a class="btn btn-primary" asp-controller="TareaEmpleados" asp-action="Index" asp-route-id="@vm.Tarea.Id"><i class="bi bi-people-fill"></i> Asignar</a>
+                                    <a class="btn btn-primary" asp-controller="TareaEmpleados" asp-action="Index" asp-route-id="@vm.Tarea.Id"><i class="bi bi-people-fill"></i> Colaboradores</a>
                                 }
                             </div>
                         </div>
