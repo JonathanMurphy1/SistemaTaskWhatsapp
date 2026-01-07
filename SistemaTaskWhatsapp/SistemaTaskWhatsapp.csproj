@@ -21,4 +21,8 @@
     <ProjectReference Include="..\SistemaTaskWhatsapp.Services\SistemaTaskWhatsapp.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\uploads\evidencias\" />
+  </ItemGroup>
+
 </Project>
