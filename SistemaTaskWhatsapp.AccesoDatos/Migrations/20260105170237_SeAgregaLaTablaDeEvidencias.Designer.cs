@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaTaskWhatsapp.Data;
 
@@ -11,9 +12,11 @@ using SistemaTaskWhatsapp.Data;
 namespace SistemaTaskWhatsapp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260105170237_SeAgregaLaTablaDeEvidencias")]
+    partial class SeAgregaLaTablaDeEvidencias
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -347,9 +350,6 @@ namespace SistemaTaskWhatsapp.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("EmpleadoId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Estado")
                         .HasColumnType("int");
 
@@ -359,54 +359,14 @@ namespace SistemaTaskWhatsapp.Data.Migrations
                     b.Property<string>("Inconvenientes")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("TareaId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EmpleadoId");
-
                     b.HasIndex("TareaId");
 
                     b.ToTable("Reporte");
-                });
-
-            modelBuilder.Entity("SistemaTaskWhatsapp.Models.Retroalimentacion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Comentario")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Fecha")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("ReporteId")
-                        .IsRequired()
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SupervisorId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("VistoEmpleado")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReporteId");
-
-                    b.HasIndex("SupervisorId");
-
-                    b.ToTable("Retroalimentacion");
                 });
 
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Supervisor", b =>
@@ -475,29 +435,6 @@ namespace SistemaTaskWhatsapp.Data.Migrations
                     b.HasIndex("ProyectoId");
 
                     b.ToTable("Tarea");
-                });
-
-            modelBuilder.Entity("SistemaTaskWhatsapp.Models.TareaEmpleado", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("EmpleadoId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TareaId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EmpleadoId");
-
-                    b.HasIndex("TareaId");
-
-                    b.ToTable("TareaEmpleado");
                 });
 
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Usuario", b =>
@@ -614,38 +551,13 @@ namespace SistemaTaskWhatsapp.Data.Migrations
 
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Reporte", b =>
                 {
-                    b.HasOne("SistemaTaskWhatsapp.Models.Empleado", "Empleado")
-                        .WithMany()
-                        .HasForeignKey("EmpleadoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("SistemaTaskWhatsapp.Models.Tarea", "Tarea")
                         .WithMany()
                         .HasForeignKey("TareaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Empleado");
-
                     b.Navigation("Tarea");
-                });
-
-            modelBuilder.Entity("SistemaTaskWhatsapp.Models.Retroalimentacion", b =>
-                {
-                    b.HasOne("SistemaTaskWhatsapp.Models.Reporte", "Reporte")
-                        .WithMany()
-                        .HasForeignKey("ReporteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SistemaTaskWhatsapp.Models.Supervisor", "Supervisor")
-                        .WithMany()
-                        .HasForeignKey("SupervisorId");
-
-                    b.Navigation("Reporte");
-
-                    b.Navigation("Supervisor");
                 });
 
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Supervisor", b =>
@@ -672,40 +584,14 @@ namespace SistemaTaskWhatsapp.Data.Migrations
                     b.Navigation("Proyecto");
                 });
 
-            modelBuilder.Entity("SistemaTaskWhatsapp.Models.TareaEmpleado", b =>
-                {
-                    b.HasOne("SistemaTaskWhatsapp.Models.Empleado", "Empleado")
-                        .WithMany("TareasEmpleado")
-                        .HasForeignKey("EmpleadoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SistemaTaskWhatsapp.Models.Tarea", "Tarea")
-                        .WithMany("TareaEmpleados")
-                        .HasForeignKey("TareaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Empleado");
-
-                    b.Navigation("Tarea");
-                });
-
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Empleado", b =>
                 {
                     b.Navigation("Tarea");
-
-                    b.Navigation("TareasEmpleado");
                 });
 
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Empresa", b =>
                 {
                     b.Navigation("Proyectos");
-                });
-
-            modelBuilder.Entity("SistemaTaskWhatsapp.Models.Tarea", b =>
-                {
-                    b.Navigation("TareaEmpleados");
                 });
 #pragma warning restore 612, 618
         }

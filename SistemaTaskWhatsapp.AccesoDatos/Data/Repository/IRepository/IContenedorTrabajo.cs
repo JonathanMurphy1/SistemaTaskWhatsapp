@@ -16,6 +16,7 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository
         IReporteRepository Reporte { get; }
         ISupervisorRepository Supervisor { get; }
         IEmpleadoRepository Empleado { get; }
+        IEvidenciaRepository Evidencia { get; }
         ITareaEmpleadoRepository TareaEmpleado { get; }
         IRetroalimentacionRepository Retroalimentacion { get; }
 

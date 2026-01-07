@@ -25,7 +25,7 @@
                 @if (Model == null || !Model.Any())
                 {
                     <tr>
-                        <td colspan="4" class="text-center text-muted">No hay usuarios registrados...</td>
+                        <td colspan="6" class="text-center text-muted">No hay usuarios registrados...</td>
                     </tr>
                 }
                 else
@@ -51,32 +51,34 @@
 </div>
 
 
-
-<!--Modal eliminar-->
 <div class="modal fade" id="modalEliminar">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog">
         <div class="modal-content">
+
+            <!-- Modal Header -->
             <div class="modal-header bg-danger">
                 <h4 class="modal-title text-white">Eliminar</h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+
+            <!-- Modal body -->
             <div class="modal-body">
                 <h5>Estas seguro de querer borrar este usuario?</h5>
-                <p id="mostrarId"></p>
                 <p id="mostrarNombre"></p>
-                <br />
-                <div class="d-flex justify-content-around align-content-center gap-2">
-                    <form method="post" asp-action="Delete">
-                        <input id="idInput" type="hidden" name="id" value="" />
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="fa-solid fa-xmark"></i> Cancelar
-                        </button>
-                        <button type="submit" class="btn btn-danger">
-                            <i class="fa-solid fa-trash"></i> Eliminar
-                        </button>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <div class="d-flex justify-content-center gap-3">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+
+                    <form asp-action="Delete" method="post">
+                        <input id="inputId" name="id" type="hidden" />
+                        <button type="submit" class="btn btn-danger">Borrar</button>
                     </form>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
@@ -84,4 +86,3 @@
 @section Scripts {
     <script src="~/js/Usuario/UsuarioIndex.js"></script>
 }
-

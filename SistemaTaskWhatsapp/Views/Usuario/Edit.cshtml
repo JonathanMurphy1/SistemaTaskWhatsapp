@@ -6,10 +6,10 @@
 }
 
 <br />
-
 <h3 class="text-center">@ViewData["Title"]</h3>
+
 <form method="post" asp-action="Edit">
-    <input type="hidden" asp-for="Id" />
+    <input asp-for="Id" type="hidden" />
     <div class="row px-2 offset-1 border shadow">
         <div asp-validation-summary="All" class="text-danger"></div>
         <div class="col-10 offset-1 p-4">
@@ -26,34 +26,42 @@
                         <input asp-for="Email" class="form-control uppercase" placeholder="Ingrese el email" />
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
-                    <br />
-                    <div class="form-group">
-                        <label asp-for="Password">Contraseña: </label>
-                        <input asp-for="Password" class="form-control" placeholder="Ingrese la contraseña" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
-                    </div>
+                    <br /> 
+                    <div class="form-group"> 
+                        <label asp-for="Password">Contraseña: 
+                        </label> <input asp-for="Password" class="form-control" placeholder="Ingrese la contraseña" />
+                        <span asp-validation-for="Password" class="text-danger"></span> 
+                    </div> 
                     <br />
                     <div class="form-group">
                         <label asp-for="Telefono">Telefono: </label>
-                        <input maxlength="10" asp-for="Telefono" class="form-control" placeholder="Ingrese el telefono" />
+                        <input asp-for="Telefono" maxlength="10" class="form-control" placeholder="Ingrese el telefono" />
                         <span asp-validation-for="Telefono" class="text-danger"></span>
                     </div>
                 </div>
+
                 <div class="col-6">
                     <div class="form-group">
-                        <label asp-for="Rol">Rol:</label>
-                        <select asp-for="Rol"
-                                class="form-control"
-                                asp-items="Html.GetEnumSelectList<Roles>()">
-                            <option value="">-- Seleccione un rol --</option>
+                        <label asp-for="Rol"></label>
+                        <select asp-for="Rol" class="form-control" id="selectRol">
+                            <option value="0">Administrador</option>
+                            <option value="1">Supervisor</option>
+                            <option value="2">Empleado</option>
                         </select>
                         <span asp-validation-for="Rol" class="text-danger"></span>
                     </div>
+
+                    <!-- FORMULARIOS DINÁMICOS -->
+                    <div id="formSupervisor" style="display:none">
+                        <partial name="Partials/_FormSupervisorEdit" model="Model" />
+                    </div>
+
+                    <div id="formEmpleado" style="display:none">
+                        <partial name="Partials/_FormEmpleadoEdit" model="Model" />
+                    </div>
                 </div>
             </div>
-            <br />
-            <br />
-            <div class="d-flex justify-content-center gap-2">
+            <div class="d-flex justify-content-center gap-2 mt-4">
                 <a asp-action="Index" class="btn btn-secondary">
                     <i class="bi bi-arrow-return-left"></i> Volver
                 </a>
@@ -64,3 +72,21 @@
         </div>
     </div>
 </form>
+
+@section Scripts {
+    <script>
+        const selectRol = document.getElementById("selectRol");
+        const formSupervisor = document.getElementById("formSupervisor");
+        const formEmpleado = document.getElementById("formEmpleado");
+
+        function toggleForms() {
+            const rol = selectRol.value;
+
+            formSupervisor.style.display = rol === "1" ? "block" : "none";
+            formEmpleado.style.display = rol === "2" ? "block" : "none";
+        }
+
+        selectRol.addEventListener("change", toggleForms);
+        window.addEventListener("load", toggleForms);
+    </script>
+}
