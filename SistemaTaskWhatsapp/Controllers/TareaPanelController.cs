@@ -20,6 +20,9 @@ namespace SistemaTaskWhatsapp.Controllers
         {
             var lista = await _contenedorTrabajo.Tarea.GetAllAsync(t => t.Proyecto.Id == id, includeProperties: "Proyecto,TareaEmpleados");
 
+            lista = lista.OrderByDescending(t => t.Estado == EstadosTarea.Pendiente)
+                .ThenBy(t => t.FechaEntrega).ToList();
+
             var model = new TareaPanelVM
             {
                 Lista = lista.Select(x => new TareaCardVM
@@ -49,6 +52,10 @@ namespace SistemaTaskWhatsapp.Controllers
             {
                 var lista = await _contenedorTrabajo.Tarea.GetAllAsync(t => t.Proyecto.Id == model.ProyectoId, includeProperties: "Proyecto,TareaEmpleados");
 
+                lista = lista.OrderByDescending(t => t.Estado == EstadosTarea.Pendiente)
+                    .ThenBy(t => t.FechaEntrega).ToList();
+
+
                 var vm = new TareaPanelVM
                 {
                     Lista = lista.Select(x => new TareaCardVM
@@ -71,6 +78,10 @@ namespace SistemaTaskWhatsapp.Controllers
                 ModelState.AddModelError("Tarea.FechaEntrega", "La fecha que intenta ingresar no es valida");
 
                 var lista = await _contenedorTrabajo.Tarea.GetAllAsync(t => t.Proyecto.Id == model.ProyectoId, includeProperties: "Proyecto,TareaEmpleados");
+
+                lista = lista.OrderByDescending(t => t.Estado == EstadosTarea.Pendiente)
+                    .ThenBy(t => t.FechaEntrega).ToList();
+
 
                 var vm = new TareaPanelVM
                 {

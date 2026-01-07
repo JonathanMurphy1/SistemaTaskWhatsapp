@@ -10,10 +10,9 @@
 
 <div class="text-center">
     <h1 class="display-4">Panel de reportes</h1>
-    <div class="container border rounded shadow">
+    <div class="container p-3 border rounded shadow">
         <h2>Reportes</h2>
         <br />
-        <div class="contenedor-cartas p-4 row gap-4">
             @if (!Model.Any())
             {
                 <h3 class="text-center text-muted">No hay reportes...</h3>
@@ -25,12 +24,14 @@
                     <h4>Tarea: @Model.First().Tarea.Nombre</h4>
                     <a class="btn btn-secondary" asp-controller="TareaPanel" asp-action="Index" asp-route-id="@proyectoId"><i class="bi bi-arrow-left"></i> Volver</a>
                 </div>
-                foreach (var vm in Model)
-                {
-                    <div class="col-4 card shadow">
-                        <div class="card-header">
-                            <div class="d-flex justify-content-between">
-                                <h3 class="card-title">Id: #@vm.Id</h3>
+                <div class="contenedor-cartas row-cols-1 row-cols-md-3 gap-4">
+                    @foreach (var vm in Model)
+                    {
+                        <div class="col card shadow">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between">
+                                    <h3 class="card-title">Id: #@vm.Id</h3>
+                                </div>
                             </div>
                         </div>
                         <div class="card-body text-start">
@@ -86,13 +87,54 @@
                                 else
                                 {
                                     <button class="btn btn-warning" data-reporteId="@vm.Id" data-bs-toggle="modal" data-bs-target="#modalDetalle"><i class="bi bi-eye-fill"></i> Ver retroalimentación</button>
+                            <div class="card-body text-start">
+                                @{
+                                    string estadoColor;
+                                    switch(vm.Estado)
+                                    {
+                                        case EstadosReporte.PendienteRevisar:
+                                            estadoColor = "warning";
+                                            break;
+                                        case EstadosReporte.Aceptado:
+                                            estadoColor = "success";
+                                            break;
+                                        case EstadosReporte.Rechazado:
+                                            estadoColor = "danger";
+                                            break;
+                                        default:
+                                            estadoColor = "dark";
+                                            break;
+                                    }
                                 }
+                                <strong>Colaborador:</strong> <span>@vm.Empleado.Usuario.Nombre</span>
+                                <br />
+                                <strong>Estado:</strong> <span class="badge bg-@estadoColor">@Html.DisplayFor(m => vm.Estado)</span>
+                                <br />
+                                <strong>Contenido:</strong>
+                                <p>@vm.Contenido</p>
+                                <strong>Inconvenientes:</strong>
+                                <p>@(vm.Inconvenientes ?? "Sin inconvenientes")</p>
+                                <strong>Comentarios:</strong>
+                                <p>@(vm.ComentarioEmpleado ?? "Sin Comentarios")</p>
+                                <p><strong>Fecha de subida:</strong> @vm.FechaSubida.ToString("dd/MM/yyyy")</p>
+                            </div>
+                            <div class="card-footer">
+                                <div class="d-flex justify-content-center">
+                                    @if(vm.Estado == EstadosReporte.PendienteRevisar)
+                                    {
+                                        <button class="btn btn-primary" data-reporteId="@vm.Id" data-bs-toggle="modal" data-bs-target="#modalRevisar"><i class="bi bi-clipboard-check"></i> Revisar</button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-warning" data-reporteId="@vm.Id" data-bs-toggle="modal" data-bs-target="#modalDetalle"><i class="bi bi-eye-fill"></i> Ver retroalimentación</button>
+                                    }
+                                </div>
                             </div>
                         </div>
-                    </div>
-                }
+                    }
+                </div>
+
             }
-        </div>
     </div>
 </div>
 
@@ -153,7 +195,6 @@
         </div>
     </div>
 </div>
-
 
 <!--Modal Detalle-->
 <div class="modal fade" id="modalDetalle">

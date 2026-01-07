@@ -8,10 +8,9 @@
 
 <div class="text-center">
     <h1 class="display-4">Panel de tareas</h1>
-    <div class="container border rounded shadow">
+    <div class="container border rounded shadow p-4">
         <h2>Tareas</h2>
         <br />
-        <div class="contenedor-cartas p-4 row gap-4">
             @if (!Model.Lista.Any())
             {
                 <h3 class="text-center text-muted">No hay tareas...</h3>
@@ -30,37 +29,55 @@
                         <a class="btn btn-secondary" asp-controller="Home" asp-action="Index"><i class="bi bi-arrow-left"></i> Volver</a>
                     </div>
                 </div>
-                foreach (var vm in Model.Lista)
-                {
-                    <div class="col-4 card shadow">
-                        <div class="card-header">
-                            <div class="d-flex justify-content-between">
-                                <h3 class="card-title">@vm.Tarea.Nombre</h3>
-                                <h3 class="card-title">Id: #@vm.Tarea.Id</h3>
+                <div class="contenedor-cartas row row-cols-1 row-cols-md-3 g-2 mt-3">
+                    @foreach (var vm in Model.Lista)
+                    {
+                        string estadoColor;
+                        switch(vm.Tarea.Estado)
+                        {
+                            case EstadosTarea.Pendiente:
+                                estadoColor = "warning";
+                                break;
+                            case EstadosTarea.Finalizada:
+                                estadoColor = "success";
+                                break;
+                            default:
+                                estadoColor = "dark";
+                                break;
+                        }
+                        
+                        <div class="col">
+                            <div class="card shadow">
+                                <div class="card-header">
+                                    <div class="d-flex justify-content-between">
+                                        <h3 class="card-title">@vm.Tarea.Nombre</h3>
+                                        <h3 class="card-title">Id: #@vm.Tarea.Id</h3>
+                                    </div>
+                                </div>
+                                <div class="card-body text-start">
+                                    <strong>Estado:</strong> <span class="badge bg-@estadoColor">@vm.Tarea.Estado</span>
+                                    <br />
+                                    <strong>Descripción:</strong>
+                                    <p>@vm.Tarea.Descripcion</p>
+                                    <p><strong>Fecha de Inicio:</strong> @vm.Tarea.FechaInicio.ToString("dd/MM/yyyy")</p>
+                                    <p><strong>Fecha de entrega:</strong> @vm.Tarea.FechaEntrega?.ToString("dd/MM/yyyy")</p>
+                                    <p><strong>Fecha de finalización:</strong> @(vm.Tarea.FechaTermino != null ? vm.Tarea.FechaTermino?.ToString("dd/MM/yyyy") : "Vigente")</p>
+                                    <strong>Colaboradores:</strong> <span class="badge rounded-pill bg-warning">@(vm.Tarea.TareaEmpleados.Count() > 0 ? vm.Tarea.TareaEmpleados.Count() : "Sin asignar")</span>
+                                    <br />
+                                    <strong>Reportes por revisar:</strong> <span class="badge rounded-pill bg-warning">@vm.ReportesPendientesRevisar</span>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a class="btn btn-primary" asp-controller="ReportePanel" asp-action="Index" asp-route-id="@vm.Tarea.Id"><i class="bi bi-file-earmark-text"></i> Reportes</a>
+                                        <a class="btn btn-success" asp-controller="TareaEmpleados" asp-action="Index" asp-route-id="@vm.Tarea.Id"><i class="bi bi-people-fill"></i> Colaboradores</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="card-body text-start">
-                            <strong>Estado:</strong> <span class="badge bg-info">@vm.Tarea.Estado</span>
-                            <br />
-                            <strong>Descripción:</strong>
-                            <p>@vm.Tarea.Descripcion</p>
-                            <p><strong>Fecha de Inicio:</strong> @vm.Tarea.FechaInicio.ToString("dd/MM/yyyy")</p>
-                            <p><strong>Fecha de entrega:</strong> @vm.Tarea.FechaEntrega?.ToString("dd/MM/yyyy")</p>
-                            <p><strong>Fecha de finalización:</strong> @(vm.Tarea.FechaTermino != null ? vm.Tarea.FechaTermino?.ToString("dd/MM/yyyy") : "Vigente")</p>
-                            <strong>Colaboradores:</strong> <span class="badge rounded-pill bg-warning">@(vm.Tarea.TareaEmpleados.Count() > 0 ? vm.Tarea.TareaEmpleados.Count() : "Sin asignar")</span>
-                            <br />
-                            <strong>Reportes por revisar:</strong> <span class="badge rounded-pill bg-warning">@vm.ReportesPendientesRevisar</span>
-                        </div>
-                        <div class="card-footer">
-                            <div class="d-flex justify-content-center gap-2">
-                                <a class="btn btn-primary" asp-controller="ReportePanel" asp-action="Index" asp-route-id="@vm.Tarea.Id"><i class="bi bi-file-earmark-text"></i> Reportes</a>
-                                <a class="btn btn-success" asp-controller="TareaEmpleados" asp-action="Index" asp-route-id="@vm.Tarea.Id"><i class="bi bi-people-fill"></i> Colaboradores</a>
-                            </div>
-                        </div>
-                    </div>
-                }
+                    }
+                </div>
             }
-        </div>
+        
     </div>
 </div>
 

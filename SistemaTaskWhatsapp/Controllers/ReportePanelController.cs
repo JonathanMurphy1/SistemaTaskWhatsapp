@@ -20,7 +20,10 @@ namespace SistemaTaskWhatsapp.Controllers
         public async Task<IActionResult> Index(int id)
         {
             var lista = await _contenedorTrabajo.Reporte.GetAllAsync(r => r.TareaId == id, includeProperties: "Tarea,Evidencias,Empleado.Usuario");
-
+            
+            lista = lista.OrderByDescending(r => r.Estado == EstadosReporte.PendienteRevisar)
+                .ThenBy(r => r.FechaSubida).ToList();
+            
             var tarea = await _contenedorTrabajo.Tarea.GetByIdAsync(id);
 
             ViewBag.ProyectoId = tarea.ProyectoId;
@@ -30,6 +33,7 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Revisar(RevisarVM model)
         {
             if (!ModelState.IsValid) return RedirectToAction("Index", new { id = model.TareaId });
