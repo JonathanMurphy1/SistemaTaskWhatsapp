@@ -1,8 +1,9 @@
-﻿@model IEnumerable<SistemaTaskWhatsapp.Models.ViewModels.TareaPanelVM>
+﻿@model SistemaTaskWhatsapp.Models.ViewModels.TareaPanelVM
 @using SistemaTaskWhatsapp.Utilidades
 
 @{
     ViewData["Title"] = "Panel de tareas";
+    int proyectoId = Model.ProyectoId;
 }
 
 <div class="text-center">
@@ -11,18 +12,25 @@
         <h2>Tareas</h2>
         <br />
         <div class="contenedor-cartas p-4 row gap-4">
-            @if (!Model.Any())
+            @if (!Model.Lista.Any())
             {
                 <h3 class="text-center text-muted">No hay tareas...</h3>
-                <a class="btn btn-secondary" asp-controller="Home" asp-action="Index"><i class="bi bi-arrow-left"></i> Volver</a>
+                <div class="d-flex justify-content-center gap-2">
+                    <a class="btn btn-secondary" asp-controller="Home" asp-action="Index"><i class="bi bi-arrow-left"></i> Volver</a>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCrear"><i class="bi bi-plus"></i>Nueva tarea</button>
+                </div>
             }
             else
             {
                 <div class="d-flex justify-content-between">
-                    <h4>Proyecto: @Model.First().Tarea.Proyecto.Nombre</h4>
-                    <a class="btn btn-secondary" asp-controller="Home" asp-action="Index"><i class="bi bi-arrow-left"></i> Volver</a>
+                    <h4>Proyecto: @Model.Lista.First().Tarea.Proyecto.Nombre</h4>
+                    <div class="d-flex justify-content-center gap-2">
+                        <button class="btn btn-success" data-reporteId="@Model.Lista.FirstOrDefault().Tarea.ProyectoId" 
+                            data-bs-toggle="modal" data-bs-target="#modalCrear"><i class="bi bi-plus"></i>Nueva tarea</button>
+                        <a class="btn btn-secondary" asp-controller="Home" asp-action="Index"><i class="bi bi-arrow-left"></i> Volver</a>
+                    </div>
                 </div>
-                foreach (var vm in Model)
+                foreach (var vm in Model.Lista)
                 {
                     <div class="col-4 card shadow">
                         <div class="card-header">
@@ -46,10 +54,7 @@
                         <div class="card-footer">
                             <div class="d-flex justify-content-center gap-2">
                                 <a class="btn btn-primary" asp-controller="ReportePanel" asp-action="Index" asp-route-id="@vm.Tarea.Id"><i class="bi bi-file-earmark-text"></i> Reportes</a>
-                                @if(vm.Tarea.Estado != EstadosTarea.Finalizada)
-                                {
-                                    <a class="btn btn-primary" asp-controller="TareaEmpleados" asp-action="Index" asp-route-id="@vm.Tarea.Id"><i class="bi bi-people-fill"></i> Colaboradores</a>
-                                }
+                                <a class="btn btn-success" asp-controller="TareaEmpleados" asp-action="Index" asp-route-id="@vm.Tarea.Id"><i class="bi bi-people-fill"></i> Colaboradores</a>
                             </div>
                         </div>
                     </div>
@@ -58,3 +63,56 @@
         </div>
     </div>
 </div>
+
+<!--Modal Detalle-->
+<div class="modal fade" id="modalCrear">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h4 class="modal-title text-white">Nueva tarea</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formCrear" method="post" asp-action="Create">
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="modal-body">
+                    <input type="hidden" asp-for="Tarea.ProyectoId" value="@proyectoId" />
+                    <div class="form-group">
+                        <label for="nombre">Nombre:</label>
+                        <input type="text" id="nombre" asp-for="Tarea.Nombre" class="form-control" placeholder="Escriba el nombre del proyecto..." />
+                        <span asp-validation-for="Tarea.Nombre" class="text-danger"></span>
+                    </div>
+                    <br />
+                    <div class="form-group">
+                        <label for="descripcion">Descripción:</label>
+                        <textarea type="text" id="descripcion" asp-for="Tarea.Descripcion" class="form-control" placeholder="Escriba una descripción acerca del proyecto..."></textarea>
+                        <span asp-validation-for="Tarea.Descripcion" class="text-danger"></span>
+                    </div>
+                    <br />
+                    <div class="form-group">
+                        <label for="fechaentrega">Fecha de entrega:</label>
+                        <input id="fechaEntrega" type="date" asp-for="Tarea.FechaEntrega" class="form-control" min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" />
+                        <span asp-validation-for="Tarea.FechaEntrega" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="d-flex justify-content-center gap-2 mt-3">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-success">Registrar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial"></partial>
+
+    @if(ViewBag.AbrirModalCrear)
+    {
+        <script>
+            var modal = new bootstrap.Modal(document.getElementById('modalCrear'));
+            modal.show();
+        </script>
+    }
+}

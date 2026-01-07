@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
+using SistemaTaskWhatsapp.Models;
 using SistemaTaskWhatsapp.Models.ViewModels;
 using SistemaTaskWhatsapp.Utilidades;
 
@@ -19,15 +20,81 @@ namespace SistemaTaskWhatsapp.Controllers
         {
             var lista = await _contenedorTrabajo.Tarea.GetAllAsync(t => t.Proyecto.Id == id, includeProperties: "Proyecto,TareaEmpleados");
 
-            var model = lista.Select(x => new TareaPanelVM
+            var model = new TareaPanelVM
             {
-                Tarea = x,
-                ReportesPendientesRevisar = _contenedorTrabajo.Reporte.
+                Lista = lista.Select(x => new TareaCardVM
+                {
+                    Tarea = x,
+                    ReportesPendientesRevisar = _contenedorTrabajo.Reporte.
                     GetAllQueryable(r => r.TareaId == x.Id && r.Estado == EstadosReporte.PendienteRevisar).
                     Count()
-            });
+                }),
+                Tarea = new Tarea()
+                {
+                    FechaEntrega = DateTime.Now.AddDays(1)
+                },
+                ProyectoId = id
+            };
+
+            ViewBag.AbrirModalCrear = false;
 
             return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(TareaPanelVM model)
+        {
+            if (!ModelState.IsValid)
+            {
+                var lista = await _contenedorTrabajo.Tarea.GetAllAsync(t => t.Proyecto.Id == model.ProyectoId, includeProperties: "Proyecto,TareaEmpleados");
+
+                var vm = new TareaPanelVM
+                {
+                    Lista = lista.Select(x => new TareaCardVM
+                        {
+                            Tarea = x,
+                            ReportesPendientesRevisar = _contenedorTrabajo.Reporte.
+                            GetAllQueryable(r => r.TareaId == x.Id && r.Estado == EstadosReporte.PendienteRevisar).
+                            Count()
+                        }),
+                    Tarea = model.Tarea,
+                    ProyectoId = model.Tarea.ProyectoId
+                };
+
+                ViewBag.AbrirModalCrear = true;
+                return View("Index", vm);
+            }
+
+            if (model.Tarea.FechaEntrega < DateTime.Now)
+            {
+                ModelState.AddModelError("Tarea.FechaEntrega", "La fecha que intenta ingresar no es valida");
+
+                var lista = await _contenedorTrabajo.Tarea.GetAllAsync(t => t.Proyecto.Id == model.ProyectoId, includeProperties: "Proyecto,TareaEmpleados");
+
+                var vm = new TareaPanelVM
+                {
+                    Lista = lista.Select(x => new TareaCardVM
+                    {
+                        Tarea = x,
+                        ReportesPendientesRevisar = _contenedorTrabajo.Reporte.
+                            GetAllQueryable(r => r.TareaId == x.Id && r.Estado == EstadosReporte.PendienteRevisar).
+                            Count()
+                    }),
+                    Tarea = model.Tarea,
+                    ProyectoId = model.Tarea.ProyectoId
+                };
+
+                ViewBag.AbrirModalCrear = true;
+                return View("Index", vm);
+            }
+
+            model.Tarea.FechaInicio = DateTime.Now;
+
+            await _contenedorTrabajo.Tarea.AddAsync(model.Tarea);
+            await _contenedorTrabajo.SaveAsync();
+
+            return RedirectToAction("Index", new {id = model.Tarea.ProyectoId });
         }
 
         //[HttpGet]
