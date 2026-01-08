@@ -68,7 +68,12 @@
                                 </div>
                                 <div class="card-footer">
                                     <div class="d-flex justify-content-center gap-2">
-                                        <a class="btn btn-primary" asp-controller="ReportePanel" asp-action="Index" asp-route-id="@vm.Tarea.Id"><i class="bi bi-file-earmark-text"></i> Reportes</a>
+                                        @if(vm.Tarea.Estado != EstadosTarea.Finalizada)
+                                    {
+                                        <button type="button" class="btn btn-success" data-tarea-id ="@vm.Tarea.Id" 
+                                            data-nombre="@vm.Tarea.Nombre" data-bs-toggle="modal" data-bs-target="#modalFinalizar">Finalizar</button>
+                                    }
+                                    <a class="btn btn-primary" asp-controller="ReportePanel" asp-action="Index" asp-route-id="@vm.Tarea.Id"><i class="bi bi-file-earmark-text"></i> Reportes</a>
                                         <a class="btn btn-success" asp-controller="TareaEmpleados" asp-action="Index" asp-route-id="@vm.Tarea.Id"><i class="bi bi-people-fill"></i> Colaboradores</a>
                                     </div>
                                 </div>
@@ -122,8 +127,47 @@
     </div>
 </div>
 
+<!--Modal Finalizar-->
+<div class="modal fade" id="modalFinalizar">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h4 class="modal-title text-white">Finalizar tarea</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formCrear" method="post" asp-action="Finalizar">
+                <div class="modal-body">
+                    <input type="hidden" name="ProyectoId" value="@Model.ProyectoId"/> 
+                    <input type="hidden" class="input-tarea-id" name="TareaId" value="" />
+                    <strong>¿Quieres finalizar esta tarea?</strong>
+                    <p class="mostrar-nombre-tarea"><!--Aqui va el nombre y el id de la tarea--></p>
+                </div>
+                <div class="modal-footer">
+                    <div class="d-flex justify-content-center gap-2 mt-3">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-success">Finalizar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section Scripts{
     <partial name="_ValidationScriptsPartial"></partial>
+
+    <script>
+        const modal = document.getElementById('modalFinalizar');
+
+        modal.addEventListener('show.bs.modal', (e) => {
+            const boton = e.relatedTarget;
+            const tareaId = boton.getAttribute('data-tarea-id');
+            const nombre = boton.getAttribute('data-nombre');
+
+            modal.querySelector('.input-tarea-id').value = tareaId;
+            modal.querySelector('.mostrar-nombre-tarea').innerText = `${nombre} (Id: #${tareaId})`;
+        });
+    </script>
 
     @if(ViewBag.AbrirModalCrear)
     {
