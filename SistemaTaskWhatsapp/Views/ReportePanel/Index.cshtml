@@ -28,71 +28,70 @@
                 <div class="contenedor-cartas row row-cols-1 row-cols-md-3 gx-3 gy-3">
                     @foreach (var vm in Model)
                     {
-                        <div class="col">
-                            <div class="card shadow">
-                                <div class="card-header">
-                                    <div class="d-flex justify-content-between">
-                                        <h3 class="card-title">Id: #@vm.Id</h3>
-                                    </div>
+                      <div class="col">
+                        <div class="card shadow">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between">
+                                    <h3 class="card-title">Id: #@vm.Id</h3>
                                 </div>
-                                <div class="card-body text-start">
-                                    @{
-                                        string estadoColor;
-                                        switch (vm.Estado)
-                                        {
-                                            case EstadosReporte.PendienteRevisar:
-                                                estadoColor = "warning";
-                                                break;
-                                            case EstadosReporte.Aceptado:
-                                                estadoColor = "success";
-                                                break;
-                                            case EstadosReporte.Rechazado:
-                                                estadoColor = "danger";
-                                                break;
-                                            default:
-                                                estadoColor = "dark";
-                                                break;
-                                        }
+                            </div>
+                            <div class="card-body text-start">
+                                @{
+                                    string estadoColor;
+                                    switch(vm.Estado)
+                                    {
+                                        case EstadosReporte.PendienteRevisar:
+                                            estadoColor = "warning";
+                                            break;
+                                        case EstadosReporte.Aceptado:
+                                            estadoColor = "success";
+                                            break;
+                                        case EstadosReporte.Rechazado:
+                                            estadoColor = "danger";
+                                            break;
+                                        default:
+                                            estadoColor = "dark";
+                                            break;
                                     }
-                                    <strong>Colaborador:</strong> <span>@vm.Empleado.Usuario.Nombre</span>
-                                    <br />
-                                    <strong>Estado:</strong> <span class="badge bg-@estadoColor">@Html.DisplayFor(m => vm.Estado)</span>
-                                    <br />
-                                    <strong>Contenido:</strong>
-                                    <p>@vm.Contenido</p>
-                                    <strong>Inconvenientes:</strong>
-                                    <p>@(vm.Inconvenientes ?? "Sin inconvenientes")</p>
-                                    <strong>Comentarios:</strong>
-                                    <p>@(vm.ComentarioEmpleado ?? "Sin Comentarios")</p>
-                                    <p><strong>Fecha de subida:</strong> @vm.FechaSubida.ToString("dd/MM/yyyy")</p>
-                                </div>
-                                <div class="card-footer">
-                                    <div class="d-flex justify-content-center gap-2">
-                                        @if (vm.Evidencias != null && vm.Evidencias.Any())
-                                        {
-                                            var evidencia = vm.Evidencias.First();
+                                }
+                                <strong>Colaborador:</strong> <span>@vm.Empleado.Usuario.Nombre</span>
+                                <br />
+                                <strong>Estado:</strong> <span class="badge bg-@estadoColor">@Html.DisplayFor(m => vm.Estado)</span>
+                                <br />
+                                <strong>Contenido:</strong>
+                                <p>@vm.Contenido</p>
+                                <strong>Inconvenientes:</strong>
+                                <p>@(vm.Inconvenientes ?? "Sin inconvenientes")</p>
+                                <strong>Comentarios:</strong>
+                                <p>@(vm.ComentarioEmpleado ?? "Sin Comentarios")</p>
+                                <p><strong>Fecha de subida:</strong> @vm.FechaSubida.ToString("dd/MM/yyyy")</p>
+                            </div>
+                            <div class="card-footer">
+                                <div class="d-flex justify-content-center gap-2">
+                                    @if (vm.Evidencias != null && vm.Evidencias.Any()) 
+                                    {
 
-                                            <button class="btn btn-info btnPreviewEvidencia"
-                                                    style="color:white;"
-                                                    data-url="@evidencia.Url"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#modalPreviewEvidencia">
-                                                <i class="bi bi-file-earmark-text"></i>
-                                                Evidencia
-                                            </button>
-                                        }
-                                        @if (vm.Estado == EstadosReporte.PendienteRevisar)
-                                        {
-                                            <button class="btn btn-primary" data-reporteId="@vm.Id" data-bs-toggle="modal" data-bs-target="#modalRevisar"><i class="bi bi-clipboard-check"></i> Revisar</button>
-                                        }
-                                        else
-                                        {
-                                            <button class="btn btn-warning" data-reporteId="@vm.Id" data-bs-toggle="modal" data-bs-target="#modalDetalle"><i class="bi bi-eye-fill"></i> Ver retroalimentación</button>
-                                        }
-                                    </div>
+                                        <button class="btn btn-info btnPreviewEvidencia"
+                                                style="color:white;"
+                                                data-reporte-id="@vm.Id"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modalPreviewEvidencia">
+                                            <i class="bi bi-file-earmark-text"></i>
+                                            Evidencia
+                                        </button>
+                                    }
+                                    @if(vm.Estado == EstadosReporte.PendienteRevisar)
+                                    {
+                                        <button class="btn btn-primary" data-reporteId="@vm.Id" data-bs-toggle="modal" data-bs-target="#modalRevisar"><i class="bi bi-clipboard-check"></i> Revisar</button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-warning" data-reporteId="@vm.Id" data-bs-toggle="modal" data-bs-target="#modalDetalle"><i class="bi bi-eye-fill"></i> Ver retroalimentación</button>
+                                    }
                                 </div>
                             </div>
                         </div>
+                     </div>
                     }
                 </div>
 
@@ -100,24 +99,20 @@
     </div>
 </div>
 
-
 <!-- Modal Preview Evidencia -->
 <div class="modal fade" id="modalPreviewEvidencia" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">Vista previa de la evidencia</h5>
+                <h5 class="modal-title">Vista previa evidencia</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body text-center">
-                <div id="previewContainer" class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
-                    <p class="text-muted">Cargando vista previa...</p>
+                <div id="previewContainer" class="row g-3">
+                    <p class="text-muted text-center">Cargando evidencias...</p>
                 </div>
             </div>
             <div class="modal-footer">
-                <a id="btnDescargarArchivo" class="btn btn-success" target="_blank" download>
-                    <i class="fa-solid fa-download"></i> Descargar
-                </a>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
