@@ -33,60 +33,6 @@
                                     <h3 class="card-title">Id: #@vm.Id</h3>
                                 </div>
                             </div>
-                        </div>
-                        <div class="card-body text-start">
-                            @{
-                                string estadoColor;
-                                switch(vm.Estado)
-                                {
-                                    case EstadosReporte.PendienteRevisar:
-                                        estadoColor = "warning";
-                                        break;
-                                    case EstadosReporte.Aceptado:
-                                        estadoColor = "success";
-                                        break;
-                                    case EstadosReporte.Rechazado:
-                                        estadoColor = "danger";
-                                        break;
-                                    default:
-                                        estadoColor = "dark";
-                                        break;
-                                }
-                            }
-                            <strong>Colaborador:</strong> <span>@vm.Empleado.Usuario.Nombre</span>
-                            <br />
-                            <strong>Estado:</strong> <span class="badge bg-@estadoColor">@Html.DisplayFor(m => vm.Estado)</span>
-                            <br />
-                            <strong>Contenido:</strong>
-                            <p>@vm.Contenido</p>
-                            <strong>Inconvenientes:</strong>
-                            <p>@(vm.Inconvenientes ?? "Sin inconvenientes")</p>
-                            <strong>Comentarios:</strong>
-                            <p>@(vm.ComentarioEmpleado ?? "Sin Comentarios")</p>
-                            <p><strong>Fecha de subida:</strong> @vm.FechaSubida.ToString("dd/MM/yyyy")</p>
-                        </div>
-                        <div class="card-footer">
-                            <div class="d-flex justify-content-center gap-2">
-                                @if (vm.Evidencias != null && vm.Evidencias.Any()) 
-                                {
-                                    var evidencia = vm.Evidencias.First();
-
-                                    <button class="btn btn-info btnPreviewEvidencia"
-                                            style="color:white;"
-                                            data-url="@evidencia.Url"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#modalPreviewEvidencia">
-                                        <i class="bi bi-file-earmark-text"></i>
-                                        Evidencia
-                                    </button>
-                                }
-                                @if(vm.Estado == EstadosReporte.PendienteRevisar)
-                                {
-                                    <button class="btn btn-primary" data-reporteId="@vm.Id" data-bs-toggle="modal" data-bs-target="#modalRevisar"><i class="bi bi-clipboard-check"></i> Revisar</button>
-                                }
-                                else
-                                {
-                                    <button class="btn btn-warning" data-reporteId="@vm.Id" data-bs-toggle="modal" data-bs-target="#modalDetalle"><i class="bi bi-eye-fill"></i> Ver retroalimentación</button>
                             <div class="card-body text-start">
                                 @{
                                     string estadoColor;
@@ -119,7 +65,20 @@
                                 <p><strong>Fecha de subida:</strong> @vm.FechaSubida.ToString("dd/MM/yyyy")</p>
                             </div>
                             <div class="card-footer">
-                                <div class="d-flex justify-content-center">
+                                <div class="d-flex justify-content-center gap-2">
+                                    @if (vm.Evidencias != null && vm.Evidencias.Any()) 
+                                    {
+                                        var evidencia = vm.Evidencias.First();
+
+                                        <button class="btn btn-info btnPreviewEvidencia"
+                                                style="color:white;"
+                                                data-url="@evidencia.Url"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modalPreviewEvidencia">
+                                            <i class="bi bi-file-earmark-text"></i>
+                                            Evidencia
+                                        </button>
+                                    }
                                     @if(vm.Estado == EstadosReporte.PendienteRevisar)
                                     {
                                         <button class="btn btn-primary" data-reporteId="@vm.Id" data-bs-toggle="modal" data-bs-target="#modalRevisar"><i class="bi bi-clipboard-check"></i> Revisar</button>
