@@ -114,11 +114,19 @@ namespace SistemaTaskWhatsapp.Controllers
         {
             var tarea = await _contenedorTrabajo.Tarea.GetByIdAsync(TareaId);
 
-            if (tarea == null) return RedirectToAction("Index", new { id = ProyectoId });
+            if (tarea == null)
+            {
+                TempData["Mensaje"] = "Error al buscar la tarea";
+                TempData["TipoMensaje"] = "danger";
+                return RedirectToAction("Index", new { id = ProyectoId });
+            }
 
             if(await _contenedorTrabajo.Reporte.GetFirstOrDefaultAsync(r => r.TareaId == TareaId
                 && r.Estado == EstadosReporte.PendienteRevisar) != null)
             {
+                TempData["Mensaje"] = "Esta tarea tiene reportes sin revisar";
+                TempData["TipoMensaje"] = "danger";
+
                 return RedirectToAction("Index", new { id = ProyectoId });
             }
 
@@ -126,6 +134,9 @@ namespace SistemaTaskWhatsapp.Controllers
             tarea.FechaTermino = DateTime.Now;
 
             await _contenedorTrabajo.SaveAsync();
+
+            TempData["Mensaje"] = "Tarea finalizada con exito";
+            TempData["TipoMensaje"] = "success";
 
             return RedirectToAction("Index", new { id = ProyectoId });
         }
