@@ -108,6 +108,13 @@ namespace SistemaTaskWhatsapp.Controllers
 
             if (tarea == null) return RedirectToAction("Index");
 
+            if(await _contenedorTrabajo.Reporte
+                .GetFirstOrDefaultAsync(r => r.TareaId == tarea.Id 
+                && r.Estado == EstadosReporte.PendienteRevisar) != null)
+            {
+                return RedirectToAction("Index");
+            }
+
             tarea.Estado = EstadosTarea.Finalizada;
             tarea.FechaTermino = DateTime.Now;
 
