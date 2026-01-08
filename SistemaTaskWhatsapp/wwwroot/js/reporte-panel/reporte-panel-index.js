@@ -123,7 +123,7 @@ modal.addEventListener("show.bs.modal", function (event) {
                     contenidoArchivo = `
                         <iframe src="${evidencia.url}"
                                 class="w-100 rounded mb-2"
-                                style="height:180px;"></iframe>
+                                style="height:350px;"></iframe>
                     `;
                 }
                 else {
