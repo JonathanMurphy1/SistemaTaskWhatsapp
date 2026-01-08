@@ -55,7 +55,6 @@ modalDetalle.addEventListener('show.bs.modal', (e) => {
 });
 
 //Ver evidencia
-document.addEventListener("DOMContentLoaded", function () {
 
     const modal = document.getElementById("modalPreviewEvidencia");
     const previewContainer = document.getElementById("previewContainer");
@@ -68,7 +67,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         previewContainer.innerHTML = "";
         btnDescargar.href = url;
-
         const extension = url.split('.').pop().toLowerCase();
 
         if (["jpg", "jpeg", "png"].includes(extension)) {
@@ -95,5 +93,3 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
         }
     });
-
-});
