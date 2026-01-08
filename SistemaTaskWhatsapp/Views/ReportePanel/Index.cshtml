@@ -10,7 +10,7 @@
 
 <div class="text-center">
     <h1 class="display-4">Panel de reportes</h1>
-    <div class="container p-3 border rounded shadow">
+    <div class="container p-4 border rounded shadow">
         <h2>Reportes</h2>
         <br />
             @if (!Model.Any())
@@ -24,10 +24,12 @@
                     <h4>Tarea: @Model.First().Tarea.Nombre</h4>
                     <a class="btn btn-secondary" asp-controller="TareaPanel" asp-action="Index" asp-route-id="@proyectoId"><i class="bi bi-arrow-left"></i> Volver</a>
                 </div>
-                <div class="contenedor-cartas row-cols-1 row-cols-md-3 gap-4">
+                <br />
+                <div class="contenedor-cartas row row-cols-1 row-cols-md-3 gx-3 gy-3">
                     @foreach (var vm in Model)
                     {
-                        <div class="col card shadow">
+                      <div class="col">
+                        <div class="card shadow">
                             <div class="card-header">
                                 <div class="d-flex justify-content-between">
                                     <h3 class="card-title">Id: #@vm.Id</h3>
@@ -89,6 +91,7 @@
                                 </div>
                             </div>
                         </div>
+                     </div>
                     }
                 </div>
 
