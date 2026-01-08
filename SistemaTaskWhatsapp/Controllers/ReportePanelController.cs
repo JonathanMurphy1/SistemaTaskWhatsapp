@@ -74,6 +74,22 @@ namespace SistemaTaskWhatsapp.Controllers
             return Json(datos);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> EvidenciasReporte(int reporteId)
+        {
+            var evidencias = await _contenedorTrabajo.Evidencia.GetAllAsync(e => e.ReporteId == reporteId, includeProperties: "Reporte");
+
+            if (evidencias == null) return NotFound();
+
+            var datos = evidencias.Select(e => new
+            {
+                descripcion = e.Descripcion,
+                url = e.Url,
+            });
+
+            return Json(datos);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditarRevision(RevisarVM model)
