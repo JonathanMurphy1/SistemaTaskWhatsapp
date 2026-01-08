@@ -52,7 +52,6 @@ modalDetalle.addEventListener('show.bs.modal', (e) => {
         .catch(() => {
             return;
         });
-<<<<<<< HEAD
 });
 
 //Ver evidencia
@@ -98,7 +97,3 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 });
-
-=======
-});
->>>>>>> develop
