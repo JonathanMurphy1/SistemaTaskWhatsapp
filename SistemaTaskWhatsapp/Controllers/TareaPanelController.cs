@@ -108,110 +108,37 @@ namespace SistemaTaskWhatsapp.Controllers
             return RedirectToAction("Index", new {id = model.Tarea.ProyectoId });
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> Create()
-        //{
-        //    var model = new TareaVM
-        //    {
-        //        ListaProyectos = await _contenedorTrabajo.Proyecto.ObtenerProyectosVigentes(),
-        //    };
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Finalizar(int TareaId, int ProyectoId)
+        {
+            var tarea = await _contenedorTrabajo.Tarea.GetByIdAsync(TareaId);
 
-        //    return View(model);
-        //}
+            if (tarea == null)
+            {
+                TempData["Mensaje"] = "Error al buscar la tarea";
+                TempData["TipoMensaje"] = "danger";
+                return RedirectToAction("Index", new { id = ProyectoId });
+            }
 
-        //[HttpPost]
-        //public async Task<IActionResult> Create(TareaVM model)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        model.ListaProyectos = await _contenedorTrabajo.Proyecto.ObtenerProyectosVigentes();
-        //        return View(model);
-        //    }
+            if(await _contenedorTrabajo.Reporte.GetFirstOrDefaultAsync(r => r.TareaId == TareaId
+                && r.Estado == EstadosReporte.PendienteRevisar) != null)
+            {
+                TempData["Mensaje"] = "Esta tarea tiene reportes sin revisar";
+                TempData["TipoMensaje"] = "danger";
 
-        //    if (model.Tarea.FechaEntrega < DateTime.Now)
-        //    {
-        //        ModelState.AddModelError("Tarea.Fechaentrega", "La fecha de entrega debe ser mayor a la actual");
-        //        model.ListaProyectos = await _contenedorTrabajo.Proyecto.ObtenerProyectosVigentes();
-        //        return View(model);
-        //    }
+                return RedirectToAction("Index", new { id = ProyectoId });
+            }
 
-        //    model.Tarea.FechaInicio = DateTime.Now;
+            tarea.Estado = EstadosTarea.Finalizada;
+            tarea.FechaTermino = DateTime.Now;
 
-        //    await _contenedorTrabajo.Tarea.AddAsync(model.Tarea);
-        //    await _contenedorTrabajo.SaveAsync();
+            await _contenedorTrabajo.SaveAsync();
 
-        //    return RedirectToAction("Index");
-        //}
+            TempData["Mensaje"] = "Tarea finalizada con exito";
+            TempData["TipoMensaje"] = "success";
 
-        //[HttpGet]
-        //public async Task<IActionResult> Edit(int id)
-        //{
-        //    var tarea = await _contenedorTrabajo.Tarea.GetByIdAsync(id);
-
-        //    if (tarea == null) return RedirectToAction("Index");
-
-        //    var model = new TareaVM
-        //    {
-        //        Tarea = tarea,
-        //        ListaProyectos = await _contenedorTrabajo.Proyecto.ObtenerProyectosVigentes(),
-        //    };
-
-        //    return View(model);
-        //}
-
-        //[HttpPost]
-        //public async Task<IActionResult> Edit(TareaVM model)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        model.ListaProyectos = await _contenedorTrabajo.Proyecto.ObtenerProyectosVigentes();
-        //        return View(model);
-        //    }
-
-        //    if (model.Tarea.FechaEntrega < DateTime.Now)
-        //    {
-        //        ModelState.AddModelError("Tarea.Fechaentrega", "La fecha de entrega debe ser mayor a la actual");
-        //        model.ListaProyectos = await _contenedorTrabajo.Proyecto.ObtenerProyectosVigentes();
-        //        return View(model);
-        //    }
-
-        //    if (model.Tarea.Estado == EstadosTarea.Finalizada)
-        //    {
-        //        model.Tarea.FechaTermino = DateTime.Now;
-        //    }
-
-        //    _contenedorTrabajo.Tarea.Update(model.Tarea);
-        //    await _contenedorTrabajo.SaveAsync();
-
-        //    return RedirectToAction("Index");
-        //}
-
-        //[HttpPost]
-        //public async Task<IActionResult> Finalizar(int id)
-        //{
-        //    var tarea = await _contenedorTrabajo.Tarea.GetByIdAsync(id);
-
-        //    if (tarea == null) return RedirectToAction("Index");
-
-        //    tarea.Estado = EstadosTarea.Finalizada;
-        //    tarea.FechaTermino = DateTime.Now;
-
-        //    await _contenedorTrabajo.SaveAsync();
-
-        //    return RedirectToAction("Index");
-        //}
-
-        //[HttpPost]
-        //public async Task<IActionResult> Delete(int id)
-        //{
-        //    var tarea = await _contenedorTrabajo.Tarea.GetByIdAsync(id);
-
-        //    if (tarea == null) return RedirectToAction("Index");
-
-        //    _contenedorTrabajo.Tarea.Remove(tarea);
-        //    await _contenedorTrabajo.SaveAsync();
-
-        //    return RedirectToAction("Index");
-        //}
+            return RedirectToAction("Index", new { id = ProyectoId });
+        }
     }
 }

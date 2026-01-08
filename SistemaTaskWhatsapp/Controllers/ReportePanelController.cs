@@ -58,7 +58,7 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpGet]
         public async Task<IActionResult> ObtenerRevision(int reporteId)
         {
-            var revision = await _contenedorTrabajo.Retroalimentacion.GetFirstOrDefaultAsync(r => r.Id == reporteId, includeProperties:"Reporte,Supervisor");
+            var revision = await _contenedorTrabajo.Retroalimentacion.GetFirstOrDefaultAsync(r => r.ReporteId == reporteId, includeProperties:"Reporte,Supervisor");
 
             if(revision == null) return NotFound();
 

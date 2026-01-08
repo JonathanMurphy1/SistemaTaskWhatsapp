@@ -1,4 +1,5 @@
 ﻿@model SistemaTaskWhatsapp.Models.ViewModels.ColaboradoresVM
+@using SistemaTaskWhatsapp.Utilidades
 
 @{
     ViewData["Title"] = "Colaboradores";
@@ -11,20 +12,23 @@
         <a asp-controller="TareaPanel" asp-action="Index" asp-route-id="@proyectoId" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
     </div>
 
-    <div class="border rounded shadow p-4 mb-3 col-6">
-        <h4>Agregar nuevo colaborador</h4>
-        <form method="post" asp-action="Create">
-            <div class="form-group">
-                <label for="colaborador">Colaborador: </label>
-                <select id="colaborador" class="form-select" asp-items="@Model.ListaEmpleados" name="colaboradorId">
-                    <option disabled selected value="">--Elija un colaborador--</option>
-                </select>
-            </div>
-            <input type="hidden" name="tareaId" value="@Model.Tarea?.Id"/>
-            <br />
-            <button type="submit" class="btn btn-success">Asignar</button>
-        </form>
-    </div>
+    @if(Model.Tarea.Estado != EstadosTarea.Finalizada)
+    {
+        <div class="border rounded shadow p-4 mb-3 col-6">
+            <h4>Agregar nuevo colaborador</h4>
+            <form method="post" asp-action="Create">
+                <div class="form-group">
+                    <label for="colaborador">Colaborador: </label>
+                    <select id="colaborador" class="form-select" asp-items="@Model.ListaEmpleados" name="colaboradorId">
+                        <option disabled selected value="">--Elija un colaborador--</option>
+                    </select>
+                </div>
+                <input type="hidden" name="tareaId" value="@Model.Tarea?.Id" />
+                <br />
+                <button type="submit" class="btn btn-success">Asignar</button>
+            </form>
+        </div>
+    }
     
     <table class="table table-bordered table-striped table-hover shadow">
         <thead>
@@ -47,11 +51,19 @@
                             <tr>
                                 <td>@tareaEmpleado.Empleado?.Nombre (Email: @tareaEmpleado.Empleado.Usuario.Email)</td>
                                 <td>
-                                    <form asp-action="Delete" method="post" >
-                                        <input type="hidden" value="@tareaEmpleado.Id" name="tareaEmpleadoId"/>
-                                        <input type="hidden" value="@tareaEmpleado.TareaId" name="tareaId" />    
-                                        <button type="submit" class="btn btn-danger">Quitar</button>
-                                    </form>
+                                    @if(Model.Tarea.Estado != EstadosTarea.Finalizada)
+                                    {
+                                        <form asp-action="Delete" method="post">
+                                            <input type="hidden" value="@tareaEmpleado.Id" name="tareaEmpleadoId" />
+                                            <input type="hidden" value="@tareaEmpleado.TareaId" name="tareaId" />
+                                            <button type="submit" class="btn btn-danger">Quitar</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Acciones no disponibles</span>
+                                    }
+
                                 </td>
                             </tr>
                         }
