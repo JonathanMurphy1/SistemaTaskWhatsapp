@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SistemaTaskWhatsapp.Utilidades;
 
 namespace SistemaTaskWhatsapp.Services
 {
@@ -38,6 +39,7 @@ namespace SistemaTaskWhatsapp.Services
         {
             //Formatear el telefono de twilio
             string? telefonoFormateado = null;
+            string respuesta = "";
 
             if (from.Length > 10)
             {
@@ -46,15 +48,46 @@ namespace SistemaTaskWhatsapp.Services
 
             var mensaje = body.Trim();
             var mensajeMayus = body.Trim().ToUpper();
-            var supervisor = await _contenedorTrabajo.Supervisor.GetFirstOrDefaultAsync(c => c.Usuario.Telefono == telefonoFormateado);
-            var empleado = await _contenedorTrabajo.Empleado.GetFirstOrDefaultAsync(o => o.Usuario.Telefono == telefonoFormateado);
-            //var sesion = await _contenedorTrabajo.ChatSession.GetFirstOrDefaultAsync(s => s.Numero == from);
+            var usuario = await _contenedorTrabajo.Usuario.GetFirstOrDefaultAsync(u => u.Telefono == telefonoFormateado);
 
-            string respuesta = "Ya entra en el servicio\n" +
-                $"Escribiste esto: {mensaje}\n" +
-                $"Desde: {telefonoFormateado}";
+            //Si no esta registrado con su numero lanza un mensaje
+            if (usuario == null)
+            {
+                respuesta = "No estas regristrado en el sistema";
+                return respuesta;
+            }
 
-            return respuesta;
+            var sesion = await _contenedorTrabajo.ChatSession.GetFirstOrDefaultAsync(s => s.Numero == from);
+
+            //Si no tiene sesion la crea
+            if(sesion == null)
+            {
+                sesion = new Models.ChatSession
+                {
+                    Numero = from,
+                    EstadoStep = "Inicio"
+                };
+
+                await _contenedorTrabajo.ChatSession.AddAsync(sesion);
+                await _contenedorTrabajo.SaveAsync();
+            }
+
+            if(usuario.Rol == Roles.Supervisor)
+            {
+                respuesta = "Eres supervisor";
+                //De aqui mandalo a un servicio especifico para el supervisor
+            }
+            else if (usuario.Rol == Roles.Empleado)
+            {
+                respuesta = "Eres minion";
+                //De aqui mandalo a un servicio especifico para el empleado
+            }
+            else
+            {
+                respuesta = "Hubo un error, rol no valido";
+            }
+
+                return respuesta;
         }
     }
 }
