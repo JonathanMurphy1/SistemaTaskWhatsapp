@@ -60,6 +60,8 @@ namespace SistemaTaskWhatsapp.Controllers
             {
                 ModelState.Remove("Empleado.Estado");
             }
+            
+            await ValidarDuplicidadCampos(model.Email, model.Telefono);
 
             if (!ModelState.IsValid)
             {
@@ -298,17 +300,22 @@ namespace SistemaTaskWhatsapp.Controllers
         //Funciones
         private async Task ValidarDuplicidadCampos(string email, string telefono, int? id = null)
         {
-            var duplicado = await _contenedorTrabajo.Usuario.GetFirstOrDefaultAsync(u =>
-                (u.Email == email || u.Telefono == telefono) &&
-                u.Id != id.Value);
+            var emailDuplicado = await _contenedorTrabajo.Usuario
+                .GetFirstOrDefaultAsync(u =>
+                         u.Email == email && (id == null || u.Id != id));
 
-            if (duplicado != null)
+            if (emailDuplicado != null)
             {
-                if (duplicado.Email == email)
-                    ModelState.AddModelError("Email", "Este correo ya está registrado.");
+                ModelState.AddModelError("Email", "Este correo ya está registrado.");
+            }
 
-                if (duplicado.Telefono == telefono)
-                    ModelState.AddModelError("Telefono", "Este teléfono ya está registrado.");
+            var telefonoDuplicado = await _contenedorTrabajo.Usuario
+                .GetFirstOrDefaultAsync(u =>
+                    u.Telefono == telefono && (id == null || u.Id != id));
+
+            if (telefonoDuplicado != null)
+            {
+                ModelState.AddModelError("Telefono", "Este teléfono ya está registrado.");
             }
         }
     }
