@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SistemaTaskWhatsapp.Services;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Data;
@@ -18,6 +19,13 @@ builder.Services.AddControllersWithViews();
 
 //Contenedor de trabajo
 builder.Services.AddScoped<IContenedorTrabajo, ContenedorTrabajo>();
+
+//Registrar servicio de whatsapp
+builder.Services.AddSingleton(new WhatsAppService(
+    builder.Configuration["Twilio:AccountSid"],
+    builder.Configuration["Twilio:AuthToken"],
+    builder.Configuration["Twilio:WhatsAppNumber"]
+));
 
 var app = builder.Build();
 
