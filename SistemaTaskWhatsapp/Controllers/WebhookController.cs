@@ -13,14 +13,14 @@ namespace SistemaTaskWhatsapp.Areas.WhatsApp.Controllers
     public class WebhookController : ControllerBase
     {
         private readonly WhatsAppService _whatsapp;
-       // private readonly WhatsAppFlowService _whatsAppFlowService;
+        private readonly WhatsAppFlowService _whatsAppFlowService;
         private readonly IContenedorTrabajo _contenedorTrabajo;
 
-        public WebhookController(WhatsAppService whatsApp, IContenedorTrabajo contenedorTrabajo  /*, WhatsAppFlowService whatsAppFlowService*/)
+        public WebhookController(WhatsAppService whatsApp, IContenedorTrabajo contenedorTrabajo, WhatsAppFlowService whatsAppFlowService)
         {
             _whatsapp = whatsApp;
             _contenedorTrabajo = contenedorTrabajo;
-            //_whatsAppFlowService = whatsAppFlowService;
+            _whatsAppFlowService = whatsAppFlowService;
         }
 
         [HttpPost("Receive")]
@@ -56,7 +56,7 @@ namespace SistemaTaskWhatsapp.Areas.WhatsApp.Controllers
             //    mediaContentType
             //);
 
-            string respuesta = "Hola mundo";
+            string respuesta = await _whatsAppFlowService.ProcesarMensajeAsync(from, body);
             var twiml = new Twilio.TwiML.MessagingResponse();
             twiml.Message(respuesta);
 

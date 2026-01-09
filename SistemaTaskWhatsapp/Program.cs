@@ -20,6 +20,8 @@ builder.Services.AddControllersWithViews();
 //Contenedor de trabajo
 builder.Services.AddScoped<IContenedorTrabajo, ContenedorTrabajo>();
 
+builder.Services.AddScoped<WhatsAppFlowService>();
+
 //Registrar servicio de whatsapp
 builder.Services.AddSingleton(new WhatsAppService(
     builder.Configuration["Twilio:AccountSid"],
