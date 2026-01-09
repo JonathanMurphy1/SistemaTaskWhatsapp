@@ -10,16 +10,19 @@ namespace SistemaTaskWhatsapp.Models.ViewModels
 {
     public class UsuarioCreateVM
     {
-        [Required]
+        [Required(ErrorMessage = "Escriba el nombre")]
         public string Nombre { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Escriba el Email")]
+        [EmailAddress(ErrorMessage = "El email no es válido")]
         public string Email { get; set; }
 
-        [Required]
+
+        [Required(ErrorMessage = "Escriba la contraseña")]
         public string Password { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Escriba el teléfono")]
+        [RegularExpression(@"^\d{10}$", ErrorMessage = "El teléfono solo deben de ser 10 números.")]
         public string Telefono { get; set; }
 
         [Required(ErrorMessage = "Seleccione un rol")]
