@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SistemaTaskWhatsapp.Utilidades;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository;
+using SistemaTaskWhatsapp.Utilidades;
 
 namespace SistemaTaskWhatsapp.Services
 {
@@ -19,18 +20,18 @@ namespace SistemaTaskWhatsapp.Services
         //private readonly UserManager<Usuario> _userManager;
         private readonly IConfiguration _config;
         private readonly string _baseUrl;
-        private readonly IEmpleadoFlowService _empleadoFlow;
+        private readonly IEmpleadoFlowService _empleadoFlowService;
 
         public WhatsAppFlowService(
             IContenedorTrabajo contenedorTrabajo,
             /*UserManager<Usuario> userManager,*/
             IConfiguration config,
-            IEmpleadoFlowService empleadoFlow)
+            IEmpleadoFlowService empleadoFlowService)
         {
             _contenedorTrabajo = contenedorTrabajo;
             //_userManager = userManager;
             _config = config;
-            _empleadoFlow = empleadoFlow;
+            _empleadoFlowService = empleadoFlowService;
 
             _baseUrl = _config["BaseUrl"];
         }
@@ -83,9 +84,8 @@ namespace SistemaTaskWhatsapp.Services
             }
             else if (usuario.Rol == Roles.Empleado)
             {
-                //respuesta = "Eres minion";
                 //De aqui mandalo a un servicio especifico para el empleado
-                respuesta = await _empleadoFlow.ProcesarAsync(
+                respuesta = await _empleadoFlowService.ProcesarAsync(
                     usuario,
                     sesion,
                     mensaje
