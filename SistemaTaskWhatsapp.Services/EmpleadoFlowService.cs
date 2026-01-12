@@ -5,12 +5,13 @@ using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Data;
 using SistemaTaskWhatsapp.Models;
 using SistemaTaskWhatsapp.Utilidades;
+using SistemaTaskWhatsapp.Utilidades;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using SistemaTaskWhatsapp.Utilidades;
 
 namespace SistemaTaskWhatsapp.Services
 {
@@ -45,12 +46,23 @@ namespace SistemaTaskWhatsapp.Services
                     var tareasPendientes = await _contenedorTrabajo.Tarea.GetAllAsync(t => t.Estado == EstadosTarea.Pendiente);
                     var retroalimentacionesPendientes = await _contenedorTrabajo.Retroalimentacion.GetAllAsync(r => r.VistoEmpleado == false);
 
+                    //var tareasPendientes = await _contenedorTrabajo.Tarea.GetAllAsync(
+                    //                 t => t.Estado == EstadosTarea.Pendiente && t.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id)
+                    //);
+
+                    //var retroPendientes = await _contenedorTrabajo.Retroalimentacion.GetAllAsync(
+                    //                r => !r.VistoEmpleado &&
+                    //                     r.Reporte.Tarea.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id)
+                    //);
+
+
                     return $"Buen dia {usuario.Nombre}\n" +
                         "---------------------------------------------\n" +
                         "Elija una opción\n" +
                         "*1*.Consultar tareas\n" +
                         "*2*.Enviar reporte\n" +
                         "*3*.Revisar retroalimentaciones pendientes\n" +
+                         "---------------------------------------------\n" +
                         $"Hay *{tareasPendientes.Count()}* tareas sin revisar\n" +
                         $"Hay *{retroalimentacionesPendientes.Count()}* retroalimentaciones sin revisar";
 
@@ -61,7 +73,43 @@ namespace SistemaTaskWhatsapp.Services
                     switch (mensaje)
                     {
                         case "1":
-                            return "Elejiste la opción 1";
+                            //return "Elejiste la opción 1";
+                            var listaTarea = await _contenedorTrabajo.Tarea.GetAllAsync(t => t.Estado == EstadosTarea.Pendiente, includeProperties: "Proyecto");
+
+                            //var listaTarea = await _contenedorTrabajo.Tarea.GetAllAsync(
+                            //               t => t.Estado == EstadosTarea.Pendiente &&
+                            //                    t.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id),
+                            //               includeProperties: "Proyecto"
+                            //           );
+
+                            if (listaTarea == null || !listaTarea.Any())
+                            {
+                                mensaje = "No hay Tareas en este momento, Felicidades.\n Escriba cualquier cosa para volver al menu de inicio";
+                                sesion.EstadoStep = "Inicio";
+                            }
+                            else
+                            {
+                                mensaje = "Mis tareas pendientes\n" +
+                                    "__________________________________________________\n";
+
+                                foreach (var item in listaTarea)
+                                {
+                                    mensaje += $"Nombre: {item.Nombre}\n" +
+                                        $"Proyecto: {item.Proyecto?.Nombre}\n" +
+                                        $"Descripción: {item.Descripcion}\n" +
+                                        $"Fecha de inicio: {item.FechaInicio:dd/MM/yyyy}\n" +
+                                        $"Fecha de entrega: {item.FechaEntrega:dd/MM/yyyy}\n" +
+                                        $"_____________________________________________________\n";
+                                }
+                            }
+
+                            mensaje += "\nEscriba cualquier cosa para volver al menú principal.";
+
+                            sesion.EstadoStep = "Inicio";
+                            await _contenedorTrabajo.SaveAsync();
+
+                            return mensaje;
+
                         case "2":
                             return "Elejiste la opción 2";
                         case "3":
