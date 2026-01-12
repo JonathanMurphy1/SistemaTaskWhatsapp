@@ -13,6 +13,9 @@ namespace SistemaTaskWhatsapp.Models.ViewModels
         public int? RevisionId { get; set; }
         [Required]
         public int TareaId { get; set; }
+
+        public int? SupervisorId { get; set; }
+
         [Required]
         public int ReporteId { get; set; }
         [Required]
