@@ -18,15 +18,18 @@ namespace SistemaTaskWhatsapp.Services
         //private readonly UserManager<Usuario> _userManager;
         private readonly IConfiguration _config;
         private readonly string _baseUrl;
+        private readonly ISupervisorFlowService _supervisorFlowService;
 
         public WhatsAppFlowService(
             IContenedorTrabajo contenedorTrabajo,
             /*UserManager<Usuario> userManager,*/
-            IConfiguration config)
+            IConfiguration config,
+            ISupervisorFlowService supervisorFlowService)
         {
             _contenedorTrabajo = contenedorTrabajo;
             //_userManager = userManager;
             _config = config;
+            _supervisorFlowService = supervisorFlowService; 
 
             _baseUrl = _config["BaseUrl"];
         }
