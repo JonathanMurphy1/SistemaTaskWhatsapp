@@ -43,18 +43,16 @@ namespace SistemaTaskWhatsapp.Services
                     sesion.EstadoStep = "Menu";
                     await _contenedorTrabajo.SaveAsync();
 
-                    var tareasPendientes = await _contenedorTrabajo.Tarea.GetAllAsync(t => t.Estado == EstadosTarea.Pendiente);
-                    var retroalimentacionesPendientes = await _contenedorTrabajo.Retroalimentacion.GetAllAsync(r => r.VistoEmpleado == false);
+                    var tareasPendientes = await _contenedorTrabajo.Tarea.GetAllAsync(
+                                     t => t.Estado == EstadosTarea.Pendiente && t.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id)
+                    );
 
-                    //var tareasPendientes = await _contenedorTrabajo.Tarea.GetAllAsync(
-                    //                 t => t.Estado == EstadosTarea.Pendiente && t.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id)
-                    //);
+                    var retroalimentacionesPendientes = await _contenedorTrabajo.Retroalimentacion.GetAllAsync(r => r.VistoEmpleado == false);
 
                     //var retroPendientes = await _contenedorTrabajo.Retroalimentacion.GetAllAsync(
                     //                r => !r.VistoEmpleado &&
                     //                     r.Reporte.Tarea.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id)
                     //);
-
 
                     return $"Buen dia {usuario.Nombre}\n" +
                         "---------------------------------------------\n" +
@@ -73,14 +71,12 @@ namespace SistemaTaskWhatsapp.Services
                     switch (mensaje)
                     {
                         case "1":
-                            //return "Elejiste la opción 1";
-                            var listaTarea = await _contenedorTrabajo.Tarea.GetAllAsync(t => t.Estado == EstadosTarea.Pendiente, includeProperties: "Proyecto");
 
-                            //var listaTarea = await _contenedorTrabajo.Tarea.GetAllAsync(
-                            //               t => t.Estado == EstadosTarea.Pendiente &&
-                            //                    t.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id),
-                            //               includeProperties: "Proyecto"
-                            //           );
+                            var listaTarea = await _contenedorTrabajo.Tarea.GetAllAsync(
+                                           t => t.Estado == EstadosTarea.Pendiente &&
+                                                t.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id),
+                                                includeProperties: "Proyecto"
+                            );
 
                             if (listaTarea == null || !listaTarea.Any())
                             {
@@ -104,7 +100,6 @@ namespace SistemaTaskWhatsapp.Services
                             }
 
                             mensaje += "\nEscriba cualquier cosa para volver al menú principal.";
-
                             sesion.EstadoStep = "Inicio";
                             await _contenedorTrabajo.SaveAsync();
 
