@@ -44,15 +44,12 @@ namespace SistemaTaskWhatsapp.Services
                     await _contenedorTrabajo.SaveAsync();
 
                     var tareasPendientes = await _contenedorTrabajo.Tarea.GetAllAsync(
-                                     t => t.Estado == EstadosTarea.Pendiente && t.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id)
+                                t => t.Estado == EstadosTarea.Pendiente && t.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id)
                     );
 
-                    var retroalimentacionesPendientes = await _contenedorTrabajo.Retroalimentacion.GetAllAsync(r => r.VistoEmpleado == false);
-
-                    //var retroPendientes = await _contenedorTrabajo.Retroalimentacion.GetAllAsync(
-                    //                r => !r.VistoEmpleado &&
-                    //                     r.Reporte.Tarea.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id)
-                    //);
+                    var retroalimentacionesPendientes = await _contenedorTrabajo.Retroalimentacion.GetAllAsync(
+                                r => !r.VistoEmpleado && r.Reporte.Tarea.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id)
+                    );
 
                     return $"Buen dia {usuario.Nombre}\n" +
                         "---------------------------------------------\n" +
@@ -73,14 +70,13 @@ namespace SistemaTaskWhatsapp.Services
                         case "1":
 
                             var listaTarea = await _contenedorTrabajo.Tarea.GetAllAsync(
-                                           t => t.Estado == EstadosTarea.Pendiente &&
-                                                t.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id),
-                                                includeProperties: "Proyecto"
+                                            t => t.Estado == EstadosTarea.Pendiente && t.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id),
+                                            includeProperties: "Proyecto"
                             );
 
                             if (listaTarea == null || !listaTarea.Any())
                             {
-                                mensaje = "No hay Tareas en este momento, Felicidades.\n Escriba cualquier cosa para volver al menu de inicio";
+                                mensaje = "No hay tareas en este momento, Felicidades.\n Escriba cualquier cosa para volver al menu de inicio";
                                 sesion.EstadoStep = "Inicio";
                             }
                             else
@@ -108,7 +104,39 @@ namespace SistemaTaskWhatsapp.Services
                         case "2":
                             return "Elejiste la opción 2";
                         case "3":
-                            return "Elejiste la opción 3";
+                            var listaRetroalimentacion = await _contenedorTrabajo.Retroalimentacion.GetAllAsync(
+                                                  r => !r.VistoEmpleado &&
+                                                  r.Reporte.Tarea.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id),
+                                                  includeProperties: "Reporte,Supervisor"
+                            );
+
+                            if (listaRetroalimentacion == null || !listaRetroalimentacion.Any())
+                            {
+                                mensaje = "No hay retroalimentaciones en este momento.\n Escriba cualquier cosa para volver al menu de inicio";
+                                sesion.EstadoStep = "Inicio";
+                            }
+                            else
+                            {
+                                mensaje = "Mis retroalimentaciones\n" +
+                                    "__________________________________________________\n";
+
+                                foreach (var item in listaRetroalimentacion)
+                                {
+                                    mensaje += $"Reporte: {item.Reporte?.Nombre}\n" +
+                                        $"Hecho por: {item.Supervisor?.Nombre}\n" +
+                                        $"Fecha: {item.Fecha:dd/MM/yyyy}\n" +
+                                        $"Descripción: {item.Comentario}\n" +
+                                        $"_____________________________________________________\n";
+
+                                    item.VistoEmpleado = true;
+                                }
+                            }
+
+                            sesion.EstadoStep = "Inicio";
+                            await _contenedorTrabajo.SaveAsync();
+                            mensaje += "\nEscriba cualquier cosa para volver al menú principal.";
+
+                            return mensaje;
                         default:
                             return "Opción no valida";
                     }
