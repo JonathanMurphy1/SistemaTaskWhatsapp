@@ -77,7 +77,8 @@ namespace SistemaTaskWhatsapp.Services
 
             if(usuario.Rol == Roles.Supervisor)
             {
-                respuesta = "Eres supervisor";
+                //respuesta = "Eres supervisor";
+                respuesta = await _supervisorFlowService.ProcesarAsync(usuario, sesion, mensaje);
                 //De aqui mandalo a un servicio especifico para el supervisor
             }
             else if (usuario.Rol == Roles.Empleado)
