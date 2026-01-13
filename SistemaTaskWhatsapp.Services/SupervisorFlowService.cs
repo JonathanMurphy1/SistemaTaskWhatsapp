@@ -1,12 +1,13 @@
 ﻿using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Models;
+using SistemaTaskWhatsapp.Models.ViewModels;
+using SistemaTaskWhatsapp.Utilidades;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SistemaTaskWhatsapp.Utilidades;
-using SistemaTaskWhatsapp.Models.ViewModels;
+using static System.Net.WebRequestMethods;
 
 namespace SistemaTaskWhatsapp.Services
 {
@@ -96,7 +97,21 @@ namespace SistemaTaskWhatsapp.Services
                             break;
                         //Asignar tarea
                         case "3":
-                            respuesta = "Elejiste la opción 3";
+                            respuesta = "Elija una tarea\n" +
+                                "----------------------------------\n";
+                            var tareas = await _contenedorTrabajo.Tarea.GetAllAsync(t => t.Estado == EstadosTarea.Pendiente, includeProperties:"Proyecto.Empresa,TareaEmpleados");
+
+                            foreach (var item in tareas)
+                            {
+                                int numColaboradores = item.TareaEmpleados.Count();
+                                respuesta += $"Id: {item.Id}\n" +
+                                    $"Nombre: {item.Nombre}\n" +
+                                    $"Proyecto: {item.Proyecto.Nombre}\n" +
+                                    $"Empresa: {item.Proyecto.Empresa.Nombre}\n" +
+                                    $"Colaboradores: {(numColaboradores > 0 ? numColaboradores : "Sin colaboradores")}\n" +
+                                    $"---------------------------------------\n";
+                            }
+                            sesion.EstadoStep = "EleccionTarea";
                             break;
                         case "4":
                             respuesta = "Elejiste la opción 4";
@@ -215,7 +230,28 @@ namespace SistemaTaskWhatsapp.Services
                     sesion.EstadoStep = "Inicio";
                     sesion.DatosParciales = "";
                     _contenedorTrabajo.Reporte.Update(reporte);
+                    break;
+                //Eleccion del proyecto
+                case "EleccionTarea":
+                    if (!int.TryParse(mensaje, out int tareaId))
+                    {
+
+                        respuesta = "Ingrese un valor valido"; // o maneja el error
                         break;
+                    }
+
+                    var tarea = await _contenedorTrabajo.Tarea
+                        .GetFirstOrDefaultAsync(t => t.Id == tareaId && t.Estado == EstadosTarea.Pendiente);
+
+                    if(tarea == null)
+                    {
+                        respuesta = "No se encontro la tarea";
+                        break;
+                    }
+
+                    respuesta = $"Ingrese al siguente link para registrar colaboradores a una tarea: https://4cmlk6kl-7045.usw3.devtunnels.ms/TareaEmpleados/Index/{tarea.Id}";
+                    sesion.EstadoStep = "Inicio";
+                    break;
                 //Si el paso de la sesion no es valido
                 default:
                     respuesta = "Opción no valida";
