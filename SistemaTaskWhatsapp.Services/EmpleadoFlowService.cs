@@ -4,6 +4,7 @@ using SistemaTaskWhatsapp.AccesoDatos.Data.Repository;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Data;
 using SistemaTaskWhatsapp.Models;
+using SistemaTaskWhatsapp.Models.ViewModels;
 using SistemaTaskWhatsapp.Utilidades;
 using SistemaTaskWhatsapp.Utilidades;
 using System;
@@ -29,6 +30,9 @@ namespace SistemaTaskWhatsapp.Services
            ChatSession sesion,
            string mensaje)
         {
+            string respuesta = "";
+            string mensajeLower = mensaje.ToLower();
+
             var empleado = await _contenedorTrabajo.Empleado.GetFirstOrDefaultAsync(e => e.UsuarioId == usuario.Id);
 
             if (empleado == null) return "No se encontro el empleado";
@@ -103,15 +107,16 @@ namespace SistemaTaskWhatsapp.Services
 
                             return mensaje;
 
-                        //Enviar reporte////////////////
+                        //Enviar reporte/////////////////////////////////////////////
                         case "2":
 
-                            mensaje = "Por favor escriba el ID de la tarea.";
-                            sesion.EstadoStep = "Validar";
+                            respuesta += "Ingresa el Id de la tarea para hacer su reporte.\n" +
+                             "Escribe *Inicio* para volver al menú principal";
 
-                            return "Elejiste la opción 2";
+                            sesion.EstadoStep = "ValidarTarea";
+                            break;
 
-                        //Ver retroalimentaciones////////////////
+                        //Ver retroalimentaciones///////////////////////////////////
                         case "3":
                             var listaRetroalimentacion = await _contenedorTrabajo.Retroalimentacion.GetAllAsync(
                                                   r => !r.VistoEmpleado && r.Reporte.Tarea.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id),
@@ -148,6 +153,109 @@ namespace SistemaTaskWhatsapp.Services
                         default:
                             return "Opción no valida";
                     }
+                    break;
+                //Validar tarea
+                case "ValidarTarea":
+                    sesion.DatosParciales = "";
+
+                    if (mensajeLower == "inicio")
+                    {
+                        respuesta = "Volviendo al inicio";
+                        break;
+                    }
+
+                    var tarea = await _contenedorTrabajo.Tarea
+                        .GetFirstOrDefaultAsync(t => t.Id.ToString() == mensaje && t.Estado == EstadosTarea.Pendiente);
+
+                    if (tarea == null)
+                    {
+                        respuesta = "La tarea seleccionada no se encontró o ya se finalizó";
+                        break;
+                    }
+
+                    respuesta =
+                        $"Tarea encontrada\n" +
+                        $"---------------------------------------------\n" +
+                        $"Nombre: {tarea.Nombre}\n" +
+                        $"Descripción: {tarea.Descripcion}\n" +
+                        $"Fecha de entrega: {tarea.FechaEntrega:dd/MM/yyyy}\n" +
+                        $"---------------------------------------------\n" +
+                        $"Por favor escriba el nombre que tendrá su reporte";
+
+                    sesion.EstadoStep = "NombreReporte";
+
+                    var reporte = new Reporte
+                    {
+                        TareaId = tarea.Id,
+                        EmpleadoId = empleado.Id,
+                        FechaSubida = DateTime.Now
+                    };
+
+                    sesion.DatosParciales = SessionJsonHelper.SetData(reporte);
+
+                    break;
+
+                //Guardar nombre y solicitar el resumen da actividades
+                case "NombreReporte":
+                    reporte = SessionJsonHelper.GetData<Reporte>(sesion.DatosParciales);
+                    reporte.Nombre = mensaje;
+
+                    sesion.DatosParciales = SessionJsonHelper.SetData(reporte);
+
+                    sesion.EstadoStep = "ContenidoReporte";
+                    respuesta = "Por favor escriba un resumen de sus actividades";
+                    break;
+
+                //Guardar nombre y solicitar el resumen de actividades
+                case "ContenidoReporte":
+                    reporte = SessionJsonHelper.GetData<Reporte>(sesion.DatosParciales);
+                    reporte.Contenido = mensaje;
+
+                    sesion.DatosParciales = SessionJsonHelper.SetData(reporte);
+
+                    respuesta = "Escriba los inconvenientes que tuvo";
+                    sesion.EstadoStep = "InconvenienteReporte";
+                    break;
+
+                //Guardar incovenientes y solicitar comentarios
+                case "InconvenienteReporte":
+                    reporte = SessionJsonHelper.GetData<Reporte>(sesion.DatosParciales);
+                    reporte.Inconvenientes = mensaje;
+
+                    sesion.DatosParciales = SessionJsonHelper.SetData(reporte);
+
+                    respuesta = "Escriba sus comentarios respecto a la actividad realizada";
+                    sesion.EstadoStep = "ComentarioReporte";
+                    break;
+
+                //Guardar contentindo y solicitar los incovenientes durante las actividades
+                case "ComentarioReporte":
+                    reporte = SessionJsonHelper.GetData<Reporte>(sesion.DatosParciales);
+                    reporte.ComentarioEmpleado = mensaje;
+
+                    sesion.DatosParciales = SessionJsonHelper.SetData(reporte);
+
+                    respuesta = "Ahora envíe una evidencia";
+                    sesion.EstadoStep = "GuardarReporte";
+                    break;
+                // Guardar Reporte
+                case "GuardarReporte":
+                    reporte = SessionJsonHelper.GetData<Reporte>(sesion.DatosParciales);
+
+                    reporte.Estado = EstadosReporte.PendienteRevisar;
+
+                    await _contenedorTrabajo.Reporte.AddAsync(reporte);
+                    await _contenedorTrabajo.SaveAsync();
+
+                    respuesta = "Reporte enviado correctamente. Ahora envíe una evidencia.";
+                    // sesion.EstadoStep = "GuardarEvidencia";
+                    sesion.EstadoStep = "Inicio";
+
+                    //Se guarda el reporte en la base de datos
+                    sesion.DatosParciales = SessionJsonHelper.SetData(reporte);
+                    break;
+
+
             }
             return "Opción no valida";
 
