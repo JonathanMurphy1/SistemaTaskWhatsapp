@@ -13,6 +13,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SistemaTaskWhatsapp.Services
 {
@@ -101,6 +102,7 @@ namespace SistemaTaskWhatsapp.Services
                                         $"_______________________________________________________\n";
                                 }
                             }
+
                             respuesta += "\nEscriba cualquier cosa para volver al menú principal.";
                             sesion.EstadoStep = "Inicio";
                             break;
@@ -147,7 +149,6 @@ namespace SistemaTaskWhatsapp.Services
 
                             respuesta += "\nEscriba cualquier cosa para volver al menú principal.";
                             sesion.EstadoStep = "Inicio";
-                            await _contenedorTrabajo.SaveAsync();
                             break;
 
                         default:
@@ -186,7 +187,6 @@ namespace SistemaTaskWhatsapp.Services
                     };
 
                     sesion.DatosParciales = SessionJsonHelper.SetData(reporte);
-
                     break;
 
                 //Guardar nombre y solicitar el resumen da actividades
@@ -222,32 +222,20 @@ namespace SistemaTaskWhatsapp.Services
                     sesion.EstadoStep = "ComentarioReporte";
                     break;
 
-                //Guardar contentindo y solicitar los incovenientes durante las actividades
+                //Guardar comentario, guardar el reporte y solicitar las evidencias
                 case "ComentarioReporte":
                     reporte = SessionJsonHelper.GetData<Reporte>(sesion.DatosParciales);
                     reporte.ComentarioEmpleado = mensaje;
-
-                    sesion.DatosParciales = SessionJsonHelper.SetData(reporte);
-
-                    sesion.EstadoStep = "GuardarReporte";
-                    break;
-                // Guardar Reporte
-                case "GuardarReporte":
-                    reporte = SessionJsonHelper.GetData<Reporte>(sesion.DatosParciales);
-
                     reporte.Estado = EstadosReporte.PendienteRevisar;
 
                     await _contenedorTrabajo.Reporte.AddAsync(reporte);
                     await _contenedorTrabajo.SaveAsync();
 
                     respuesta = "Reporte enviado correctamente. Ahora envíe sus evidencias.";
-                    // sesion.EstadoStep = "GuardarEvidencia";
+
                     sesion.EstadoStep = "Inicio";
-
-                    //Se guarda el reporte en la base de datos
-                    sesion.DatosParciales = SessionJsonHelper.SetData(reporte);
+                    sesion.DatosParciales = "";
                     break;
-
 
             }
             await _contenedorTrabajo.SaveAsync();
