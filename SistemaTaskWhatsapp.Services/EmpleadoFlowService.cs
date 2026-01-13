@@ -58,7 +58,7 @@ namespace SistemaTaskWhatsapp.Services
                         "*2*.Enviar reporte\n" +
                         "*3*.Revisar retroalimentaciones pendientes\n" +
                          "---------------------------------------------\n" +
-                        $"Hay *{tareasPendientes.Count()}* tareas sin revisar\n" +
+                        $"Hay *{tareasPendientes.Count()}* tareas pendientes\n" +
                         $"Hay *{retroalimentacionesPendientes.Count()}* retroalimentaciones sin revisar";
 
                 //Menu principal
@@ -67,6 +67,7 @@ namespace SistemaTaskWhatsapp.Services
                     await _contenedorTrabajo.SaveAsync();
                     switch (mensaje)
                     {
+                        //Mostrar tareas////////////////
                         case "1":
 
                             var listaTarea = await _contenedorTrabajo.Tarea.GetAllAsync(
@@ -87,6 +88,7 @@ namespace SistemaTaskWhatsapp.Services
                                 foreach (var item in listaTarea)
                                 {
                                     mensaje += $"Nombre: {item.Nombre}\n" +
+                                        $"Tarea con ID: {item.Id}\n" +
                                         $"Proyecto: {item.Proyecto?.Nombre}\n" +
                                         $"Descripción: {item.Descripcion}\n" +
                                         $"Fecha de inicio: {item.FechaInicio:dd/MM/yyyy}\n" +
@@ -101,18 +103,24 @@ namespace SistemaTaskWhatsapp.Services
 
                             return mensaje;
 
+                        //Enviar reporte////////////////
                         case "2":
+
+                            mensaje = "Por favor escriba el ID de la tarea.";
+                            sesion.EstadoStep = "Validar";
+
                             return "Elejiste la opción 2";
+
+                        //Ver retroalimentaciones////////////////
                         case "3":
                             var listaRetroalimentacion = await _contenedorTrabajo.Retroalimentacion.GetAllAsync(
-                                                  r => !r.VistoEmpleado &&
-                                                  r.Reporte.Tarea.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id),
+                                                  r => !r.VistoEmpleado && r.Reporte.Tarea.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id),
                                                   includeProperties: "Reporte,Supervisor"
                             );
 
                             if (listaRetroalimentacion == null || !listaRetroalimentacion.Any())
                             {
-                                mensaje = "No hay retroalimentaciones en este momento.\n Escriba cualquier cosa para volver al menu de inicio";
+                                mensaje = "No hay retroalimentaciones por ver en este momento.\n Escriba cualquier cosa para volver al menu de inicio";
                                 sesion.EstadoStep = "Inicio";
                             }
                             else
@@ -132,9 +140,9 @@ namespace SistemaTaskWhatsapp.Services
                                 }
                             }
 
+                            mensaje += "\nEscriba cualquier cosa para volver al menú principal.";
                             sesion.EstadoStep = "Inicio";
                             await _contenedorTrabajo.SaveAsync();
-                            mensaje += "\nEscriba cualquier cosa para volver al menú principal.";
 
                             return mensaje;
                         default:
@@ -142,6 +150,7 @@ namespace SistemaTaskWhatsapp.Services
                     }
             }
             return "Opción no valida";
+
         }
     }
 }
