@@ -67,7 +67,7 @@ namespace SistemaTaskWhatsapp.Services
                         //Mostrar lista de los reportes pendientes
                         case "1":
                             var reportes = await _contenedorTrabajo.Reporte
-                                .GetAllAsync(r => r.Estado == EstadosReporte.PendienteRevisar, includeProperties: "Empleado");
+                                .GetAllAsync(r => r.Estado == EstadosReporte.PendienteRevisar, includeProperties: "Empleado,Tarea.Proyecto");
 
                             if(!reportes.Any())
                             {
@@ -79,6 +79,8 @@ namespace SistemaTaskWhatsapp.Services
                                 respuesta += $"Id: {item.Id}\n" +
                                     $"Titulo: {item.Nombre}\n" +
                                     $"Colaborador: {item.Empleado.Nombre}\n" +
+                                    $"Tarea: {item.Tarea.Nombre}\n" +
+                                    $"Proyecto: {item.Tarea.Proyecto.Nombre}\n" +
                                     $"-----------------------------------------------\n";
                             }
 
@@ -130,7 +132,8 @@ namespace SistemaTaskWhatsapp.Services
                     }
 
                     var reporte = await _contenedorTrabajo.Reporte
-                        .GetFirstOrDefaultAsync(r => r.Id == reporteId && r.Estado == EstadosReporte.PendienteRevisar, includeProperties:"Empleado");
+                        .GetFirstOrDefaultAsync(r => r.Id == reporteId && r.Estado == EstadosReporte.PendienteRevisar
+                        , includeProperties:"Empleado,Tarea.Proyecto");
 
                     if (reporte == null)
                     {
@@ -140,6 +143,8 @@ namespace SistemaTaskWhatsapp.Services
 
                     respuesta = $"Id: {reporte.Id}\n" +
                         $"Titulo: {reporte.Nombre}\n" +
+                        $"Tarea: {reporte.Tarea.Nombre}\n" +
+                        $"Proyecto: {reporte.Tarea.Proyecto.Nombre}\n" +
                         $"Colaborador: {reporte.Empleado.Nombre}\n" +
                         $"Contenido: {reporte.Contenido}\n" +
                         $"Inconvenientes: {reporte.Inconvenientes ?? "Sin inconvenientes"}\n" +
@@ -177,7 +182,7 @@ namespace SistemaTaskWhatsapp.Services
 
                     respuesta = "¿Deseas aceptar este reporte?\n" +
                         "*Si*.Aceptar\n" +
-                        "*No*Rechazar";
+                        "*No*.Rechazar";
 
                     sesion.EstadoStep = "GuardarRetroalimentacion";
                     
