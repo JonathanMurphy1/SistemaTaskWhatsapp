@@ -32,7 +32,7 @@ namespace SistemaTaskWhatsapp.Services
             if (supervisor.Estado == EstadosSupervisor.Inactivo)
                 return "Tu cuenta de supervisor esta inactiva";
 
-            if (mensajeLower == "inicio")
+            if (mensajeLower == "inicio" || sesion.FechaActualizacion.AddMinutes(15) <= DateTime.Now)
             {
                 sesion.DatosParciales = "";
                 sesion.EstadoStep = "Inicio";
@@ -69,7 +69,7 @@ namespace SistemaTaskWhatsapp.Services
                             var reportes = await _contenedorTrabajo.Reporte
                                 .GetAllAsync(r => r.Estado == EstadosReporte.PendienteRevisar, includeProperties: "Empleado");
 
-                            if(reportes == null)
+                            if(!reportes.Any())
                             {
                                 mensaje = "No tienes reportes por revisar";
                             }
@@ -89,7 +89,8 @@ namespace SistemaTaskWhatsapp.Services
                             break;
                         //Crear proyecto
                         case "2":
-                            respuesta = "Elejiste la opción 2";
+                            respuesta = "Entre al siguiente link para registrar el proyecto: https://4cmlk6kl-7045.usw3.devtunnels.ms/Proyectos/Create";
+                            sesion.EstadoStep = "Inicio";
                             break;
                         //Asignar tarea
                         case "3":
@@ -121,8 +122,15 @@ namespace SistemaTaskWhatsapp.Services
                         break;
                     }
 
+                    if (!int.TryParse(mensaje, out int reporteId))
+                    {
+
+                        respuesta = "Ingrese un valor valido"; // o maneja el error
+                        break;
+                    }
+
                     var reporte = await _contenedorTrabajo.Reporte
-                        .GetFirstOrDefaultAsync(r => r.Id.ToString() == mensaje && r.Estado == EstadosReporte.PendienteRevisar, includeProperties:"Emplaedo");
+                        .GetFirstOrDefaultAsync(r => r.Id == reporteId && r.Estado == EstadosReporte.PendienteRevisar, includeProperties:"Empleado");
 
                     if (reporte == null)
                     {
@@ -137,7 +145,7 @@ namespace SistemaTaskWhatsapp.Services
                         $"Inconvenientes: {reporte.Inconvenientes ?? "Sin inconvenientes"}\n" +
                         $"Comentarios: {reporte.ComentarioEmpleado ?? "Sin comentarios"}\n" +
                         $"Fecha de subida: {reporte.FechaSubida.ToString("dd/MM/yyyy")}\n" +
-                        $"---------------------------------------------------------------------\n" +
+                        $"-------------------------------------------------------------------\n" +
                         $"¿Quieres dar retroalimentación de esta tarea?\n" +
                         $"Escribe *Si* si quieres hacerlo, o cualquier cosa para revisar otros reportes";
 
@@ -179,7 +187,7 @@ namespace SistemaTaskWhatsapp.Services
                     data = SessionJsonHelper.GetData<RevisarVM>(sesion.DatosParciales);
 
                     if (mensajeLower == "si") data.EstadoReporte = EstadosReporte.Aceptado;
-                    if (mensajeLower == "no") data.EstadoReporte = EstadosReporte.Rechazado;
+                    else if (mensajeLower == "no") data.EstadoReporte = EstadosReporte.Rechazado;
                     else
                     {
                         respuesta = "Opción no valida, elija una de las dos o escriba *Inicio* para volver al menú de inicio";
@@ -201,13 +209,15 @@ namespace SistemaTaskWhatsapp.Services
                     respuesta = "Retroalimentación enviada correctamente, volviendo al inicio";
                     sesion.EstadoStep = "Inicio";
                     sesion.DatosParciales = "";
+                    _contenedorTrabajo.Reporte.Update(reporte);
                         break;
                 //Si el paso de la sesion no es valido
                 default:
                     respuesta = "Opción no valida";
                     break;
             }
-
+            sesion.FechaActualizacion = DateTime.Now;
+            _contenedorTrabajo.ChatSession.Update(sesion);
             await _contenedorTrabajo.SaveAsync();
             return respuesta;
         }
