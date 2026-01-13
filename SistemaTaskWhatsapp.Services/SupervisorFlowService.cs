@@ -255,6 +255,7 @@ namespace SistemaTaskWhatsapp.Services
                 //Si el paso de la sesion no es valido
                 default:
                     respuesta = "Opción no valida";
+                    sesion.EstadoStep = "Inicio";
                     break;
             }
             sesion.FechaActualizacion = DateTime.Now;
