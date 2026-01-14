@@ -15,5 +15,6 @@ namespace SistemaTaskWhatsapp.Utilidades
         public const string AceptarReporte = "AceptarReporte";
         public const string GuardarRetroalimentacion = "GuardarRetroalimentacion";
         public const string EleccionTarea = "EleccionTarea";
+        public const string RespuestaCrearTarea = "RespuestaCrearTarea";
     }
 }

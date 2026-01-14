@@ -96,7 +96,6 @@ namespace SistemaTaskWhatsapp.Services.SupervisorStates
                             $"-------------------------------------------------\n";
                     }
                     respuesta += "Escriba cualquier cosa para volver al menú de inicio";
-                    Console.WriteLine(respuesta);
                     sesion.EstadoStep = "Inicio";
                     break;
                 //Ver tareas pendientes
@@ -112,7 +111,7 @@ namespace SistemaTaskWhatsapp.Services.SupervisorStates
 
                     foreach (var item in tareas)
                     {
-                        respuesta = $"Id: {item.Id}\n" +
+                        respuesta += $"Id: {item.Id}\n" +
                             $"Nombre: {item.Nombre}\n" +
                             $"Descripción: {item.Descripcion}\n" +
                             $"Fecha de inicio: {item.FechaInicio.ToString("dd/MM/yyyy")}\n" +
@@ -125,7 +124,27 @@ namespace SistemaTaskWhatsapp.Services.SupervisorStates
                     break;
                 //Crear nueva tarea
                 case "6":
-                    respuesta = "Elejiste la opción 6";
+                    proyectos = await _contenedorTrabajo.Proyecto.GetAllAsync(p => p.Estado == EstadosProyecto.Activo, includeProperties: "Empresa");
+
+                    if (!proyectos.Any())
+                    {
+                        respuesta = "No hay proyectos para agregar tareas";
+                        sesion.EstadoStep = "Inicio";
+                        break;
+                    }
+
+                    respuesta = "¿Para que proyecto quieres crear la nueva tarea?\n" +
+                        "----------------------------------------------------------\n";
+
+                    foreach (var item in proyectos)
+                    {
+                        respuesta += $"Id: {item.Id}\n" +
+                            $"Nombre: {item.Nombre}\n" +
+                            $"-------------------------------------------------\n";
+                    }
+
+                    respuesta += "Escriba el Id por favor";
+                    sesion.EstadoStep = "RespuestaCrearTarea";
                     break;
                 //Mostrar colaboradores (esta opcion mostrara datos de los colaboradores y si tienen tareas asignadas)
                 case "7":
