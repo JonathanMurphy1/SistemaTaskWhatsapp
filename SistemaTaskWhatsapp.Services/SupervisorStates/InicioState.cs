@@ -24,7 +24,7 @@ namespace SistemaTaskWhatsapp.Services.SupervisorStates
 
             var reportesPendientes = await _contenedorTrabajo.Reporte.GetAllAsync(r => r.Estado == EstadosReporte.PendienteRevisar);
 
-            string respuesta = "Hola Supervisor\n" +
+            string respuesta = $"Hola Supervisor {usuario.Nombre}\n" +
                 "---------------------------------------------\n" +
                 "Elija una opción\n" +
                 "*1*.Ver reportes sin revisar\n" +
@@ -34,7 +34,9 @@ namespace SistemaTaskWhatsapp.Services.SupervisorStates
                 "*5*.Tareas pendientes\n" +
                 "*6*.Crear tarea\n" +
                 "*7*.Mostrar colaboradores\n" +
-                $"Hay *{reportesPendientes.Count()}* reportes pendientes de revisar";
+                "------------------------------------------------\n" +
+                $"Hay *{reportesPendientes.Count()}* reportes pendientes de revisar\n" +
+                $"Pedes escribir *Inicio* en cualquier momento para volver a este menú";
 
             return respuesta;
         }

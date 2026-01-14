@@ -119,8 +119,11 @@ namespace SistemaTaskWhatsapp.Services.SupervisorStates
                             $"Colaboradores: {item.TareaEmpleados.Count()}\n" +
                             $"-------------------------------------------------\n";
                     }
-                    respuesta += "Escriba cualquier cosa para volver al inicio";
-                    sesion.EstadoStep = "Inicio";
+
+                    respuesta += "Escribe el Id de una tarea para realizar acciones\n" +
+                        "Escriba *Inicio* para volver al menú principal";
+
+                    sesion.EstadoStep = "MenuTarea";
                     break;
                 //Crear nueva tarea
                 case "6":
