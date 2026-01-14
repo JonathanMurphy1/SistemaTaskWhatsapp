@@ -73,11 +73,55 @@ namespace SistemaTaskWhatsapp.Services.SupervisorStates
                     break;
                 //Ver proyectos pendientes
                 case "4":
-                    respuesta = "Elejiste la opción 4";
+                    var proyectos = await _contenedorTrabajo.Proyecto.GetAllAsync(p => p.Estado == EstadosProyecto.Activo, includeProperties: "Empresa");
+                    
+                    if(!proyectos.Any())
+                    {
+                        respuesta = "No hay proyectos pendientes";
+                        sesion.EstadoStep = "Inicio";
+                        break;
+                    }
+                    
+                    foreach (var item in proyectos)
+                    {
+                        var tareasPendientes = await _contenedorTrabajo.Tarea
+                            .GetAllAsync(t => t.ProyectoId == item.Id && t.Estado == EstadosTarea.Pendiente);
+
+
+                        respuesta += $"Id: {item.Id}\n" +
+                            $"Nombre: {item.Nombre}\n" +
+                            $"Descripción: {item.Descripcion}\n" +
+                            $"Fecha de registro: {item.FechaRegistro.ToString("dd/MM/yyyy")}\n" +
+                            $"Tareas pendientes: {tareasPendientes.Count()}\n" +
+                            $"-------------------------------------------------\n";
+                    }
+                    respuesta += "Escriba cualquier cosa para volver al menú de inicio";
+                    Console.WriteLine(respuesta);
+                    sesion.EstadoStep = "Inicio";
                     break;
                 //Ver tareas pendientes
                 case "5":
-                    respuesta = "Elejiste la opción 5";
+                    tareas = await _contenedorTrabajo.Tarea.GetAllAsync(t => t.Estado == EstadosTarea.Pendiente, includeProperties: "Proyecto,TareaEmpleados.Empleado");
+
+                    if (!tareas.Any())
+                    {
+                        respuesta = "No hay tareas pendientes";
+                        sesion.EstadoStep = "Inicio";
+                        break;
+                    }
+
+                    foreach (var item in tareas)
+                    {
+                        respuesta = $"Id: {item.Id}\n" +
+                            $"Nombre: {item.Nombre}\n" +
+                            $"Descripción: {item.Descripcion}\n" +
+                            $"Fecha de inicio: {item.FechaInicio.ToString("dd/MM/yyyy")}\n" +
+                            $"Fecha de entrega: {item.FechaEntrega?.ToString("dd/MM/yyyy")}\n" +
+                            $"Colaboradores: {item.TareaEmpleados.Count()}\n" +
+                            $"-------------------------------------------------\n";
+                    }
+                    respuesta += "Escriba cualquier cosa para volver al inicio";
+                    sesion.EstadoStep = "Inicio";
                     break;
                 //Crear nueva tarea
                 case "6":

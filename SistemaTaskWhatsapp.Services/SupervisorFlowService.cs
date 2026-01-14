@@ -53,6 +53,7 @@ namespace SistemaTaskWhatsapp.Services
             sesion.FechaActualizacion = DateTime.Now;
             _contenedorTrabajo.ChatSession.Update(sesion);
             await _contenedorTrabajo.SaveAsync();
+            Console.WriteLine(respuesta);
             return respuesta;
         }
     }
