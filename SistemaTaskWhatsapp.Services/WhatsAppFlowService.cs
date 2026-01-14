@@ -35,8 +35,6 @@ namespace SistemaTaskWhatsapp.Services
             _config = config;
             _empleadoFlowService = empleadoFlowService;
             _supervisorFlowService = supervisorFlowService; 
-
-            _baseUrl = _config["BaseUrl"];
         }
 
         [HttpGet]

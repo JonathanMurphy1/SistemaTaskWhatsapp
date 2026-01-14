@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Data;
 using SistemaTaskWhatsapp.Models;
 using SistemaTaskWhatsapp.Models.ViewModels;
-using SistemaTaskWhatsapp.Utilidades;
 using SistemaTaskWhatsapp.Utilidades;
 using System;
 using System.Collections.Generic;
@@ -20,16 +20,19 @@ namespace SistemaTaskWhatsapp.Services
     public class EmpleadoFlowService : IEmpleadoFlowService
     {
         private readonly IContenedorTrabajo _contenedorTrabajo;
+        private readonly IConfiguration _config;
 
-        public EmpleadoFlowService(IContenedorTrabajo contenedorTrabajo) 
+        public EmpleadoFlowService(IContenedorTrabajo contenedorTrabajo, IConfiguration config)
         {
             _contenedorTrabajo = contenedorTrabajo;
-        }
+            _config = config;
 
+        }
         public async Task<string> ProcesarAsync(
            Usuario usuario,
            ChatSession sesion,
-           string mensaje)
+           string mensaje
+           )
         {
             string respuesta = "";
             string mensajeLower = mensaje.ToLower();
@@ -59,7 +62,7 @@ namespace SistemaTaskWhatsapp.Services
                     var retroalimentacionesPendientes = await _contenedorTrabajo.Retroalimentacion.GetAllAsync(
                                 r => !r.VistoEmpleado && r.Reporte.Tarea.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id));
 
-                    respuesta = "Buen dia {usuario.Nombre}\n" +
+                    respuesta = $"Buen dia {usuario.Nombre}\n" +
                         "-----------------------------------------------------\n" +
                         "Elija una opción\n" +
                         "*1*.Consultar tareas\n" +
@@ -75,10 +78,11 @@ namespace SistemaTaskWhatsapp.Services
                     await _contenedorTrabajo.SaveAsync();
                     switch (mensaje)
                     {
-                        //Mostrar tareas////////////////
+                        //Mostrar tareas/////////////////
                         case "1":
                             var listaTarea = await _contenedorTrabajo.Tarea.GetAllAsync(
-                                  t => t.Estado == EstadosTarea.Pendiente && t.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id), includeProperties: "Proyecto");
+                                  t => t.Estado == EstadosTarea.Pendiente && t.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id), includeProperties: "Proyecto"
+                            );
 
                             if (listaTarea == null || !listaTarea.Any())
                             {
@@ -155,21 +159,25 @@ namespace SistemaTaskWhatsapp.Services
                             return "Opción no valida";
                     }
                     break;
+
                 //Validar tarea
                 case "ValidarTarea":
                     sesion.DatosParciales = "";
 
-                    var tarea = await _contenedorTrabajo.Tarea
-                        .GetFirstOrDefaultAsync(t => t.Id.ToString() == mensaje && t.Estado == EstadosTarea.Pendiente);
+                    var tarea = await _contenedorTrabajo.Tarea.GetFirstOrDefaultAsync(
+                                t => t.Id.ToString() == mensaje && t.Estado == EstadosTarea.Pendiente &&
+                                    t.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id)
+                    );
 
                     if (tarea == null)
                     {
-                        respuesta = "La tarea seleccionada no se encontró o ya se finalizó";
+                        respuesta = "La tarea seleccionada no se encontró o ya se finalizó." +
+                                        "\nVuelva a escribir el ID o escriba *Inicio* para volver al menú principal.";
                         break;
                     }
 
                     respuesta =
-                        $"Tarea encontrada\n" +
+                        $"Tarea encontrada ID: {tarea.Id}\n" +
                         $"---------------------------------------------\n" +
                         $"Nombre: {tarea.Nombre}\n" +
                         $"Descripción: {tarea.Descripcion}\n" +
@@ -200,7 +208,7 @@ namespace SistemaTaskWhatsapp.Services
                     respuesta = "Por favor escriba un resumen de sus actividades";
                     break;
 
-                //Guardar nombre y solicitar el resumen de actividades
+                //Guardar contenido y solicitar incovenientes
                 case "ContenidoReporte":
                     reporte = SessionJsonHelper.GetData<Reporte>(sesion.DatosParciales);
                     reporte.Contenido = mensaje;
@@ -222,7 +230,7 @@ namespace SistemaTaskWhatsapp.Services
                     sesion.EstadoStep = "ComentarioReporte";
                     break;
 
-                //Guardar comentario, guardar el reporte y solicitar las evidencias
+                //Guardar comentario, guardar todo el reporte y solicitar las evidencias
                 case "ComentarioReporte":
                     reporte = SessionJsonHelper.GetData<Reporte>(sesion.DatosParciales);
                     reporte.ComentarioEmpleado = mensaje;
@@ -233,13 +241,109 @@ namespace SistemaTaskWhatsapp.Services
 
                     respuesta = "Reporte enviado correctamente. Ahora envíe sus evidencias.";
 
-                    sesion.EstadoStep = "Inicio";
-                    sesion.DatosParciales = "";
+                    //Capturar evidencia
+                    sesion.DatosParciales = SessionJsonHelper.SetData(reporte.Id);
+                    sesion.EstadoStep = "EnviarEvidencia";
                     break;
 
+                //Repetir ciclo
+                case "VolverEvidencia":
+                    if (mensajeLower == "no")
+                    {
+                        respuesta = "Entendido. Escriba cualquier cosa para volver al menú principal.";
+                        sesion.EstadoStep = "Inicio";
+                        sesion.DatosParciales = "";
+                        break;
+                    }
+                    else if (mensajeLower == "si")
+                    {
+                        respuesta = "Envíe otra imagen por favor.";
+                        sesion.EstadoStep = "EnviarEvidencia";
+                        break;
+                    }
+                    else
+                    {
+                        respuesta = "Opción no válida.\n¿Quiere enviar otra evidencia? SI/NO";
+                        sesion.EstadoStep = "VolverEvidencia";
+                        break;
+                    }
+
+                //Guardar imagen y solicitar la descripción
+                case "EnviarEvidencia":
+                {
+                    int reporteId = SessionJsonHelper.GetData<int>(sesion.DatosParciales);
+
+                    if (!mensaje.StartsWith("https://"))
+                    {
+                        respuesta = "Por favor envíe una imagen, no texto.";
+                        sesion.EstadoStep = "EnviarEvidencia";
+                        break;
+                    }
+
+                    await GuardarImagenDeWhatsApp(reporteId, mensaje);
+
+                    respuesta = "Agregue una descripción para la imagen enviada";
+                    sesion.EstadoStep = "DescripcionEvidencia";
+                    break;
+                }
+
+                //Guardar toda la evidencia y preguntar para volver a entrar al ciclo de nuevo
+                case "DescripcionEvidencia":
+                {
+                    int reporteId = SessionJsonHelper.GetData<int>(sesion.DatosParciales);
+
+                    var evidencias = await _contenedorTrabajo.Evidencia.GetAllAsync(e => e.ReporteId == reporteId);
+
+                    var evidencia = evidencias.OrderByDescending(e => e.Id).FirstOrDefault();
+
+                    evidencia.Descripcion = mensaje;
+                    await _contenedorTrabajo.SaveAsync();
+
+                    respuesta = "Evidencia guardada.\n¿Desea enviar otra evidencia? SI/NO";
+                    sesion.EstadoStep = "VolverEvidencia";
+                    break;
+                }
             }
             await _contenedorTrabajo.SaveAsync();
             return respuesta;
+        }
+
+        //Metodos Auxiliares
+        private async Task GuardarImagenDeWhatsApp(int reporteId, string mediaUrl)
+        {
+            string carpetaDestino = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot",
+                "uploads",
+                "evidencias"
+            );
+
+            if (!Directory.Exists(carpetaDestino))
+                Directory.CreateDirectory(carpetaDestino);
+
+            string nombreArchivo = Guid.NewGuid().ToString() + ".jpg";
+            string rutaCompleta = Path.Combine(carpetaDestino, nombreArchivo);
+
+            using (var http = new HttpClient())
+            {
+                string token = _config["Twilio:BasicAuth"];
+
+                http.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", token);
+
+                var bytes = await http.GetByteArrayAsync(mediaUrl);
+                await File.WriteAllBytesAsync(rutaCompleta, bytes);
+            }
+
+            Evidencia evidencia = new Evidencia
+            {
+                ReporteId = reporteId,
+                Url = "/uploads/evidencias/" + nombreArchivo,
+                Descripcion = ""
+            };
+
+            await _contenedorTrabajo.Evidencia.AddAsync(evidencia);
+            await _contenedorTrabajo.SaveAsync();
         }
     }
 }
