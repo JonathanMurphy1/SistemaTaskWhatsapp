@@ -148,7 +148,35 @@ namespace SistemaTaskWhatsapp.Services.SupervisorStates
                     break;
                 //Mostrar colaboradores (esta opcion mostrara datos de los colaboradores y si tienen tareas asignadas)
                 case "7":
-                    respuesta = "Elejiste la opción 7";
+                    var empleados = await _contenedorTrabajo.Empleado.GetAllAsync(e => e.Estado == EstadosEmpleado.Activo, includeProperties: "Usuario");
+
+                    var empleadosConTareas = new List<(Empleado empleado, int tareasPendientes)>();
+
+                    foreach (var item in empleados)
+                    {
+                        var tareasPendientes = await _contenedorTrabajo.TareaEmpleado
+                            .GetAllAsync(te =>
+                                te.EmpleadoId == item.Id &&
+                                te.Tarea.Estado == EstadosTarea.Pendiente,
+                                includeProperties: "Tarea");
+
+                        empleadosConTareas.Add((item, tareasPendientes.Count()));
+                    }
+
+                    empleadosConTareas = empleadosConTareas.OrderBy(e => e.tareasPendientes)
+                        .ToList();
+
+                    foreach (var item in empleadosConTareas)
+                    {
+                        respuesta += $"Id: {item.empleado.Id}\n" +
+                            $"Nombre: {item.empleado.Nombre}\n" +
+                            $"Fecha de registro: {item.empleado.FechaRegistro.ToString("dd/MM/yyyy")}\n" +
+                            $"Telefono: {item.empleado.Usuario.Telefono}\n" +
+                            $"Tareas pendientes: {item.tareasPendientes}\n" +
+                            $"-------------------------------------------------------\n";
+                    }
+                    respuesta += "Escriba cualquier cosa para volver al menú de inicio";
+                    sesion.EstadoStep = "Inicio";
                     break;
                 default:
                     respuesta = "Opción no valida";

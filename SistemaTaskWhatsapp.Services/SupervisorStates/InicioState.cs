@@ -19,6 +19,7 @@ namespace SistemaTaskWhatsapp.Services.SupervisorStates
         }
         public async Task<string> HandleAsync(Usuario usuario, ChatSession sesion, string mensaje)
         {
+            sesion.DatosParciales = "";
             sesion.EstadoStep = "Menu";
 
             var reportesPendientes = await _contenedorTrabajo.Reporte.GetAllAsync(r => r.Estado == EstadosReporte.PendienteRevisar);

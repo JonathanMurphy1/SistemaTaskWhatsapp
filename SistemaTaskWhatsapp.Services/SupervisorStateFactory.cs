@@ -26,7 +26,7 @@ namespace SistemaTaskWhatsapp.Services
                 SupervisorSteps.GuardarRetroalimentacion => new GuardarRetroalimentacionReporteState(ct),
                 SupervisorSteps.EleccionTarea => new EleccionTareaState(ct),
                 SupervisorSteps.RespuestaCrearTarea => new RespuestaCrearTareaState(ct),
-                _ => new InicioState(ct)
+                _ => new ErrorState(ct)
             };
         }
     }
