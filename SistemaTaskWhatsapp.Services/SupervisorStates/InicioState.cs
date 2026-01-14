@@ -34,7 +34,7 @@ namespace SistemaTaskWhatsapp.Services.SupervisorStates
                 "*5*.Tareas pendientes\n" +
                 "*6*.Crear tarea\n" +
                 "*7*.Mostrar colaboradores\n" +
-                $"Hay *{reportesPendientes.Count()}* reportes sin revisar";
+                $"Hay *{reportesPendientes.Count()}* reportes pendientes de revisar";
 
             return respuesta;
         }
