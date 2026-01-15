@@ -258,7 +258,7 @@ namespace SistemaTaskWhatsapp.Services
                     }
                     else if (mensajeLower == "si")
                     {
-                        respuesta = "Envíe otra imagen por favor.";
+                        respuesta = "Envíe otra evidencia por favor.";
                         sesion.EstadoStep = "EnviarEvidencia";
                         break;
                     }
@@ -276,14 +276,14 @@ namespace SistemaTaskWhatsapp.Services
 
                     if (!mensaje.StartsWith("https://"))
                     {
-                        respuesta = "Por favor envíe una imagen, no texto.";
+                        respuesta = "No se admiten mensajes de texto como evidencia.";
                         sesion.EstadoStep = "EnviarEvidencia";
                         break;
                     }
 
                     await GuardarArchivoDeWhatsApp(reporteId, mensaje);
 
-                    respuesta = "Agregue una descripción para la imagen enviada";
+                    respuesta = "Agregue una descripción para la evidencia enviada";
                     sesion.EstadoStep = "DescripcionEvidencia";
                     break;
                 }
