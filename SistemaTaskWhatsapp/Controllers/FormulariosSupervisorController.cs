@@ -109,6 +109,7 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> FormularioCrearProyecto(NuevoProyectoFormSupervisorVM model)
         {
             var validacion = await ValidarToken(model.Token);
@@ -134,6 +135,58 @@ namespace SistemaTaskWhatsapp.Controllers
             await _contenedorTrabajo.SaveAsync();
 
             return RedirectToAction("Resultado", new {mensaje = "Proyecto creado correctamente", resultado = true});
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> AsignarColaboradores(int id, string token)
+        {
+            var validacion = await ValidarToken(token);
+            if (validacion != null)
+                return validacion;
+
+            var tarea = await _contenedorTrabajo.Tarea.GetFirstOrDefaultAsync(t => t.Id == id, includeProperties: "TareaEmpleados.Empleado.Usuario");
+
+            if(tarea == null)
+                return RedirectToAction("Resultado", new { mensaje = "No se encontro la tarea", resultado = false });
+
+            var model = new ColaboradoresFormSupervisorVM
+            {
+                ListaEmpleados = await _contenedorTrabajo.Empleado.ObtenerListaEmpleados(),
+                Token = token,
+                Tarea = tarea
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AsignarColaboradores(int? tareaId, int? colaboradorId, string? token)
+        {
+            var validacion = await ValidarToken(token);
+            if (validacion != null)
+                return validacion;
+
+            if (tareaId == null || colaboradorId == null)
+            {
+                return RedirectToAction("Resultado", new { mensaje = "Error al buscar el Id de la tarea", resultado = false });
+            }
+
+            if (await _contenedorTrabajo.TareaEmpleado.
+                GetFirstOrDefaultAsync(te => te.EmpleadoId == colaboradorId && te.TareaId == tareaId) != null)
+            {
+                return RedirectToAction("Resultado", new { mensaje = "Este empleado ya esta colaborando en esta tarea", resultado = false });
+            }
+
+            var nuevoColaborador = new TareaEmpleado
+            {
+                TareaId = (int)tareaId,
+                EmpleadoId = (int)colaboradorId
+            };
+
+            await _contenedorTrabajo.TareaEmpleado.AddAsync(nuevoColaborador);
+            await _contenedorTrabajo.SaveAsync();
+            return RedirectToAction("Resultado", new { mensaje = "Colaborador añadido correctamente", resultado = true });
         }
 
         //Funciones

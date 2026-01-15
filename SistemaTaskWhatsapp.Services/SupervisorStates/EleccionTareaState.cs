@@ -23,7 +23,6 @@ namespace SistemaTaskWhatsapp.Services.SupervisorStates
         {
             if (!int.TryParse(mensaje, out int tareaId))
             {
-
                 return "Ingrese un valor valido"; // o maneja el error
             }
 
@@ -35,8 +34,11 @@ namespace SistemaTaskWhatsapp.Services.SupervisorStates
                 return "No se encontro la tarea";
             }
 
+
+            sesion.TokenFormularios = Guid.NewGuid().ToString();
+            sesion.FechaCreacionToken = DateTime.Now;
             sesion.EstadoStep = "Inicio";
-            return $"Ingrese al siguente link para registrar colaboradores a una tarea: https://4cmlk6kl-7045.usw3.devtunnels.ms/TareaEmpleados/Index/{tarea.Id}";
+            return $"Ingrese al siguente link para registrar colaboradores a una tarea: https://4cmlk6kl-7045.usw3.devtunnels.ms/FormulariosSupervisor/AsignarColaboradores?id={tarea.Id}&token={sesion.TokenFormularios}";
         }
     }
 }

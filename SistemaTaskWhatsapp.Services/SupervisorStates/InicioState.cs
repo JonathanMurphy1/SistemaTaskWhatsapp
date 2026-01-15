@@ -29,7 +29,7 @@ namespace SistemaTaskWhatsapp.Services.SupervisorStates
                 "Elija una opción\n" +
                 "*1*.Ver reportes sin revisar\n" +
                 "*2*.Crear proyecto\n" +
-                "*3*.Asignar tarea\n" +
+                "*3*.Asignar colaboradores a tarea\n" +
                 "*4*.Proyectos activos\n" +
                 "*5*.Tareas pendientes\n" +
                 "*6*.Crear tarea\n" +
