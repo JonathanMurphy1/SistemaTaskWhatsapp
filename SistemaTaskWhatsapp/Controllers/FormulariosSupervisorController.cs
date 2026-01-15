@@ -186,7 +186,24 @@ namespace SistemaTaskWhatsapp.Controllers
 
             await _contenedorTrabajo.TareaEmpleado.AddAsync(nuevoColaborador);
             await _contenedorTrabajo.SaveAsync();
-            return RedirectToAction("Resultado", new { mensaje = "Colaborador añadido correctamente", resultado = true });
+            return RedirectToAction("AsignarColaboradores", new { id = tareaId, token = token });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> QuitarColaborador(int tareaEmpleadoId, int tareaId, string token)
+        {
+            var validacion = await ValidarToken(token);
+            if (validacion != null)
+                return validacion;
+
+            bool Exito = await _contenedorTrabajo.TareaEmpleado.RemoveByIdAsync(tareaEmpleadoId);
+
+            if(!Exito)
+                return RedirectToAction("Resultado", new { mensaje = "Hubo un error al intentar borrar el colaborador", resultado = false });
+
+            await _contenedorTrabajo.SaveAsync();
+            return RedirectToAction("AsignarColaboradores", new { id = tareaId, token = token });
         }
 
         //Funciones

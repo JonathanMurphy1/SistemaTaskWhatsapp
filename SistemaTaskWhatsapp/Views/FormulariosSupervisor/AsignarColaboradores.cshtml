@@ -6,8 +6,9 @@
 }
 
 <div class="contenedor-principal">
-    <div class="d-flex justify-content-between mb-2">
-        <h2 class="text-center">@Model.Tarea.Nombre - @ViewData["Title"]</h2>
+    <div class="mb-2">
+        <h2 class="text-center">@ViewData["Title"]</h2>
+        <h3 class="text-center">Tarea: @Model.Tarea.Nombre</h3>
     </div>
 
     @if (Model.Tarea.Estado != EstadosTarea.Finalizada)
@@ -52,8 +53,9 @@
                         <td>
                             @if (Model.Tarea.Estado != EstadosTarea.Finalizada)
                             {
-                                <form asp-action="Delete" method="post">
+                                <form asp-action="QuitarColaborador" method="post">
                                     <input type="hidden" value="@tareaEmpleado.Id" name="tareaEmpleadoId" />
+                                    <input type="hidden" value="@Model.Token" name="token"/>
                                     <input type="hidden" value="@tareaEmpleado.TareaId" name="tareaId" />
                                     <button type="submit" class="btn btn-danger">Quitar</button>
                                 </form>
