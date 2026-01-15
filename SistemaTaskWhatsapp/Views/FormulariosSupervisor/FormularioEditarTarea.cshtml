@@ -1,0 +1,39 @@
+﻿@model SistemaTaskWhatsapp.Models.Tarea
+
+@{
+    ViewData["Title"] = "Editar tarea";
+}
+
+<div class="contenedor-principal">
+    <div class="text-center">
+        <h3 class="col-12">@ViewData["Title"]</h3>
+    </div>
+    <div class="col-12 mt-4 border rounded shadow p-3">
+        <form asp-action="FormularioEditarTarea" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="FechaInicio" />
+            <div class="form-group">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" asp-for="Nombre" class="form-control" placeholder="Escriba el nombre del proyecto..." />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label for="descripcion">Descripción:</label>
+                <textarea type="text" id="descripcion" asp-for="Descripcion" class="form-control" placeholder="Escriba una descripción acerca del proyecto..."></textarea>
+                <span asp-validation-for="Descripcion" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label for="fechaentrega">Fecha de entrega:</label>
+                <input id="fechaEntrega" type="date" asp-for="FechaEntrega" class="form-control" />
+                <span asp-validation-for="FechaEntrega" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="d-flex justify-content-center gap-2 mt-3">
+                <button type="submit" class="btn btn-success">Editar</button>
+            </div>
+        </form>
+    </div>
+</div>

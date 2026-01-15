@@ -48,7 +48,8 @@ namespace SistemaTaskWhatsapp.Services.SupervisorStates
                     break;
                 //Editar una tarea
                 case "2":
-                    respuesta = "Aqui se vera proximamente un link con el formulario";
+                    respuesta = $"Ingrese a este link para editar la tarea: https://4cmlk6kl-7045.usw3.devtunnels.ms/FormulariosSupervisor/FormularioEditarTarea/{tarea.Id}\n" +
+                        $"Puede elegir otra accion o escribir *Inicio* para volver al menú principal";
                     break;
                 //Ver colaboradores de la tarea
                 case "3":
