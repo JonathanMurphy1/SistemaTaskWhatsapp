@@ -1,0 +1,50 @@
+﻿@model SistemaTaskWhatsapp.Models.ViewModels.NuevoProyectoFormSupervisorVM
+
+@{
+    ViewData["Title"] = "Registrar proyecto";
+}
+
+<div class="contenedor-principal">
+    <div class="text-center">
+        <h3 class="col-md-3 col-sm-12">@ViewData["Title"]</h3>
+    </div>
+    <div class="col-md-6 col-sm-12 mt-4 border rounded shadow p-3">
+        <form asp-action="FormularioCrearProyecto" method="post">
+            <input type="hidden" asp-for="Token" />
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" asp-for="Proyecto.Nombre" class="form-control" placeholder="Escriba el nombre del proyecto..." />
+                <span asp-validation-for="Proyecto.Nombre" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label for="descripcion">Descripción:</label>
+                <textarea type="text" id="descripcion" asp-for="Proyecto.Descripcion" class="form-control" placeholder="Escriba una descripción acerca del proyecto..."></textarea>
+                <span asp-validation-for="Proyecto.Descripcion" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label for="empresa">Empresa:</label>
+                <select id="empresa" asp-for="Proyecto.EmpresaId" asp-items="@Model.ListaEmpresas" class="form-select">
+                    <option disabled selected value="">--Elija una empresa--</option>
+                </select>
+                <span asp-validation-for="Proyecto.EmpresaId" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label for="estado">Estado:</label>
+                <select id="estado" asp-for="Proyecto.Estado" class="form-select">
+                    <option disabled selected value="">--Elija un estado--</option>
+                    <option value="0">Activo</option>
+                    <option value="1">Inactivo</option>
+                </select>
+                <span asp-validation-for="Proyecto.Estado" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="d-flex justify-content-center gap-2 mt-3">
+                <button type="submit" class="btn btn-success">Registrar</button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -92,8 +92,52 @@ namespace SistemaTaskWhatsapp.Controllers
             return RedirectToAction("Resultado", new {mensaje = mensaje, resultado = resultado });
         }
 
+        [HttpGet]
+        public async Task<IActionResult> FormularioCrearProyecto(string token)
+        {
+            var validacion = await ValidarToken(token);
+            if (validacion != null)
+                return validacion;
+
+            var model = new NuevoProyectoFormSupervisorVM
+            {
+                ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown(),
+                Token = token
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> FormularioCrearProyecto(NuevoProyectoFormSupervisorVM model)
+        {
+            var validacion = await ValidarToken(model.Token);
+            if (validacion != null)
+                return validacion;
+
+            if(!ModelState.IsValid)
+            {
+                model.ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown();
+
+                return View(model);
+            }
+
+            var mismoNombre = await _contenedorTrabajo.Proyecto.GetFirstOrDefaultAsync(p => p.Id != model.Proyecto.Id && p.Nombre == model.Proyecto.Nombre);
+            if (mismoNombre != null)
+            {
+                ModelState.AddModelError("", "Ya existe un proyecto con ese nombre");
+                model.ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown();
+                return View(model);
+            }
+
+            await _contenedorTrabajo.Proyecto.AddAsync(model.Proyecto);
+            await _contenedorTrabajo.SaveAsync();
+
+            return RedirectToAction("Resultado", new {mensaje = "Proyecto creado correctamente", resultado = true});
+        }
+
         //Funciones
-        private async Task<IActionResult?> ValidarToken(string token)
+        private async Task<IActionResult?> ValidarToken(string? token)
         {
             if (token == null)
                 return RedirectToAction("Resultado", new { mensaje = "No se envio el token", resultado = false });

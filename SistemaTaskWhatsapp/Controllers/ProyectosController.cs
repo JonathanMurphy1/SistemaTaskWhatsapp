@@ -34,6 +34,7 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ProyectoVM model)
         {
             if (!ModelState.IsValid)
@@ -78,6 +79,7 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(ProyectoVM model)
         {
             if (!ModelState.IsValid)
@@ -101,6 +103,7 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Finalizar(int id)
         {
             var proyecto = await _contenedorTrabajo.Proyecto.GetByIdAsync(id);
@@ -116,6 +119,7 @@ namespace SistemaTaskWhatsapp.Controllers
         }
         
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             var proyecto = await _contenedorTrabajo.Proyecto.GetByIdAsync(id);
