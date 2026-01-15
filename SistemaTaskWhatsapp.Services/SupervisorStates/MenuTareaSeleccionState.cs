@@ -39,19 +39,40 @@ namespace SistemaTaskWhatsapp.Services.SupervisorStates
 
             switch (mensaje)
             {
+                //Maracar una tarea como finalizada
                 case "1":
                     respuesta = "¿Estas seguro de querer marcar esta tarea como completada?\n" +
                         "*Si*.Para marcar como completada\n" +
                         "Cualquier cosa para elejir otra acción";
                     sesion.EstadoStep = "MarcarTareaCompletada";
                     break;
+                //Editar una tarea
                 case "2":
                     respuesta = "Aqui se vera proximamente un link con el formulario";
                     break;
+                //Ver colaboradores de la tarea
                 case "3":
-                    respuesta = "Aqui se mostraran los colaboradores registrados en esta tarea";
+                    var colaboradores = await _contenedorTrabajo.TareaEmpleado
+                        .GetAllAsync(te => te.TareaId == tarea.Id && te.Empleado.Estado == EstadosEmpleado.Activo, includeProperties: "Empleado");
+
+                    if (!colaboradores.Any())
+                    {
+                        respuesta = "Esta tarea no tiene colaboradores\n" +
+                            "Elija otra acción";
+                        break;
+                    }
+
+                    foreach (var item in colaboradores)
+                    {
+                        respuesta += $"Id: {item.EmpleadoId}\n" +
+                            $"Nombre: {item.Empleado.Nombre}\n" +
+                            $"---------------------------------------------\n";
+                    }
+
+                    respuesta += "Escribe otra accion que quieras realizar. Escribe *Inicio* para volver al menú principal";
                     break;
                 default:
+                    respuesta += "Escribe una acción valida. Escribe *Inicio* para volver al menú principal";
                     break;
             }
 
