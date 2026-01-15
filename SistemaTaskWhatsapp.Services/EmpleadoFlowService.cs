@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository;
@@ -280,7 +281,7 @@ namespace SistemaTaskWhatsapp.Services
                         break;
                     }
 
-                    await GuardarImagenDeWhatsApp(reporteId, mensaje);
+                    await GuardarArchivoDeWhatsApp(reporteId, mensaje);
 
                     respuesta = "Agregue una descripción para la imagen enviada";
                     sesion.EstadoStep = "DescripcionEvidencia";
@@ -309,8 +310,11 @@ namespace SistemaTaskWhatsapp.Services
         }
 
         //Metodos Auxiliares
-        private async Task GuardarImagenDeWhatsApp(int reporteId, string mediaUrl)
+        private async Task GuardarArchivoDeWhatsApp(int reporteId, string mediaUrl)
         {
+            if (string.IsNullOrWhiteSpace(mediaUrl))
+                return;
+
             string carpetaDestino = Path.Combine(
                 Directory.GetCurrentDirectory(),
                 "wwwroot",
@@ -321,19 +325,34 @@ namespace SistemaTaskWhatsapp.Services
             if (!Directory.Exists(carpetaDestino))
                 Directory.CreateDirectory(carpetaDestino);
 
-            string nombreArchivo = Guid.NewGuid().ToString() + ".jpg";
+            using var http = new HttpClient();
+
+            string token = _config["Twilio:BasicAuth"];
+
+            http.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", token);
+
+            var response = await http.GetAsync(mediaUrl);
+
+            if (!response.IsSuccessStatusCode)
+                return;
+
+            var bytes = await response.Content.ReadAsByteArrayAsync();
+
+            // Detectar extensión según Content-Type
+            string contentType = response.Content.Headers.ContentType?.MediaType ?? "";
+            string extension = contentType switch
+            {
+                "image/jpeg" => ".jpg",
+                "image/png"  => ".png",
+                "application/pdf" => ".pdf",
+                _ => ".bin"
+            };
+
+            string nombreArchivo = $"{Guid.NewGuid()}{extension}";
             string rutaCompleta = Path.Combine(carpetaDestino, nombreArchivo);
 
-            using (var http = new HttpClient())
-            {
-                string token = _config["Twilio:BasicAuth"];
-
-                http.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", token);
-
-                var bytes = await http.GetByteArrayAsync(mediaUrl);
-                await File.WriteAllBytesAsync(rutaCompleta, bytes);
-            }
+            await File.WriteAllBytesAsync(rutaCompleta, bytes);
 
             Evidencia evidencia = new Evidencia
             {

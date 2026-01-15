@@ -29,15 +29,17 @@ namespace SistemaTaskWhatsapp.Areas.WhatsApp.Controllers
             var from = Request.Form["From"].ToString().Replace("whatsapp:", "");
             string body = Request.Form["Body"].ToString().Trim();
 
-            int numMedia = 0;
-            int.TryParse(Request.Form["NumMedia"], out numMedia);
+            int.TryParse(Request.Form["NumMedia"], out int numMedia);
+            var mediaUrl = Request.Form["MediaUrl0"].ToString();
 
-            if (numMedia > 0)
+            string mensajeFlujo = body;
+
+            if (numMedia > 0 && !string.IsNullOrWhiteSpace(mediaUrl))
             {
-                body = Request.Form["MediaUrl0"].ToString();
+                mensajeFlujo = mediaUrl;
             }
 
-            string respuesta = await _whatsAppFlowService.ProcesarMensajeAsync(from, body);
+            string respuesta = await _whatsAppFlowService.ProcesarMensajeAsync(from, mensajeFlujo);
             var twiml = new Twilio.TwiML.MessagingResponse();
             twiml.Message(respuesta);
 
