@@ -61,7 +61,7 @@ namespace SistemaTaskWhatsapp.Services
                                 t => t.Estado == EstadosTarea.Pendiente && t.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id));
 
                     var retroalimentacionesPendientes = await _contenedorTrabajo.Retroalimentacion.GetAllAsync(
-                                r => !r.VistoEmpleado && r.Reporte.Tarea.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id));
+                                r => !r.VistoEmpleado && r.Reporte.EmpleadoId == empleado.Id);
 
                     respuesta = $"Buen dia {usuario.Nombre}\n" +
                         "-----------------------------------------------------\n" +
@@ -81,9 +81,9 @@ namespace SistemaTaskWhatsapp.Services
                     {
                         //Mostrar tareas/////////////////
                         case "1":
-                            var listaTarea = await _contenedorTrabajo.Tarea.GetAllAsync(
-                                  t => t.Estado == EstadosTarea.Pendiente && t.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id), includeProperties: "Proyecto"
-                            );
+                            var listaTarea = (await _contenedorTrabajo.Tarea.GetAllAsync(
+                                  t => t.Estado == EstadosTarea.Pendiente && t.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id),includeProperties: "Proyecto"
+                                                    )) .OrderBy(t => t.FechaEntrega).ToList();
 
                             if (listaTarea == null || !listaTarea.Any())
                             {
@@ -98,12 +98,27 @@ namespace SistemaTaskWhatsapp.Services
 
                                 foreach (var item in listaTarea)
                                 {
+                                    var fechaEntrega = item.FechaEntrega.Value.Date;
+                                    var hoy = DateTime.Now.Date;
+                                    var diasRestantes = (fechaEntrega - hoy).Days;
+
+                                    string estadoEntrega;
+                                    if (diasRestantes < 0)
+                                        estadoEntrega = $"Vencida hace {Math.Abs(diasRestantes)} días";
+                                    else if (diasRestantes == 0)
+                                        estadoEntrega = "Vence hoy";
+                                    else if (diasRestantes == 1)
+                                        estadoEntrega = "Vence mañana";
+                                    else
+                                        estadoEntrega = $"Quedan {diasRestantes} días para su entrega";
+
                                     respuesta += $"Nombre: {item.Nombre}\n" +
                                         $"Tarea con ID: {item.Id}\n" +
                                         $"Proyecto: {item.Proyecto?.Nombre}\n" +
                                         $"Descripción: {item.Descripcion}\n" +
                                         $"Fecha de inicio: {item.FechaInicio:dd/MM/yyyy}\n" +
                                         $"Fecha de entrega: {item.FechaEntrega:dd/MM/yyyy}\n" +
+                                        $"{estadoEntrega}\n" +
                                         $"_______________________________________________________\n";
                                 }
                             }
@@ -123,8 +138,7 @@ namespace SistemaTaskWhatsapp.Services
                         //Ver retroalimentaciones///////////////////////////////////
                         case "3":
                             var listaRetroalimentacion = await _contenedorTrabajo.Retroalimentacion.GetAllAsync(
-                                                  r => !r.VistoEmpleado && r.Reporte.Tarea.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id),
-                                                  includeProperties: "Reporte,Supervisor"
+                                                r => !r.VistoEmpleado && r.Reporte.EmpleadoId == empleado.Id, includeProperties: "Reporte,Supervisor"
                             );
 
                             if (listaRetroalimentacion == null || !listaRetroalimentacion.Any())
@@ -163,7 +177,7 @@ namespace SistemaTaskWhatsapp.Services
 
                 //Validar tarea
                 case "ValidarTarea":
-                    sesion.DatosParciales = "";
+                    sesion.DatosParciales = ""; 
 
                     var tarea = await _contenedorTrabajo.Tarea.GetFirstOrDefaultAsync(
                                 t => t.Id.ToString() == mensaje && t.Estado == EstadosTarea.Pendiente &&
@@ -178,7 +192,7 @@ namespace SistemaTaskWhatsapp.Services
                     }
 
                     respuesta =
-                        $"Tarea encontrada ID: {tarea.Id}\n" +
+                        $"Tarea encontrada con ID: {tarea.Id}\n" +
                         $"---------------------------------------------\n" +
                         $"Nombre: {tarea.Nombre}\n" +
                         $"Descripción: {tarea.Descripcion}\n" +
