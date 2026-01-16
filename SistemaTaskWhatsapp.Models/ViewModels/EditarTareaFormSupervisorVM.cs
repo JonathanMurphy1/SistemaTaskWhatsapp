@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SistemaTaskWhatsapp.Models.ViewModels
 {
-    public class EditarTareaFormSupervisorVM
+    public class TareaFormSupervisorVM
     {
         public Tarea? Tarea { get; set; }
 

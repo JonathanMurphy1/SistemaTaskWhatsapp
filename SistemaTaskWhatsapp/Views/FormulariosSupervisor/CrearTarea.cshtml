@@ -1,7 +1,7 @@
 ﻿@model SistemaTaskWhatsapp.Models.ViewModels.TareaFormSupervisorVM
 
 @{
-    ViewData["Title"] = "Editar tarea";
+    ViewData["Title"] = "Crear tarea";
 }
 
 <div class="contenedor-principal">
@@ -9,11 +9,10 @@
         <h3 class="col-12">@ViewData["Title"]</h3>
     </div>
     <div class="col-12 mt-4 border rounded shadow p-3">
-        <form asp-action="FormularioEditarTarea" method="post">
+        <form asp-action="CrearTarea" method="post">
             <div asp-validation-summary="All" class="text-danger"></div>
-            <input  type="hidden" asp-for="Token"/>
-            <input type="hidden" asp-for="Tarea.Id" />
-            <input type="hidden" asp-for="Tarea.FechaInicio" />
+            <input type="hidden" asp-for="Token" />
+            <input type="hidden" asp-for="Tarea.ProyectoId" />
             <div class="form-group">
                 <label for="nombre">Nombre:</label>
                 <input type="text" id="nombre" asp-for="Tarea.Nombre" class="form-control" placeholder="Escriba el nombre de la tarea..." />
@@ -22,7 +21,7 @@
             <br />
             <div class="form-group">
                 <label for="descripcion">Descripción:</label>
-                <textarea type="text" id="descripcion" asp-for="Tarea.Descripcion" class="form-control" placeholder="Escriba una descripción acerca de la tarea..."></textarea>
+                <textarea type="text" id="descripcion" asp-for="Tarea.Descripcion" class="form-control" placeholder="Escriba una descripción de la tarea..."></textarea>
                 <span asp-validation-for="Tarea.Descripcion" class="text-danger"></span>
             </div>
             <br />
@@ -33,7 +32,7 @@
             </div>
             <br />
             <div class="d-flex justify-content-center gap-2 mt-3">
-                <button type="submit" class="btn btn-success">Editar</button>
+                <button type="submit" class="btn btn-success">Registrar</button>
             </div>
         </form>
     </div>

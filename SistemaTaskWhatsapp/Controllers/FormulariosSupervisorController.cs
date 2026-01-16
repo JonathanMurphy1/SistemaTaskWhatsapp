@@ -43,7 +43,7 @@ namespace SistemaTaskWhatsapp.Controllers
             if(tarea == null)
                 return RedirectToAction("Resultado", new {mensaje = "Error al buscar la tarea", resultado = false});
 
-            var vm = new EditarTareaFormSupervisorVM
+            var vm = new TareaFormSupervisorVM
             {
                 Tarea = tarea,
                 Token = token
@@ -54,7 +54,7 @@ namespace SistemaTaskWhatsapp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> FormularioEditarTarea(EditarTareaFormSupervisorVM model)
+        public async Task<IActionResult> FormularioEditarTarea(TareaFormSupervisorVM model)
         {
             if (!ModelState.IsValid) return View(model);
 
@@ -75,7 +75,7 @@ namespace SistemaTaskWhatsapp.Controllers
 
             if (model.Tarea.FechaEntrega < DateTime.Now)
             {
-                ModelState.AddModelError("Fechaentrega", "La fecha de entrega debe ser mayor a la actual");
+                ModelState.AddModelError("FechaEntrega", "La fecha de entrega debe ser mayor a la actual");
                 return View(model);
             }
 
@@ -115,6 +115,8 @@ namespace SistemaTaskWhatsapp.Controllers
             var validacion = await ValidarToken(model.Token);
             if (validacion != null)
                 return validacion;
+
+            model.Proyecto.FechaRegistro = DateTime.Now;
 
             if(!ModelState.IsValid)
             {
@@ -204,6 +206,56 @@ namespace SistemaTaskWhatsapp.Controllers
 
             await _contenedorTrabajo.SaveAsync();
             return RedirectToAction("AsignarColaboradores", new { id = tareaId, token = token });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CrearTarea(int id, string token)
+        {
+            var validacion = await ValidarToken(token);
+            if (validacion != null)
+                return validacion;
+
+            var proyecto = await _contenedorTrabajo.Proyecto.GetFirstOrDefaultAsync(t => t.Id == id && t.Estado == EstadosProyecto.Activo);
+
+            if (proyecto == null)
+                return RedirectToAction("Resultado", new { mensaje = "Error no se encontro el proyecto", resultado = false });
+
+            var vm = new TareaFormSupervisorVM
+            {
+                Tarea = new Tarea
+                {
+                    ProyectoId = proyecto.Id,
+                },
+                Token = token
+            };
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CrearTarea(TareaFormSupervisorVM model)
+        {
+            var validacion = await ValidarToken(model.Token);
+            if (validacion != null)
+                return validacion;
+
+            model.Tarea.FechaInicio = DateTime.Now;
+            model.Tarea.Estado = EstadosTarea.Pendiente;
+            
+            if(!ModelState.IsValid)
+                return View(model);
+
+            if(model.Tarea.FechaEntrega < DateTime.Now)
+            {
+                ModelState.AddModelError("FechaEntrega", "La fecha de entrega debe ser mayor a la actual");
+                return View(model);
+            }
+
+            await _contenedorTrabajo.Tarea.AddAsync(model.Tarea);
+            await _contenedorTrabajo.SaveAsync();
+
+            return RedirectToAction("Resultado", new { mensaje = "Tarea registrada correctamente", resultado = true });
         }
 
         //Funciones

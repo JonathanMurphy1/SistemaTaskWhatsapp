@@ -32,8 +32,10 @@ namespace SistemaTaskWhatsapp.Services.SupervisorStates
                 return "No se encontro el proyecto";
             }
 
+            sesion.TokenFormularios = Guid.NewGuid().ToString();
+            sesion.FechaCreacionToken = DateTime.Now;
             sesion.EstadoStep = "Inicio";
-            return $"Ingrese al siguente link para registrar la nueva tarea: https://4cmlk6kl-7045.usw3.devtunnels.ms/TareaPanel/Index/{proyecto.Id}";
+            return $"Ingrese al siguente link para registrar la nueva tarea: https://4cmlk6kl-7045.usw3.devtunnels.ms/FormulariosSupervisor/CrearTarea?id={proyecto.Id}&token={sesion.TokenFormularios}";
         }
     }
 }
