@@ -9,6 +9,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SistemaTaskWhatsapp.Utilidades;
+using SistemaTaskWhatsapp.AccesoDatos.Data.Repository;
+using SistemaTaskWhatsapp.Utilidades;
 
 namespace SistemaTaskWhatsapp.Services
 {
@@ -18,15 +20,21 @@ namespace SistemaTaskWhatsapp.Services
         //private readonly UserManager<Usuario> _userManager;
         private readonly IConfiguration _config;
         private readonly string _baseUrl;
+        private readonly ISupervisorFlowService _supervisorFlowService;
+        private readonly IEmpleadoFlowService _empleadoFlowService;
 
         public WhatsAppFlowService(
             IContenedorTrabajo contenedorTrabajo,
             /*UserManager<Usuario> userManager,*/
-            IConfiguration config)
+            IConfiguration config,
+            ISupervisorFlowService supervisorFlowService,
+            IEmpleadoFlowService empleadoFlowService)
         {
             _contenedorTrabajo = contenedorTrabajo;
             //_userManager = userManager;
             _config = config;
+            _empleadoFlowService = empleadoFlowService;
+            _supervisorFlowService = supervisorFlowService; 
 
             _baseUrl = _config["BaseUrl"];
         }
@@ -74,13 +82,18 @@ namespace SistemaTaskWhatsapp.Services
 
             if(usuario.Rol == Roles.Supervisor)
             {
-                respuesta = "Eres supervisor";
+                //respuesta = "Eres supervisor";
+                respuesta = await _supervisorFlowService.ProcesarAsync(usuario, sesion, mensaje);
                 //De aqui mandalo a un servicio especifico para el supervisor
             }
             else if (usuario.Rol == Roles.Empleado)
             {
-                respuesta = "Eres minion";
                 //De aqui mandalo a un servicio especifico para el empleado
+                respuesta = await _empleadoFlowService.ProcesarAsync(
+                    usuario,
+                    sesion,
+                    mensaje
+                    );
             }
             else
             {

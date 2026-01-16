@@ -1,6 +1,6 @@
 ﻿@if (TempData["Mensaje"] != null)
 {
-    string tipoMensaje = TempData["TipoMensaje"].ToString();
+    string tipoMensaje = TempData["TipoMensaje"].ToString() ?? "secondary";
 
     <div class="position-fixed top-0 end-0 mt-5 me-3 z-3 col-3 ms-auto alert alert-@tipoMensaje" alert-dismissible fade show" role="alert" id="alertaMensaje">
         @TempData["Mensaje"]

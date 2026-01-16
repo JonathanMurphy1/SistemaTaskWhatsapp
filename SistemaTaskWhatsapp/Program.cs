@@ -21,6 +21,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IContenedorTrabajo, ContenedorTrabajo>();
 
 builder.Services.AddScoped<WhatsAppFlowService>();
+builder.Services.AddScoped<ISupervisorFlowService, SupervisorFlowService>();
+
+builder.Services.AddScoped<IEmpleadoFlowService, EmpleadoFlowService>();
 
 //Registrar servicio de whatsapp
 builder.Services.AddSingleton(new WhatsAppService(

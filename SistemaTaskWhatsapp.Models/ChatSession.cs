@@ -21,5 +21,9 @@ namespace SistemaTaskWhatsapp.Models
         public string? DatosParciales { get; set; }
 
         public DateTime FechaActualizacion { get; set; } = DateTime.Now;
+
+        public string? TokenFormularios { get; set; }
+
+        public DateTime? FechaCreacionToken { get; set; }
     }
 }
