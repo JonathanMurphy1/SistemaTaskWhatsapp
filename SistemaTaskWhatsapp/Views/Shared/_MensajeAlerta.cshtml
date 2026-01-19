@@ -1,9 +1,13 @@
-﻿@if (TempData["Mensaje"] != null)
+﻿@{
+    var mensaje = TempData["Mensaje"] as string;
+}
+
+@if (!string.IsNullOrEmpty(mensaje))
 {
-    string tipoMensaje = TempData["TipoMensaje"].ToString() ?? "secondary";
+    string tipoMensaje = TempData["TipoMensaje"]?.ToString() ?? "secondary";
 
     <div class="position-fixed top-0 end-0 mt-5 me-3 z-3 col-3 ms-auto alert alert-@tipoMensaje" alert-dismissible fade show" role="alert" id="alertaMensaje">
-        @TempData["Mensaje"]
+        @mensaje
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
     </div>
     if (tipoMensaje != "danger")

@@ -176,7 +176,7 @@ namespace SistemaTaskWhatsapp.Services.SupervisorStates
                         respuesta += $"Id: {item.empleado.Id}\n" +
                             $"Nombre: {item.empleado.Nombre}\n" +
                             $"Fecha de registro: {item.empleado.FechaRegistro.ToString("dd/MM/yyyy")}\n" +
-                            $"Telefono: {item.empleado.Usuario.Telefono}\n" +
+                            $"Telefono: {item.empleado.Usuario.PhoneNumber}\n" +
                             $"Tareas pendientes: {item.tareasPendientes}\n" +
                             $"-------------------------------------------------------\n";
                     }

@@ -4,7 +4,7 @@ using SistemaTaskWhatsapp.Models;
 
 namespace SistemaTaskWhatsapp.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<Usuario>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -12,7 +12,9 @@ namespace SistemaTaskWhatsapp.Data
         }
 
         //Poner aqui todos los modelos que se vayan creando
-        public DbSet<Usuario> Usuario { get; set; }
+
+        //Esta tabla ahora la maneja Identity
+        //public DbSet<Usuario> Usuario { get; set; }
         public DbSet<Supervisor> Supervisor { get; set; }
         public DbSet<Empleado> Empleado { get; set; }
         public DbSet<Empresa> Empresa { get; set; }

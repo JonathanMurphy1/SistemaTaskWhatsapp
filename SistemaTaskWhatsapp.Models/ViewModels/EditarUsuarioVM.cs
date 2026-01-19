@@ -11,7 +11,7 @@ namespace SistemaTaskWhatsapp.Models.ViewModels
     public class EditarUsuarioVM
     {
         [Required(ErrorMessage = "No se encontró el Id del usuario")]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [Required(ErrorMessage = "Escriba el nombre")]
         public string Nombre { get; set; }
