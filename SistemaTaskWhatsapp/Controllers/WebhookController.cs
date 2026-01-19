@@ -26,35 +26,16 @@ namespace SistemaTaskWhatsapp.Areas.WhatsApp.Controllers
         [HttpPost("Receive")]
         public async Task<IActionResult> Receive()
         {
-            Console.WriteLine("Hola ya entro al metodo");
             var from = Request.Form["From"].ToString().Replace("whatsapp:", "");
-            var body = Request.Form["Body"].ToString().Trim();
+            string body = Request.Form["Body"].ToString().Trim();
 
-            //int numMedia = 0;
-            //int.TryParse(Request.Form["NumMedia"], out numMedia);
+            int numMedia = 0;
+            int.TryParse(Request.Form["NumMedia"], out numMedia);
 
-            //string mediaUrl = null;
-            //string mediaContentType = null;
-
-            //if (numMedia > 0)
-            //{
-            //    mediaUrl = Request.Form["MediaUrl0"].ToString();
-            //    mediaContentType = Request.Form["MediaContentType0"].ToString();
-            //}
-
-            //var latitude = Request.Form["Latitude"].ToString();
-            //var longitude = Request.Form["Longitude"].ToString();
-            //var address = Request.Form["Address"].ToString();
-
-            //string respuesta = await _whatsAppFlowService.ProcesarMensajeAsync(
-            //    from,
-            //    body,
-            //    latitude,
-            //    longitude,
-            //    address,
-            //    mediaUrl,
-            //    mediaContentType
-            //);
+            if (numMedia > 0)
+            {
+                body = Request.Form["MediaUrl0"].ToString();
+            }
 
             string respuesta = await _whatsAppFlowService.ProcesarMensajeAsync(from, body);
             var twiml = new Twilio.TwiML.MessagingResponse();
