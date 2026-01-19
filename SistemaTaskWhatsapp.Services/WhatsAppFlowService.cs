@@ -56,7 +56,7 @@ namespace SistemaTaskWhatsapp.Services
 
             var mensaje = body.Trim();
             var mensajeMayus = body.Trim().ToUpper();
-            var usuario = await _contenedorTrabajo.Usuario.GetFirstOrDefaultAsync(u => u.Telefono == telefonoFormateado);
+            var usuario = await _contenedorTrabajo.Usuario.GetFirstOrDefaultAsync(u => u.PhoneNumber == telefonoFormateado);
 
             //Si no esta registrado con su numero lanza un mensaje
             if (usuario == null)

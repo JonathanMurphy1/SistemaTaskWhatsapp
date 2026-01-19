@@ -72,8 +72,8 @@ namespace SistemaTaskWhatsapp.Controllers
             {
                 Nombre = model.Nombre,
                 Email = model.Email,
-                Password = model.Password,
-                Telefono = model.Telefono,
+                PasswordHash = model.Password,
+                PhoneNumber = model.Telefono,
                 Rol = model.Rol
             };
 
@@ -112,9 +112,9 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(string id)
         {
-            var usuario = await _contenedorTrabajo.Usuario.GetByIdAsync(id);
+            var usuario = await _contenedorTrabajo.Usuario.GetFirstOrDefaultAsync(u => u.Id == id);
             if (usuario == null)
                 return RedirectToAction("Index");
 
@@ -123,8 +123,8 @@ namespace SistemaTaskWhatsapp.Controllers
                 Id = usuario.Id,
                 Nombre = usuario.Nombre,
                 Email = usuario.Email,
-                Password = usuario.Password,
-                Telefono = usuario.Telefono,
+                Password = usuario.PasswordHash,
+                Telefono = usuario.PhoneNumber,
                 Rol = usuario.Rol,
                 Supervisor = new Supervisor(),
                 Empleado = new Empleado()
@@ -173,7 +173,7 @@ namespace SistemaTaskWhatsapp.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var usuario = await _contenedorTrabajo.Usuario.GetByIdAsync(model.Id);
+            var usuario = await _contenedorTrabajo.Usuario.GetFirstOrDefaultAsync(u => u.Id == model.Id);
             if (usuario == null)
             {
                 TempData["Mensaje"] = "Usuario no encontrado";
@@ -184,8 +184,8 @@ namespace SistemaTaskWhatsapp.Controllers
             //Usuario
             usuario.Nombre = model.Nombre;
             usuario.Email = model.Email;
-            usuario.Telefono = model.Telefono;
-            usuario.Password = model.Password;
+            usuario.PhoneNumber = model.Telefono;
+            usuario.PasswordHash = model.Password;
             usuario.Rol = model.Rol;
 
             _contenedorTrabajo.Usuario.Update(usuario);
@@ -274,9 +274,9 @@ namespace SistemaTaskWhatsapp.Controllers
         // POST: UsuarioController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(string id)
         {
-            var usuario = await _contenedorTrabajo.Usuario.GetByIdAsync(id);
+            var usuario = await _contenedorTrabajo.Usuario.GetFirstOrDefaultAsync(u => u.Id == id);
             if (usuario == null) return RedirectToAction("Index");
 
             var supervisor = await _contenedorTrabajo.Supervisor
@@ -298,7 +298,7 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
         //Funciones
-        private async Task ValidarDuplicidadCampos(string email, string telefono, int? id = null)
+        private async Task ValidarDuplicidadCampos(string email, string telefono, string? id = null)
         {
             var emailDuplicado = await _contenedorTrabajo.Usuario
                 .GetFirstOrDefaultAsync(u =>
@@ -311,7 +311,7 @@ namespace SistemaTaskWhatsapp.Controllers
 
             var telefonoDuplicado = await _contenedorTrabajo.Usuario
                 .GetFirstOrDefaultAsync(u =>
-                    u.Telefono == telefono && (id == null || u.Id != id));
+                    u.PhoneNumber == telefono && (id == null || u.Id != id));
 
             if (telefonoDuplicado != null)
             {
