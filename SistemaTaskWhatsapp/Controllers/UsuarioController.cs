@@ -209,9 +209,29 @@ namespace SistemaTaskWhatsapp.Controllers
             //Usuario
             usuario.Nombre = model.Nombre;
             usuario.Email = model.Email;
+            usuario.UserName = model.Email;
             usuario.PhoneNumber = model.Telefono;
-            usuario.PasswordHash = model.Password;
             usuario.Rol = model.Rol;
+
+            //Función por si se edita la contraseña
+            if (!string.IsNullOrWhiteSpace(model.Password))
+            {
+                var token = await _userManager.GeneratePasswordResetTokenAsync(usuario);
+
+                var passwordResult = await _userManager.ResetPasswordAsync(
+                    usuario,
+                    token,
+                    model.Password
+                );
+
+                if (!passwordResult.Succeeded)
+                {
+                    foreach (var error in passwordResult.Errors)
+                        ModelState.AddModelError("Password", error.Description);
+
+                    return View(model);
+                }
+            }
 
             await _userManager.UpdateAsync(usuario);
 
