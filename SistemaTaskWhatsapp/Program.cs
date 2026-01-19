@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using SistemaTaskWhatsapp.Services;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
+using SistemaTaskWhatsapp.AccesoDatos.Data.Seed;
 using SistemaTaskWhatsapp.Data;
 using SistemaTaskWhatsapp.Models;
+using SistemaTaskWhatsapp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +38,17 @@ builder.Services.AddSingleton(new WhatsAppService(
 ));
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = services.GetRequiredService<UserManager<Usuario>>();
+
+    await DbInitializer.InicializarAsync(roleManager, userManager);
+}
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
