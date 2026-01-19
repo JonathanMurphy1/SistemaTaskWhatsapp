@@ -87,7 +87,7 @@ namespace SistemaTaskWhatsapp.Services
 
                             if (listaTarea == null || !listaTarea.Any())
                             {
-                                mensaje = "No hay tareas en este momento, Felicidades." +
+                                respuesta = "No hay tareas en este momento, Felicidades." +
                                                 "\nEscriba cualquier cosa para volver al menú principal.";
                                 break;
                             }
