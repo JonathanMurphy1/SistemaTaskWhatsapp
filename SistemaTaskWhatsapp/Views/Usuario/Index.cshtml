@@ -36,7 +36,7 @@
                             <td>@usuario.Id</td>
                             <td>@usuario.Nombre</td>
                             <td>@usuario.Email</td>
-                            <td>@usuario.PhoneNumber</td>
+                            <td>@(usuario.PhoneNumber ?? "Sin número")</td>
                             <td>@usuario.Rol</td>
                             <td>
                                 <a class="btn btn-warning" asp-action="Edit" asp-route-id="@usuario.Id">Editar</a>

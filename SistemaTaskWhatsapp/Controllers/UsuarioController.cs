@@ -14,10 +14,14 @@ namespace SistemaTaskWhatsapp.Controllers
     public class UsuarioController : Controller
     {
         private readonly IContenedorTrabajo _contenedorTrabajo;
+        private readonly UserManager<Usuario> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public UsuarioController(IContenedorTrabajo contenedorTrabajo)
+        public UsuarioController(UserManager<Usuario> userManager, RoleManager<IdentityRole> roleManager, IContenedorTrabajo contenedorTrabajo)
         {
             _contenedorTrabajo = contenedorTrabajo;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         public async Task<IActionResult> Index()
@@ -71,14 +75,27 @@ namespace SistemaTaskWhatsapp.Controllers
             var usuario = new Usuario
             {
                 Nombre = model.Nombre,
+                UserName = model.Email,
                 Email = model.Email,
-                PasswordHash = model.Password,
                 PhoneNumber = model.Telefono,
                 Rol = model.Rol
             };
 
-            await _contenedorTrabajo.Usuario.AddAsync(usuario);
-            await _contenedorTrabajo.SaveAsync();
+            var resultado = await _userManager.CreateAsync(usuario, model.Password);
+
+            if (!resultado.Succeeded)
+            {
+                foreach (var error in resultado.Errors)
+                    ModelState.AddModelError("", error.Description);
+
+                return View(model);
+            }
+
+            //Ajustar el rol
+            await _userManager.AddToRoleAsync(
+                usuario,
+                model.Rol.ToString()
+            );
 
             if (model.Rol == Roles.Supervisor)
             {
@@ -114,7 +131,7 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(string id)
         {
-            var usuario = await _contenedorTrabajo.Usuario.GetFirstOrDefaultAsync(u => u.Id == id);
+            var usuario = await _userManager.FindByIdAsync(id);
             if (usuario == null)
                 return RedirectToAction("Index");
 
@@ -173,13 +190,21 @@ namespace SistemaTaskWhatsapp.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var usuario = await _contenedorTrabajo.Usuario.GetFirstOrDefaultAsync(u => u.Id == model.Id);
+            var usuario = await _userManager.FindByIdAsync(model.Id);
             if (usuario == null)
             {
                 TempData["Mensaje"] = "Usuario no encontrado";
                 TempData["Error"] = "Error";
                 return RedirectToAction("Index");
             }
+
+            var rolesActuales = await _userManager.GetRolesAsync(usuario);
+            await _userManager.RemoveFromRolesAsync(usuario, rolesActuales);
+
+            await _userManager.AddToRoleAsync(
+                usuario,
+                model.Rol.ToString()
+            );
 
             //Usuario
             usuario.Nombre = model.Nombre;
@@ -188,7 +213,7 @@ namespace SistemaTaskWhatsapp.Controllers
             usuario.PasswordHash = model.Password;
             usuario.Rol = model.Rol;
 
-            _contenedorTrabajo.Usuario.Update(usuario);
+            await _userManager.UpdateAsync(usuario);
 
             //Supervisor
             if (model.Rol == Roles.Supervisor)
@@ -291,7 +316,7 @@ namespace SistemaTaskWhatsapp.Controllers
             if (empleado != null)
                 _contenedorTrabajo.Empleado.Remove(empleado);
 
-            _contenedorTrabajo.Usuario.Remove(usuario);
+            await _userManager.DeleteAsync(usuario);
             await _contenedorTrabajo.SaveAsync();
 
             return RedirectToAction("Index");
