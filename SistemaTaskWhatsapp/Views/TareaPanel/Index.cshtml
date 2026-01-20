@@ -101,13 +101,13 @@
                     <input type="hidden" asp-for="Tarea.ProyectoId" value="@proyectoId" />
                     <div class="form-group">
                         <label for="nombre">Nombre:</label>
-                        <input type="text" id="nombre" asp-for="Tarea.Nombre" class="form-control" placeholder="Escriba el nombre del proyecto..." />
+                        <input type="text" id="nombre" asp-for="Tarea.Nombre" class="form-control" placeholder="Escriba el nombre de la tarea..." />
                         <span asp-validation-for="Tarea.Nombre" class="text-danger"></span>
                     </div>
                     <br />
                     <div class="form-group">
                         <label for="descripcion">Descripción:</label>
-                        <textarea type="text" id="descripcion" asp-for="Tarea.Descripcion" class="form-control" placeholder="Escriba una descripción acerca del proyecto..."></textarea>
+                        <textarea type="text" id="descripcion" asp-for="Tarea.Descripcion" class="form-control" placeholder="Escriba una descripción acerca de la tarea..."></textarea>
                         <span asp-validation-for="Tarea.Descripcion" class="text-danger"></span>
                     </div>
                     <br />
