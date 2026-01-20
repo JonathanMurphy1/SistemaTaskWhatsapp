@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaTaskWhatsapp.Data;
 
@@ -11,9 +12,11 @@ using SistemaTaskWhatsapp.Data;
 namespace SistemaTaskWhatsapp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260120171738_Fix IdentityUser table")]
+    partial class FixIdentityUsertable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -185,7 +188,7 @@ namespace SistemaTaskWhatsapp.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ChatSession", (string)null);
+                    b.ToTable("ChatSession");
                 });
 
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Empleado", b =>
@@ -212,7 +215,7 @@ namespace SistemaTaskWhatsapp.Data.Migrations
 
                     b.HasIndex("UsuarioId");
 
-                    b.ToTable("Empleado", (string)null);
+                    b.ToTable("Empleado");
                 });
 
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Empresa", b =>
@@ -232,7 +235,7 @@ namespace SistemaTaskWhatsapp.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Empresa", (string)null);
+                    b.ToTable("Empresa");
                 });
 
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Evidencia", b =>
@@ -258,7 +261,7 @@ namespace SistemaTaskWhatsapp.Data.Migrations
 
                     b.HasIndex("ReporteId");
 
-                    b.ToTable("Evidencia", (string)null);
+                    b.ToTable("Evidencia");
                 });
 
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Proyecto", b =>
@@ -294,7 +297,7 @@ namespace SistemaTaskWhatsapp.Data.Migrations
 
                     b.HasIndex("EmpresaId");
 
-                    b.ToTable("Proyecto", (string)null);
+                    b.ToTable("Proyecto");
                 });
 
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Reporte", b =>
@@ -337,7 +340,7 @@ namespace SistemaTaskWhatsapp.Data.Migrations
 
                     b.HasIndex("TareaId");
 
-                    b.ToTable("Reporte", (string)null);
+                    b.ToTable("Reporte");
                 });
 
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Retroalimentacion", b =>
@@ -371,7 +374,7 @@ namespace SistemaTaskWhatsapp.Data.Migrations
 
                     b.HasIndex("SupervisorId");
 
-                    b.ToTable("Retroalimentacion", (string)null);
+                    b.ToTable("Retroalimentacion");
                 });
 
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Supervisor", b =>
@@ -395,7 +398,7 @@ namespace SistemaTaskWhatsapp.Data.Migrations
 
                     b.HasIndex("UsuarioId");
 
-                    b.ToTable("Supervisor", (string)null);
+                    b.ToTable("Supervisor");
                 });
 
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Tarea", b =>
@@ -439,7 +442,7 @@ namespace SistemaTaskWhatsapp.Data.Migrations
 
                     b.HasIndex("ProyectoId");
 
-                    b.ToTable("Tarea", (string)null);
+                    b.ToTable("Tarea");
                 });
 
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.TareaEmpleado", b =>
@@ -462,7 +465,7 @@ namespace SistemaTaskWhatsapp.Data.Migrations
 
                     b.HasIndex("TareaId");
 
-                    b.ToTable("TareaEmpleado", (string)null);
+                    b.ToTable("TareaEmpleado");
                 });
 
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Usuario", b =>
