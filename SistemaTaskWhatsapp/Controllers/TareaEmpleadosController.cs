@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Models;
 using SistemaTaskWhatsapp.Models.ViewModels;
@@ -6,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace SistemaTaskWhatsapp.Controllers
 {
+    [Authorize(Roles = "Administrador,Supervisor")]
     public class TareaEmpleadosController : Controller
     {
         private readonly IContenedorTrabajo _contenedorTrabajo;

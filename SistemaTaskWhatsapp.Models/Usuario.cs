@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace SistemaTaskWhatsapp.Models
 {
-    [Table("Usuario")]
     public class Usuario : IdentityUser
     {
         [Required(ErrorMessage = "El nombre es obligatorio")]

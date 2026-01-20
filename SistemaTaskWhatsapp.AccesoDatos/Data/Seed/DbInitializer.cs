@@ -34,10 +34,12 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Seed
                 var admin = new Usuario
                 {
                     UserName = adminEmail,
+                    NormalizedUserName = adminEmail.ToUpper(),
                     Email = adminEmail,
+                    NormalizedEmail = adminEmail.ToUpper(),
                     EmailConfirmed = true,
                     Nombre = "Administrador",
-                    Rol = (int)Roles.Administrador 
+                    Rol = (int)Roles.Administrador
                 };
 
                 var resultado = await userManager.CreateAsync(admin, adminPassword);
