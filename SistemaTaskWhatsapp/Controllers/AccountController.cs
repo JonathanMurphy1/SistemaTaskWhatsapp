@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Data;
 using SistemaTaskWhatsapp.Models;
 using SistemaTaskWhatsapp.Models.ViewModels;
@@ -11,11 +12,13 @@ namespace SistemaTaskWhatsapp.Controllers
     {
         private readonly UserManager<Usuario> _userManager;
         private readonly SignInManager<Usuario> _signInManager;
+        private readonly IContenedorTrabajo _contenedorTrabajo;
 
-        public AccountController(UserManager<Usuario> userManager, SignInManager<Usuario> signInManager)
+        public AccountController(UserManager<Usuario> userManager, SignInManager<Usuario> signInManager, IContenedorTrabajo contenedorTrabajo)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _contenedorTrabajo = contenedorTrabajo;
         }
 
         [HttpGet]
@@ -36,6 +39,24 @@ namespace SistemaTaskWhatsapp.Controllers
             if(usuario == null)
             {
                 ModelState.AddModelError("", "No se encontro el usuario");
+                return View(model);
+            }
+
+            //Si es empleado no deja logear
+            if(usuario.Rol == Utilidades.Roles.Empleado)
+            {
+                ModelState.AddModelError("", "Usuario no valido");
+                return View(model);
+            }
+
+            //Si el supervisor esta como inactivo no deja logearse
+            var supervisorBloqueado = await _contenedorTrabajo.Supervisor
+                .GetFirstOrDefaultAsync(s => s.UsuarioId == usuario.Id 
+                && s.Estado == Utilidades.EstadosSupervisor.Inactivo);
+
+            if(supervisorBloqueado != null)
+            {
+                ModelState.AddModelError("", "Usuario bloqueado");
                 return View(model);
             }
 
