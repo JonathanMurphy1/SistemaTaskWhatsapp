@@ -8,17 +8,19 @@
 <div class="contenedor">
     <h1 class="text-center display-4 fw-bold">Bienvenido <i class="bi bi-person-workspace"></i></h1>
     <h3 class="text-center display-4">Sistema de tareas con whatsapp</h3>
-    <div class="container p-4 border rounded shadow">
-        <h3 class="text-center">Proyectos</h3>
-        <br />
-            @if(!Model.Any())
+    @if (User.Identity.IsAuthenticated && (User.IsInRole("Administrador") || User.IsInRole("Supervisor")))
+    {
+        <div class="container p-4 border rounded shadow">
+            <h3 class="text-center">Proyectos</h3>
+            <br />
+            @if (!Model.Any())
             {
                 <span class="text-center text-muted">No hay proyectos</span>
             }
             else
             {
                 <div class="contenedor-cartas row row-cols-1 row-cols-md-3 g-2">
-                    @foreach(var vm in Model)
+                    @foreach (var vm in Model)
                     {
                         string estadoColor;
                         switch (vm.Proyecto.Estado)
@@ -65,5 +67,6 @@
                     }
                 </div>
             }
-    </div>
+        </div>
+    }
 </div>

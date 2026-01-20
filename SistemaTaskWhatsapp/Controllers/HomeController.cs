@@ -21,6 +21,9 @@ namespace SistemaTaskWhatsapp.Controllers
 
         public async Task<IActionResult> Index()
         {
+            if (!(User.Identity.IsAuthenticated && (User.IsInRole("Administrador") || User.IsInRole("Supervisor"))))
+                return View();
+
             var lista = await _contenedorTrabajo.Proyecto.GetAllAsync(includeProperties: "Empresa");
 
             var model = lista.Select(x => new ProyectoHomeVM
