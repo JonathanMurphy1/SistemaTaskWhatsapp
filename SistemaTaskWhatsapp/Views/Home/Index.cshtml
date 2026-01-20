@@ -5,12 +5,32 @@
     ViewData["Title"] = "Inicio";
 }
 
+<style>
+    /* Animación general de la vista */
+    .fade-in-page {
+        animation: fadeIn 0.6s ease forwards;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+</style>
+
 <div class="contenedor">
     <h1 class="text-center display-4 fw-bold">Bienvenido <i class="bi bi-person-workspace"></i></h1>
     <h3 class="text-center display-4">Sistema de tareas con whatsapp</h3>
     @if (User.Identity.IsAuthenticated && (User.IsInRole("Administrador") || User.IsInRole("Supervisor")))
     {
-        <div class="container p-4 border rounded shadow">
+        <div class="container p-4 border rounded shadow fade-in-page">
             <h3 class="text-center">Proyectos</h3>
             <br />
             @if (!Model.Any())

@@ -5,10 +5,49 @@
     ViewData["Title"] = "Agregar Usuario";
 }
 
+<style>
+    /* Animación general de la vista */
+    .fade-in-page {
+        animation: fadeIn 0.6s ease forwards;
+    }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    /* Animación de formularios dinámicos */
+    .animated-form {
+        overflow: hidden;
+        transition: max-height 0.4s ease, opacity 0.3s ease, transform 0.3s ease;
+        max-height: 0;
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+        .animated-form.show {
+            max-height: 500px;
+            opacity: 1;
+            transform: translateY(0);
+        }
+</style>
+
 <h3 class="text-center">@ViewData["Title"]</h3>
+
 <form method="post" asp-action="Create">
-    <div class="row p-3 offset-1 border shadow">
+    <div class="row p-3 offset-1 border shadow fade-in-page">
         <div asp-validation-summary="All" class="text-danger"></div>
+
         <div class="col-10 offset-1 p-4">
             <div class="d-flex gap-5">
                 <div class="col-6">
@@ -18,20 +57,23 @@
                         <span asp-validation-for="Nombre" class="text-danger"></span>
                     </div>
                     <br />
+
                     <div class="form-group">
                         <label asp-for="Email">Email:</label>
                         <input asp-for="Email" class="form-control" />
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
                     <br />
+
                     <div class="form-group">
                         <label asp-for="Password">Contraseña:</label>
                         <input type="password" asp-for="Password" class="form-control" />
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
                     <br />
+
                     <div class="form-group">
-                        <label asp-for="Telefono">Telefono:</label>
+                        <label asp-for="Telefono">Teléfono:</label>
                         <input asp-for="Telefono" class="form-control" maxlength="10" />
                         <span asp-validation-for="Telefono" class="text-danger"></span>
                     </div>
@@ -50,15 +92,18 @@
 
                     <!-- Formularios dinámicos -->
                     <div id="formularioDinamico" class="mt-3">
-                        <div id="formSupervisor" style="display:none">
+
+                        <div id="formSupervisor" class="animated-form">
                             <partial name="Partials/_FormSupervisor" model="Model" />
                         </div>
-                        <div id="formEmpleado" style="display:none">
+
+                        <div id="formEmpleado" class="animated-form">
                             <partial name="Partials/_FormEmpleado" model="Model" />
                         </div>
+
                     </div>
                 </div>
-            </div> 
+            </div>
 
             <div class="d-flex justify-content-center gap-2 mt-4">
                 <a asp-action="Index" class="btn btn-secondary">
@@ -83,13 +128,13 @@
 
             // Supervisor
             const isSupervisor = rol === "1";
-            formSupervisor.style.display = isSupervisor ? "block" : "none";
+            formSupervisor.classList.toggle("show", isSupervisor);
             formSupervisor.querySelectorAll("input, select")
                 .forEach(el => el.disabled = !isSupervisor);
 
             // Empleado
             const isEmpleado = rol === "2";
-            formEmpleado.style.display = isEmpleado ? "block" : "none";
+            formEmpleado.classList.toggle("show", isEmpleado);
             formEmpleado.querySelectorAll("input, select")
                 .forEach(el => el.disabled = !isEmpleado);
         }
