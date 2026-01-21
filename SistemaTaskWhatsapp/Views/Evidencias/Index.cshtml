@@ -5,44 +5,57 @@
 }
 
 <div class="contenedor-principal">
-    <div class="d-flex justify-content-between">
-        <h3 class="col-3">@ViewData["Title"]</h3>
-        <a asp-action="Create" class="btn btn-success col-2"><i class="bi bi-plus"></i> Nueva evidencia</a>
+    <div class="d-flex justify-content-between align-items-center">
+        <h3>@ViewData["Title"]</h3>
+        <a asp-action="Create" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Nueva evidencia
+        </a>
     </div>
-    <div class="mt-4">
-        <table class="table table-bordered table-hover">
+    <div class="mt-4 table-responsive">
+        <table class="table table-hover align-middle">
             <thead>
                 <tr>
                     <th>Id</th>
                     <th>Descripción</th>
                     <th>Reporte</th>
-                    <th>Acciones</th>
+                    <th class="text-center">Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                @if(Model == null || !Model.Any())
+                @if (Model == null || !Model.Any())
                 {
                     <tr>
-                        <td colspan="5" class="text-center text-muted" >No hay evidencias registradas...</td>
+                        <td colspan="4" class="text-center text-muted py-4">
+                            <i class="bi bi-image"></i>
+                            No hay evidencias registradas...
+                        </td>
                     </tr>
                 }
                 else
                 {
-                    foreach(var evidencia in Model)
+                    foreach (var evidencia in Model)
                     {
                         <tr>
                             <td>@evidencia.Id</td>
                             <td>@evidencia.Descripcion</td>
                             <td>@evidencia.Reporte?.Nombre</td>
-                            <td>
-                                <button class="btn btn-primary btnPreviewEvidencia"
-                                        data-url="@evidencia.Url"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalPreviewEvidencia">
-                                    Evidencia
+                            <td class="text-center">
+                                <button title="Ver evidencia"
+                                    class="btn btn-sm btn-primary btnPreviewEvidencia" data-url="@evidencia.Url"
+                                    data-bs-toggle="modal" data-bs-target="#modalPreviewEvidencia">
+                                    <i class="bi bi-eye"></i>
                                 </button>
-                                <a class="btn btn-warning" asp-action="Edit" asp-route-id="@evidencia.Id">Editar</a>
-                                <button class="btn btn-danger" data-id="@evidencia.Id" data-bs-toggle="modal" data-bs-target="#modalEliminar">Borrar</button>
+
+                                <a title="Editar"
+                                    class="btn btn-sm btn-warning" asp-action="Edit"
+                                    asp-route-id="@evidencia.Id"><i class="bi bi-pencil"></i>
+                                </a>
+                                
+                                <button title="Eliminar"
+                                    class="btn btn-sm btn-danger" data-id="@evidencia.Id"
+                                    data-bs-toggle="modal" data-bs-target="#modalEliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
                             </td>
                         </tr>
                     }
@@ -52,54 +65,68 @@
     </div>
 </div>
 
+<!-- Modal Eliminar -->
 <div class="modal fade" id="modalEliminar">
     <div class="modal-dialog">
         <div class="modal-content">
 
-            <!-- Modal Header -->
             <div class="modal-header bg-danger">
-                <h4 class="modal-title text-white">Eliminar</h4>
+                <h4 class="modal-title text-white">Eliminar evidencia</h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
-            <!-- Modal body -->
             <div class="modal-body">
-                <h5>Estas seguro de querer eliminar esta evidencia? </h5>
+                <h5>¿Deseas eliminar esta evidencia?</h5>
             </div>
 
-            <!-- Modal footer -->
             <div class="modal-footer">
-                <div class="d-flex justify-content-center gap-3">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <form asp-action="Delete" method="post">
-                        <input id="inputId" name="id" value="" type="hidden"/>
-                        <button type="submit" class="btn btn-danger">Borrar</button>
-                    </form>
-                </div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+                <form asp-action="Delete" method="post">
+                    <input id="inputId" name="id" type="hidden" />
+                    <button type="submit" class="btn btn-danger">
+                        Eliminar
+                    </button>
+                </form>
             </div>
+
         </div>
     </div>
 </div>
 
 <!-- Modal Preview Evidencia -->
-<div class="modal fade" id="modalPreviewEvidencia" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalPreviewEvidencia" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
+
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title">Vista previa del archivo</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
+
             <div class="modal-body text-center">
-                <div id="previewContainer" class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
+                <div id="previewContainer"
+                     class="d-flex justify-content-center align-items-center"
+                     style="min-height: 400px;">
                     <p class="text-muted">Cargando vista previa...</p>
                 </div>
             </div>
+
             <div class="modal-footer">
-                <a id="btnDescargarArchivo" class="btn btn-success" target="_blank" download>
-                    <i class="fa-solid fa-download"></i> Descargar
+                <a id="btnDescargarArchivo"
+                   class="btn btn-success"
+                   target="_blank"
+                   download>
+                    <i class="bi bi-download"></i> Descargar
                 </a>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cerrar
+                </button>
             </div>
+
         </div>
     </div>
 </div>
