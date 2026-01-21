@@ -38,12 +38,13 @@ body {
     }
 }
 
-/* Formato general para las tablas */
-
+/* Formato general para las tablas */}
 .table {
     border-radius: 12px;
     overflow: hidden;
     background: #fff;
+
+    animation: fadeIn 0.6s ease-out;
 }
 
     .table thead {
@@ -91,7 +92,12 @@ body {
 }
 
 .tooltip-inner {
-    max-width: 300px;
+    max-width: 400px;
     text-align: top;
     white-space: normal;
+    background-color: rgba(0, 0, 0, 1);
+    color: #fff;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    border-radius: 6px;
 }
