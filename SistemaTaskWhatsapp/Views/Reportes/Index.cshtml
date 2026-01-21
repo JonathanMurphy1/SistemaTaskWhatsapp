@@ -52,7 +52,12 @@
                                     <small class="text-muted">@reporte.Empleado.Usuario.Email</small>
                                 </div>
                             </td>
-                            <td>@reporte.Contenido</td>
+                            <td>
+                                <span class="contenido-preview d-inline-block"
+                                    data-bs-toggle="tooltip" title="@reporte.Contenido">
+                                    @reporte.Contenido
+                                </span>
+                            </td>
                             <td> @(string.IsNullOrWhiteSpace(reporte.Inconvenientes) ? "Sin inconvenientes" : reporte.Inconvenientes)</td>
                             <td>@(string.IsNullOrWhiteSpace(reporte.ComentarioEmpleado)  ? "Sin comentarios" : reporte.ComentarioEmpleado)</td>
                             <td>@reporte.FechaSubida.ToString("dd/MM/yyyy")</td>
@@ -125,4 +130,17 @@
 
 @section Scripts {
     <script src="~/js/reporte/reporteIndex.js"></script>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const tooltipTriggerList = [].slice.call(
+                document.querySelectorAll('[data-bs-toggle="tooltip"]')
+            );
+
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
 }

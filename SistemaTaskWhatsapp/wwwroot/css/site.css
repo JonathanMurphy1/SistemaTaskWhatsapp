@@ -80,3 +80,18 @@ body {
     font-weight: 500;
     font-size: 0.75rem;
 }
+
+/* Función para expandir el texto en las tablas */
+.contenido-preview {
+    max-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: help;
+}
+
+.tooltip-inner {
+    max-width: 300px;
+    text-align: top;
+    white-space: normal;
+}
