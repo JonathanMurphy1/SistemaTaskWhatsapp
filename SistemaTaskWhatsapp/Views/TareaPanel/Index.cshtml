@@ -17,7 +17,7 @@
                 <h3 class="text-center text-muted">No hay tareas...</h3>
                 <div class="d-flex justify-content-center gap-2">
                     <a class="btn btn-secondary" asp-controller="Home" asp-action="Index"><i class="bi bi-arrow-left"></i> Volver</a>
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCrear"><i class="bi bi-plus"></i>Nueva tarea</button>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCrear"><i class="bi bi-plus-circle"></i> Nueva tarea</button>
                 </div>
             }
             else
@@ -26,7 +26,7 @@
                     <h4>Proyecto: @Model.Lista.First().Tarea.Proyecto.Nombre</h4>
                     <div class="d-flex justify-content-center gap-2">
                         <button class="btn btn-success" data-reporteId="@Model.Lista.FirstOrDefault().Tarea.ProyectoId" 
-                            data-bs-toggle="modal" data-bs-target="#modalCrear"><i class="bi bi-plus"></i>Nueva tarea</button>
+                            data-bs-toggle="modal" data-bs-target="#modalCrear"><i class="bi bi-plus-circle"></i> Nueva tarea</button>
                         <a class="btn btn-secondary" asp-controller="Home" asp-action="Index"><i class="bi bi-arrow-left"></i> Volver</a>
                     </div>
                 </div>
