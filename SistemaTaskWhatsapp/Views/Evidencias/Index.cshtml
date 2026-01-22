@@ -37,7 +37,13 @@
                     {
                         <tr>
                             <td>@evidencia.Id</td>
-                            <td>@evidencia.Descripcion</td>
+                            <td>
+                                <span class="contenido-preview-ev d-inline-block"
+                                      data-bs-toggle="tooltip" data-bs-placement="right"
+                                      title="@evidencia.Descripcion">
+                                      @evidencia.Descripcion
+                                </span>
+                            </td>
                             <td>@evidencia.Reporte?.Nombre</td>
                             <td class="text-center">
                                 <button title="Ver evidencia"
@@ -133,4 +139,16 @@
 
 @section Scripts {
     <script src="~/js/evidencia/evidenciaIndex.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const tooltipTriggerList = [].slice.call(
+                document.querySelectorAll('[data-bs-toggle="tooltip"]')
+            );
+
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
 }

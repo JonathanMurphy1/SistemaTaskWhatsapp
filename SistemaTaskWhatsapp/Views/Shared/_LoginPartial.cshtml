@@ -3,24 +3,28 @@
 @inject UserManager<Usuario> UserManager
 
 <ul class="navbar-nav">
-@if (SignInManager.IsSignedIn(User))
-{
-    <li class="nav-item">
-            <a class="nav-link text-light" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hola @User.Identity?.Name!</a>
-    </li>
-    <li class="nav-item">
-        <form  class="form-inline" asp-controller="Account" asp-action="Logout">
-                <button type="submit" class="nav-link btn btn-link text-light">Salir</button>
-        </form>
-    </li>
-}
-else
-{
-    @* <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
-    </li> *@
-    <li class="nav-item">
-            <a class="nav-link text-light" asp-controller="Account" asp-action="Login">Entrar</a>
-    </li>
-}
+
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item">
+                <a class="nav-link text-light" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hola @User.Identity?.Name!</a>
+        </li>
+        <li class="nav-item">
+            <form  class="form-inline" asp-controller="Account" asp-action="Logout">
+                    <button type="submit" class="nav-link btn btn-link text-light">Salir</button>
+            </form>
+        </li>
+    }
+    else
+    {
+        @* <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
+        </li> *@
+        <li class="nav-item">
+                <a class="nav-link text-light" asp-controller="Account" asp-action="Login">Entrar</a>
+        </li>
+    }
+    <button id="toggleDarkMode" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-moon"></i>
+    </button>
 </ul>
