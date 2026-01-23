@@ -172,6 +172,10 @@ body.dark-mode .form-select {
     border-color: #333;
 }
 
+/* Texto muted en modo oscuro */
+body.dark-mode .table .text-muted {
+    color: #adb5bd !important;
+}
 
 /* ------MODALES EN MODO OSCURO------ */
 body.dark-mode .modal-content {
