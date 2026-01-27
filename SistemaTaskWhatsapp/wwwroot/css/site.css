@@ -132,6 +132,18 @@ body {
     color: #fff;
 }
 
+/* Hover del navbar */
+.navbar-dark .navbar-nav .nav-link {
+    transition: background-color 0.2s ease, color 0.2s ease;
+    border-radius: 0.375rem; /* suave */
+    padding: 0.5rem 0.75rem;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.15); 
+    color: #ffffff;
+}
+
 /* ------MODO OSCURO--------- */
 body.dark-mode {
     background-color: #121212;
