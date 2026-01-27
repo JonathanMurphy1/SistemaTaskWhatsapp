@@ -218,3 +218,21 @@ body.dark-mode .modal-content .form-control, body.dark-mode .modal-content .form
     border-color: #333;
 }
 
+/* Menú del Dropdown */
+body.dark-mode .dropdown-menu {
+    background-color: #1f1f1f;
+    border-color: #333;
+}
+
+body.dark-mode .dropdown-item {
+    color: #f1f1f1;
+}
+
+body.dark-mode .dropdown-item:hover {
+    background-color: #2a2a2a;
+}
+
+body.dark-mode .dropdown-divider {
+    border-color: #444;
+}
+
