@@ -39,6 +39,7 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ReporteVM model)
         {
             if (!ModelState.IsValid)
@@ -60,8 +61,8 @@ namespace SistemaTaskWhatsapp.Controllers
             {
                 var nuevoColaborador = new TareaEmpleado
                 {
-                    EmpleadoId = model.Reporte.EmpleadoId,
-                    TareaId = model.Reporte.TareaId
+                    EmpleadoId = (int)model.Reporte.EmpleadoId,
+                    TareaId = (int)model.Reporte.TareaId
                 };
 
                 await _contenedorTrabajo.TareaEmpleado.AddAsync(nuevoColaborador);
@@ -90,6 +91,7 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(ReporteVM model)
         {
             if (!ModelState.IsValid)
@@ -109,8 +111,8 @@ namespace SistemaTaskWhatsapp.Controllers
             {
                 var nuevoColaborador = new TareaEmpleado
                 {
-                    EmpleadoId = model.Reporte.EmpleadoId,
-                    TareaId = model.Reporte.TareaId
+                    EmpleadoId = (int)model.Reporte.EmpleadoId,
+                    TareaId = (int)model.Reporte.TareaId
                 };
 
                 await _contenedorTrabajo.TareaEmpleado.AddAsync(nuevoColaborador);
@@ -122,6 +124,7 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             var reporte = await _contenedorTrabajo.Reporte.GetByIdAsync(id);

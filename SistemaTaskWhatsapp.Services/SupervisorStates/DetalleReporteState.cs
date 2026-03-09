@@ -57,7 +57,7 @@ namespace SistemaTaskWhatsapp.Services.SupervisorStates
 
             sesion.EstadoStep = "DarRetroalimentacion";
             var data = SessionJsonHelper.GetData<RevisarVM>(sesion.DatosParciales);
-            data.TareaId = reporte.TareaId;
+            data.TareaId = (int)reporte.TareaId;
             data.ReporteId = reporte.Id;
             sesion.DatosParciales = SessionJsonHelper.SetData(data);
             return respuesta;

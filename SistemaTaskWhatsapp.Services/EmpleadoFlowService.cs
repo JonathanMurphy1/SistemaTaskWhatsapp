@@ -81,60 +81,75 @@ namespace SistemaTaskWhatsapp.Services
                     {
                         //Mostrar tareas/////////////////
                         case "1":
-                            var listaTarea = (await _contenedorTrabajo.Tarea.GetAllAsync(
+                        {
+                                var listaTarea = (await _contenedorTrabajo.Tarea.GetAllAsync(
                                   t => t.Estado == EstadosTarea.Pendiente && t.TareaEmpleados.Any(te => te.EmpleadoId == empleado.Id),includeProperties: "Proyecto"
                                                     )) .OrderBy(t => t.FechaEntrega).ToList();
 
+                                if (listaTarea == null || !listaTarea.Any())
+                                {
+                                    respuesta = "No hay tareas en este momento, Felicidades." +
+                                                    "\nEscriba cualquier cosa para volver al menú principal.";
+                                    break;
+                                }
+                                else
+                                {
+                                    respuesta = "Mis tareas pendientes\n" +
+                                        "_______________________________________________________\n";
+
+                                    foreach (var item in listaTarea)
+                                    {
+                                        var fechaEntrega = item.FechaEntrega.Value.Date;
+                                        var hoy = DateTime.Now.Date;
+                                        var diasRestantes = (fechaEntrega - hoy).Days;
+
+                                        string estadoEntrega;
+                                        if (diasRestantes < 0)
+                                            estadoEntrega = $"Vencida hace {Math.Abs(diasRestantes)} días";
+                                        else if (diasRestantes == 0)
+                                            estadoEntrega = "Vence hoy";
+                                        else if (diasRestantes == 1)
+                                            estadoEntrega = "Vence mañana";
+                                        else
+                                            estadoEntrega = $"Quedan {diasRestantes} días para su entrega";
+
+                                        respuesta += $"Nombre: {item.Nombre}\n" +
+                                            $"Tarea con ID: {item.Id}\n" +
+                                            $"Proyecto: {item.Proyecto?.Nombre}\n" +
+                                            $"Descripción: {item.Descripcion}\n" +
+                                            $"Fecha de inicio: {item.FechaInicio:dd/MM/yyyy}\n" +
+                                            $"Fecha de entrega: {item.FechaEntrega:dd/MM/yyyy}\n" +
+                                            $"{estadoEntrega}\n" +
+                                            $"_______________________________________________________\n";
+                                    }
+                                }
+
+                                respuesta += "\nEscriba cualquier cosa para volver al menú principal.";
+                                sesion.EstadoStep = "Inicio";
+                                break;
+                        }
+                        //Enviar reporte/////////////////////////////////////////////
+                        case "2":
+                        {   
+                            var listaTarea = await _contenedorTrabajo.Tarea.GetAllAsync(
+                                     t => t.Estado == EstadosTarea.Pendiente && t.TareaEmpleados.Any(
+                                         te => te.EmpleadoId == empleado.Id), includeProperties: "Proyecto");
+
                             if (listaTarea == null || !listaTarea.Any())
                             {
-                                respuesta = "No hay tareas en este momento, Felicidades." +
-                                                "\nEscriba cualquier cosa para volver al menú principal.";
+                                respuesta = "No hay tareas en este momento para realizar un reporte." +
+                                                   "\nEscriba cualquier cosa para volver al menú principal.";
                                 break;
                             }
                             else
                             {
-                                respuesta = "Mis tareas pendientes\n" +
-                                    "_______________________________________________________\n";
+                                respuesta += "Ingresa el Id de la tarea para hacer su reporte.\n" +
+                                         "Escribe *Inicio* para volver al menú principal";
 
-                                foreach (var item in listaTarea)
-                                {
-                                    var fechaEntrega = item.FechaEntrega.Value.Date;
-                                    var hoy = DateTime.Now.Date;
-                                    var diasRestantes = (fechaEntrega - hoy).Days;
-
-                                    string estadoEntrega;
-                                    if (diasRestantes < 0)
-                                        estadoEntrega = $"Vencida hace {Math.Abs(diasRestantes)} días";
-                                    else if (diasRestantes == 0)
-                                        estadoEntrega = "Vence hoy";
-                                    else if (diasRestantes == 1)
-                                        estadoEntrega = "Vence mañana";
-                                    else
-                                        estadoEntrega = $"Quedan {diasRestantes} días para su entrega";
-
-                                    respuesta += $"Nombre: {item.Nombre}\n" +
-                                        $"Tarea con ID: {item.Id}\n" +
-                                        $"Proyecto: {item.Proyecto?.Nombre}\n" +
-                                        $"Descripción: {item.Descripcion}\n" +
-                                        $"Fecha de inicio: {item.FechaInicio:dd/MM/yyyy}\n" +
-                                        $"Fecha de entrega: {item.FechaEntrega:dd/MM/yyyy}\n" +
-                                        $"{estadoEntrega}\n" +
-                                        $"_______________________________________________________\n";
-                                }
+                                sesion.EstadoStep = "ValidarTarea";
+                                break;
                             }
-
-                            respuesta += "\nEscriba cualquier cosa para volver al menú principal.";
-                            sesion.EstadoStep = "Inicio";
-                            break;
-
-                        //Enviar reporte/////////////////////////////////////////////
-                        case "2":
-                            respuesta += "Ingresa el Id de la tarea para hacer su reporte.\n" +
-                                        "Escribe *Inicio* para volver al menú principal";
-
-                            sesion.EstadoStep = "ValidarTarea";
-                            break;
-
+                        }
                         //Ver retroalimentaciones///////////////////////////////////
                         case "3":
                             var listaRetroalimentacion = await _contenedorTrabajo.Retroalimentacion.GetAllAsync(

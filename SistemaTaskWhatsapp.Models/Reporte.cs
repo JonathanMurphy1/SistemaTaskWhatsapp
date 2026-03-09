@@ -16,14 +16,15 @@ namespace SistemaTaskWhatsapp.Models
         public int Id { get; set; }
 
         [Required(ErrorMessage = "No se asigno la tarea a la que pertenece el reporte")]
-        public int TareaId { get; set; }
+        public int? TareaId { get; set; }
         [ForeignKey("TareaId")]
         public Tarea? Tarea { get; set; }
 
         [Required(ErrorMessage = "El nombre del reporte es obligatorio")]
         public string Nombre { get; set; }
 
-        public int EmpleadoId { get; set; }
+        [Required(ErrorMessage = "El colaborador es obligatorio")]
+        public int? EmpleadoId { get; set; }
         [ForeignKey("EmpleadoId")]
         public Empleado? Empleado { get; set; }
 

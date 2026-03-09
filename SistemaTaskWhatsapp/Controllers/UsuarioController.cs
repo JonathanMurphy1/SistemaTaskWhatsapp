@@ -28,7 +28,7 @@ namespace SistemaTaskWhatsapp.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var listaUsuarios = await _contenedorTrabajo.Usuario.GetAllAsync();
+            var listaUsuarios = await _contenedorTrabajo.Usuario.GetAllAsync(u => u.Email != "admin@sistema.com");
 
             return View(listaUsuarios);
         }
