@@ -79,16 +79,26 @@ app.UseHangfireDashboard();
 RecurringJob.AddOrUpdate<MessageJobs>(
     "recordatorio-empleados",
     job => job.EnviarRecordatoriosEmpleados(),
-    Cron.Daily(12),
+    "25 10 * * *",
     TimeZoneInfo.Local
 );
+
 
 RecurringJob.AddOrUpdate<MessageJobs>(
     "avisar-supervisores",
     job => job.AvisarSupervisores(),
-    Cron.Daily(12),
+    "25 11 * * *",
     TimeZoneInfo.Local
 );
+//25 minutos 11 hora * * *
+
+//Formato para hora sin minutos
+//RecurringJob.AddOrUpdate<MessageJobs>(
+//    "avisar-supervisores",
+//    job => job.AvisarSupervisores(),
+//    Cron.Daily(12),
+//    TimeZoneInfo.Local
+//);
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

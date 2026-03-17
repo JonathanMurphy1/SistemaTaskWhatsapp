@@ -6,11 +6,11 @@ namespace SistemaTaskWhatsapp.Utilidades
     {
         // Recordatorio para empleados sobre tareas pendientes
         public const string RecordatorioTareas =
-            "Buenos días {0}, tienes {1} tareas pendientes hoy. Recuerda completarlas antes de finalizar tu jornada.";
+            "Buenos días {0}, tienes {1} tareas pendientes. Puedes revisarlas mediante el chat asistente.";
 
         // Aviso para supervisores cuando un empleado tiene reportes por revisar
         public const string AvisoSupervisorReportes =
-            "Aviso: Buen día {0} tienes {1} reportes sin revisar.";
+            "Buen día {0} tienes {1} reportes sin revisar.";
 
 
     }

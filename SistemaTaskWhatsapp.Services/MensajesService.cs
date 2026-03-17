@@ -10,10 +10,14 @@ namespace SistemaTaskWhatsapp.Services
     public class MensajesService
     {
         private readonly IContenedorTrabajo _contenedorTrabajo;
+        private readonly WhatsAppService _whatsAppService;
 
-        public MensajesService(IContenedorTrabajo contenedorTrabajo)
+        public MensajesService(
+            IContenedorTrabajo contenedorTrabajo,
+            WhatsAppService whatsAppService)
         {
             _contenedorTrabajo = contenedorTrabajo;
+            _whatsAppService = whatsAppService;
         }
 
         // Recordatorio de tareas para empleados
@@ -32,19 +36,27 @@ namespace SistemaTaskWhatsapp.Services
                                 t.Tarea.Estado == EstadosTarea.Pendiente)
                     .Count();
 
+                if (pendientes == 0)
+                    continue;
+
                 string mensaje = string.Format(
                     SystemMessages.RecordatorioTareas,
                     empleado.Nombre,
                     pendientes
                 );
 
-                string telefono = empleado.Usuario?.PhoneNumber ?? "SIN TELEFONO";
+                string telefono = empleado.Usuario?.PhoneNumber;
 
-                EnviarWhatsApp(telefono, mensaje);
+                if (!string.IsNullOrEmpty(telefono))
+                {
+                    await EnviarWhatsApp(telefono, mensaje);
+
+
+                }
             }
         }
 
-        // Aviso a supervisores sobre reportes pendientes
+        // Aviso a supervisores
         public async Task AvisarSupervisoresReportes()
         {
             var supervisores = await _contenedorTrabajo.Supervisor
@@ -52,11 +64,13 @@ namespace SistemaTaskWhatsapp.Services
 
             var reportesPendientes = await _contenedorTrabajo.Reporte
                 .GetAllAsync(
-                    filter: r => r.Estado == EstadosReporte.PendienteRevisar,
-                    includeProperties: "Empleado"
+                    filter: r => r.Estado == EstadosReporte.PendienteRevisar
                 );
 
             int totalPendientes = reportesPendientes.Count();
+
+            if (totalPendientes == 0)
+                return;
 
             foreach (var supervisor in supervisores)
             {
@@ -66,16 +80,33 @@ namespace SistemaTaskWhatsapp.Services
                     totalPendientes
                 );
 
-                string telefono = supervisor.Usuario?.PhoneNumber ?? "SIN TELEFONO";
+                string telefono = supervisor.Usuario?.PhoneNumber;
 
-                EnviarWhatsApp(telefono, mensaje);
+                if (!string.IsNullOrEmpty(telefono))
+                {
+                    await EnviarWhatsApp(telefono, mensaje);
+                }
             }
         }
 
-        // Simulación del envío
-        private void EnviarWhatsApp(string telefono, string mensaje)
+        // Envío de WhatsApp
+        private async Task EnviarWhatsApp(string telefono, string mensaje)
         {
-            Console.WriteLine($"Mensaje enviado a {telefono}: {mensaje}");
+            try
+            {
+                if (!telefono.StartsWith("+"))
+                {
+                    telefono = $"+521{telefono}";
+                }
+
+                await _whatsAppService.EnviarMensajeAsync(telefono, mensaje);
+
+                //Console.WriteLine($"Mensaje enviado a {telefono}: {mensaje}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error enviando mensaje a {telefono}: {ex.Message}");
+            }
         }
     }
 }

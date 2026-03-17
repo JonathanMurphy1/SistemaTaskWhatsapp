@@ -1,31 +1,26 @@
-﻿using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace SistemaTaskWhatsapp.Services.Jobs
 {
     public class MessageJobs
     {
-        private readonly IContenedorTrabajo _contenedorTrabajo;
+        private readonly MensajesService _mensajesService;
 
-        public MessageJobs(IContenedorTrabajo contenedorTrabajo)
+        public MessageJobs(MensajesService mensajesService)
         {
-            _contenedorTrabajo = contenedorTrabajo;
+            _mensajesService = mensajesService;
         }
 
         // Job para recordatorios a empleados
         public async Task EnviarRecordatoriosEmpleados()
         {
-            MensajesService servicio = new MensajesService(_contenedorTrabajo);
-
-            await servicio.EnviarRecordatoriosTareas();
+            await _mensajesService.EnviarRecordatoriosTareas();
         }
 
         // Job para avisar a supervisores
         public async Task AvisarSupervisores()
         {
-            MensajesService servicio = new MensajesService(_contenedorTrabajo);
-
-            await servicio.AvisarSupervisoresReportes();
+            await _mensajesService.AvisarSupervisoresReportes();
         }
     }
 }
