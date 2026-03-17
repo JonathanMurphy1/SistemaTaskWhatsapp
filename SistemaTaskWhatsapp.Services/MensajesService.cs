@@ -23,27 +23,40 @@ namespace SistemaTaskWhatsapp.Services
         // Recordatorio de tareas para empleados
         public async Task EnviarRecordatoriosTareas()
         {
-            var empleados = await _contenedorTrabajo.Empleado
-                .GetAllAsync(includeProperties: "Usuario");
 
-            var tareasEmpleado = await _contenedorTrabajo.TareaEmpleado
-                .GetAllAsync(includeProperties: "Tarea");
+            var empleados = await _contenedorTrabajo.Empleado
+                 .GetAllAsync(
+                     filter: e => e.Estado == EstadosEmpleado.Activo,
+                     includeProperties: "Usuario"
+                 );
+
+            var tareasEmpleado = await _contenedorTrabajo.TareaEmpleado.GetAllAsync(includeProperties: "Tarea");
 
             foreach (var empleado in empleados)
             {
+
                 int pendientes = tareasEmpleado
                     .Where(t => t.EmpleadoId == empleado.Id &&
                                 t.Tarea.Estado == EstadosTarea.Pendiente)
                     .Count();
 
-                if (pendientes == 0)
-                    continue;
+                string mensaje;
 
-                string mensaje = string.Format(
-                    SystemMessages.RecordatorioTareas,
-                    empleado.Nombre,
-                    pendientes
-                );
+                if (pendientes > 0)
+                {
+                    mensaje = string.Format(
+                        SystemMessages.RecordatorioTareas,
+                        empleado.Nombre,
+                        pendientes
+                    );
+                }
+                else
+                {
+                    mensaje = string.Format(
+                        SystemMessages.SinTareas,
+                        empleado.Nombre
+                    );
+                }
 
                 string telefono = empleado.Usuario?.PhoneNumber;
 
@@ -60,25 +73,35 @@ namespace SistemaTaskWhatsapp.Services
         public async Task AvisarSupervisoresReportes()
         {
             var supervisores = await _contenedorTrabajo.Supervisor
-                .GetAllAsync(includeProperties: "Usuario");
-
-            var reportesPendientes = await _contenedorTrabajo.Reporte
                 .GetAllAsync(
-                    filter: r => r.Estado == EstadosReporte.PendienteRevisar
+                    filter: s => s.Estado == EstadosSupervisor.Activo,
+                    includeProperties: "Usuario"
                 );
 
-            int totalPendientes = reportesPendientes.Count();
-
-            if (totalPendientes == 0)
-                return;
+            int totalPendientes = (await _contenedorTrabajo.Reporte
+                        .GetAllAsync(
+                            filter: r => r.Estado == EstadosReporte.PendienteRevisar
+                        )).Count();
 
             foreach (var supervisor in supervisores)
             {
-                string mensaje = string.Format(
-                    SystemMessages.AvisoSupervisorReportes,
-                    supervisor.Nombre,
-                    totalPendientes
-                );
+                string mensaje;
+
+                if (totalPendientes > 0)
+                {
+                    mensaje = string.Format(
+                        SystemMessages.AvisoSupervisorReportes,
+                        supervisor.Nombre,
+                        totalPendientes
+                    );
+                }
+                else
+                {
+                    mensaje = string.Format(
+                        SystemMessages.SinReportes,
+                        supervisor.Nombre
+                    );
+                }
 
                 string telefono = supervisor.Usuario?.PhoneNumber;
 
@@ -98,10 +121,10 @@ namespace SistemaTaskWhatsapp.Services
                 {
                     telefono = $"+521{telefono}";
                 }
-
-                await _whatsAppService.EnviarMensajeAsync(telefono, mensaje);
-
+                
                 //Console.WriteLine($"Mensaje enviado a {telefono}: {mensaje}");
+                await _whatsAppService.EnviarMensajeAsync(telefono, mensaje);
+            
             }
             catch (Exception ex)
             {
