@@ -76,13 +76,13 @@ else
 
 app.UseHangfireDashboard();
 
+//Enviar mensaje todo el año de lunes a viernes a las 9:10
 RecurringJob.AddOrUpdate<MessageJobs>(
     "recordatorio-empleados",
     job => job.EnviarRecordatoriosEmpleados(),
     "10 9 * * 1-5",
     TimeZoneInfo.Local
 );
-
 
 RecurringJob.AddOrUpdate<MessageJobs>(
     "avisar-supervisores",
