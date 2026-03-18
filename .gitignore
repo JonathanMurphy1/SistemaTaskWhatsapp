@@ -365,4 +365,3 @@ FodyWeavers.xsd
 # App settings de desarrollo
 appsettings.Development.json
 /SistemaTaskWhatsapp/appsettings.Development.json
-/SistemaTaskWhatsapp.AccesoDatos/Migrations/20260318193704_AgregarDiaFestivo.Designer.cs
