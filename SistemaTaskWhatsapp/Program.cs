@@ -25,6 +25,8 @@ builder.Services.AddIdentity<Usuario, IdentityRole>(options => options.SignIn.Re
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
+builder.Services.AddControllers();
+
 //Contenedor de trabajo
 builder.Services.AddScoped<IContenedorTrabajo, ContenedorTrabajo>();
 
@@ -109,6 +111,8 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllers();
 
 app.MapControllerRoute(
     name: "default",
