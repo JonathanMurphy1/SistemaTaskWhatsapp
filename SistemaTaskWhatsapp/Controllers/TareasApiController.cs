@@ -42,13 +42,33 @@ namespace SistemaTaskWhatsapp.Controllers
                 FechaInicio = dto.StartDate ?? DateTime.Now,
                 FechaEntrega = dto.DeliveryDate ?? DateTime.Now.AddDays(1),
                 Estado = (EstadosTarea)dto.Estado,
-                ProyectoId = proyecto.Id
+                ProyectoId = proyecto.Id,
+                SubtaskId = dto.SubtaskId
             };
 
             await _contenedorTrabajo.Tarea.AddAsync(tarea);
             await _contenedorTrabajo.SaveAsync();
 
             return Ok(new { message = "Tarea recibida correctamente" });
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> ActualizarTarea([FromBody] TareaDto dto)
+        {
+            var tarea = await _contenedorTrabajo.Tarea
+                .GetFirstOrDefaultAsync(t => t.SubtaskId == dto.SubtaskId);
+
+            if (tarea == null)
+                return NotFound($"No existe tarea con SubtaskId {dto.SubtaskId}");
+
+            //Unicamente se actualizan estos datos en task
+            tarea.Nombre = dto.Title;
+            tarea.Descripcion = dto.Description;
+
+            _contenedorTrabajo.Tarea.Update(tarea);
+            await _contenedorTrabajo.SaveAsync();
+
+            return Ok(new { message = "Tarea actualizada correctamente" });
         }
     }
 }

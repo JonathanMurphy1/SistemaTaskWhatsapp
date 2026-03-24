@@ -18,5 +18,6 @@ namespace SistemaTaskWhatsapp.Models
         public DateTime? DeliveryDate { get; set; }
         public int Estado { get; set; }
         public string ProjectName { get; set; }
+        public int SubtaskId { get; set; }
     }
 }
