@@ -70,5 +70,20 @@ namespace SistemaTaskWhatsapp.Controllers
 
             return Ok(new { message = "Tarea actualizada correctamente" });
         }
+
+        [HttpDelete("{subtaskId}")]
+        public async Task<IActionResult> EliminarTarea(int subtaskId)
+        {
+            var tarea = await _contenedorTrabajo.Tarea
+                .GetFirstOrDefaultAsync(t => t.SubtaskId == subtaskId);
+
+            if (tarea != null)
+            {
+                _contenedorTrabajo.Tarea.Remove(tarea);
+                await _contenedorTrabajo.SaveAsync();
+            }
+
+            return Ok(new { message = "Tarea eliminada correctamente" });
+        }
     }
 }
