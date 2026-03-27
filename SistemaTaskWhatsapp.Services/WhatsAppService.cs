@@ -28,13 +28,17 @@ namespace SistemaTaskWhatsapp.Services
         {
             try
             {
-                TwilioClient.Init(_accountSid, _authToken, _twilioNumber);
+                //TwilioClient.Init(_accountSid, _authToken, _twilioNumber);
+
+                TwilioClient.Init(_accountSid, _authToken);
 
                 var message = await MessageResource.CreateAsync(
+                    
                     from: new PhoneNumber($"whatsapp:{_twilioNumber}"),
                     to: new PhoneNumber($"whatsapp:{numeroDestino}"),
                     body: mensaje
                 );
+
                 return $"Mensaje enviado correctamente (SID: {message.Sid}";
             }
             catch(Exception ex)

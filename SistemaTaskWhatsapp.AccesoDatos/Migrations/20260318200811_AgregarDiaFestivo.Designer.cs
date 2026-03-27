@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaTaskWhatsapp.Data;
 
@@ -11,9 +12,11 @@ using SistemaTaskWhatsapp.Data;
 namespace SistemaTaskWhatsapp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260318200811_AgregarDiaFestivo")]
+    partial class AgregarDiaFestivo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -453,9 +456,6 @@ namespace SistemaTaskWhatsapp.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ProyectoId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SubtaskId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");

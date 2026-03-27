@@ -51,8 +51,9 @@ namespace SistemaTaskWhatsapp.Services.SupervisorStates
                 //Crear proyecto
                 case "2":
                     sesion.TokenFormularios = Guid.NewGuid().ToString();
-                    sesion.FechaCreacionToken = DateTime.Now;
-                    respuesta = $"Entre al siguiente link para registrar el proyecto: https://4cmlk6kl-7045.usw3.devtunnels.ms/FormulariosSupervisor/FormularioCrearProyecto?token={sesion.TokenFormularios}";
+                    sesion.FechaCreacionToken = DateTime.Now; 
+                    respuesta = $"Entre al siguiente link para registrar el proyecto: https://kmtzj8db-5010.usw3.devtunnels.ms/FormulariosSupervisor/FormularioCrearProyecto?token={sesion.TokenFormularios}";
+                    //respuesta = $"Entre al siguiente link para registrar el proyecto: https://4cmlk6kl-7045.usw3.devtunnels.ms/FormulariosSupervisor/FormularioCrearProyecto?token={sesion.TokenFormularios}";
                     sesion.EstadoStep = "Inicio";
                     break;
                 //Asignar tarea
