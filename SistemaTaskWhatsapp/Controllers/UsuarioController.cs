@@ -151,7 +151,7 @@ namespace SistemaTaskWhatsapp.Controllers
                 Id = usuario.Id,
                 Nombre = usuario.Nombre,
                 Email = usuario.Email,
-                Password = usuario.PasswordHash,
+                Password = null,
                 Telefono = usuario.PhoneNumber,
                 Rol = usuario.Rol,
                 EmpresaId = usuario.EmpresaId,

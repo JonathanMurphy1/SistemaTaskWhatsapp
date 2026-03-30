@@ -24,7 +24,7 @@ namespace SistemaTaskWhatsapp.Models.ViewModels
 
         [Required(ErrorMessage = "Escriba el teléfono")]
         [RegularExpression(@"^\d{10}$", ErrorMessage = "El teléfono solo deben de ser 10 números.")]
-        public string Telefono { get; set; }
+        public string? Telefono { get; set; }
 
         [Required(ErrorMessage = "Seleccione un rol")]
         public Roles Rol { get; set; }
