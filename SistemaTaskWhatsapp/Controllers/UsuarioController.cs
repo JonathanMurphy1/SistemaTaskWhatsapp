@@ -29,7 +29,7 @@ namespace SistemaTaskWhatsapp.Controllers
         public async Task<IActionResult> Index()
         {
             var listaUsuarios = await _contenedorTrabajo.Usuario.GetAllAsync(u => u.Email != "admin@sistema.com");
-
+            var listaProyectos = await _contenedorTrabajo.Proyecto.GetAllAsync(includeProperties: "Empresa");
             return View(listaUsuarios);
         }
 
@@ -41,13 +41,15 @@ namespace SistemaTaskWhatsapp.Controllers
 
         // GET: UsuarioController/Create
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             var model = new UsuarioCreateVM
             {
                 Supervisor = new Supervisor(),
-                Empleado = new Empleado()
+                Empleado = new Empleado(),
+                ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown()
             };
+
             return View(model);
         }
 
@@ -66,11 +68,17 @@ namespace SistemaTaskWhatsapp.Controllers
             {
                 ModelState.Remove("Empleado.Estado");
             }
-            
+
+            if (model.EmpresaId == null)
+            {
+                ModelState.AddModelError("EmpresaId", "Seleccione una empresa");
+            }
+
             await ValidarDuplicidadCampos(model.Email, model.Telefono);
 
             if (!ModelState.IsValid)
             {
+                model.ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown();
                 return View(model);
             }
 
@@ -80,7 +88,8 @@ namespace SistemaTaskWhatsapp.Controllers
                 UserName = model.Email,
                 Email = model.Email,
                 PhoneNumber = model.Telefono,
-                Rol = model.Rol
+                Rol = model.Rol,
+                EmpresaId = model.EmpresaId
             };
 
             var resultado = await _userManager.CreateAsync(usuario, model.Password);

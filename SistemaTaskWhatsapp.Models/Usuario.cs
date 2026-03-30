@@ -17,5 +17,8 @@ namespace SistemaTaskWhatsapp.Models
 
         [Required(ErrorMessage = "El rol es obligatorio")]
         public Roles Rol { get; set; }
+
+        public int? EmpresaId { get; set; }
+        public Empresa? Empresa { get; set; }
     }
 }

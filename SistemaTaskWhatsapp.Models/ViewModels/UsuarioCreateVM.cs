@@ -1,4 +1,5 @@
-﻿using SistemaTaskWhatsapp.Utilidades;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using SistemaTaskWhatsapp.Utilidades;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -32,5 +33,9 @@ namespace SistemaTaskWhatsapp.Models.ViewModels
 
         public Empleado? Empleado { get; set; }
 
+        [Required(ErrorMessage = "Seleccione una empresa")]
+        public int? EmpresaId { get; set; }
+
+        public IEnumerable<SelectListItem>? ListaEmpresas { get; set; }
     }
 }
