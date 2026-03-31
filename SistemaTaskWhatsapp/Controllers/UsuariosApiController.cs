@@ -100,6 +100,16 @@ namespace SistemaTaskWhatsapp.Controllers
             usuario.UserName = dto.Email;
             usuario.PhoneNumber = dto.PhoneNumber;
 
+            //Debido a que es un valor opcional en Dto
+            if (dto.UserTypeId.HasValue)
+            {
+                usuario.Rol = RoleMapper.MapFromLaravel(dto.UserTypeId.Value);
+
+                var rolesActuales = await _userManager.GetRolesAsync(usuario);
+                await _userManager.RemoveFromRolesAsync(usuario, rolesActuales);
+                await _userManager.AddToRoleAsync(usuario, usuario.Rol.ToString());
+            }
+
             var resultado = await _userManager.UpdateAsync(usuario);
 
             if (!resultado.Succeeded)
