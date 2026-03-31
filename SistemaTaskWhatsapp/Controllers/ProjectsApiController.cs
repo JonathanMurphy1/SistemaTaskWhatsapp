@@ -27,6 +27,7 @@ namespace SistemaTaskWhatsapp.Controllers
 
             var proyecto = new Proyecto
             {
+                ProjectId = dto.Idproject,
                 Nombre = dto.Name,
                 Descripcion = dto.Description,
                 FechaRegistro = DateTime.Now,
