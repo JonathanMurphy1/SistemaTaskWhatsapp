@@ -81,6 +81,33 @@ namespace SistemaTaskWhatsapp.Controllers
             return Ok(new { message = "Usuario creado correctamente" });
         }
 
+
+        //Modificar desde el perfil
+        [HttpPost("update")]
+        public async Task<IActionResult> ActualizarUsuario([FromBody] UsuarioUpdateDto dto)
+        {
+            if (dto == null)
+                return BadRequest();
+
+            var usuario = await _contenedorTrabajo.Usuario
+                .GetFirstOrDefaultAsync(u => u.UserId == dto.UserId);
+
+            if (usuario == null)
+                return NotFound();
+
+            usuario.Nombre = dto.Name;
+            usuario.Email = dto.Email;
+            usuario.UserName = dto.Email;
+            usuario.PhoneNumber = dto.PhoneNumber;
+
+            var resultado = await _userManager.UpdateAsync(usuario);
+
+            if (!resultado.Succeeded)
+                return BadRequest(resultado.Errors);
+
+            return Ok(new { message = "Usuario actualizado correctamente" });
+        }
+
         public static class RoleMapper
         {
             public static Roles MapFromLaravel(int userTypeId)
