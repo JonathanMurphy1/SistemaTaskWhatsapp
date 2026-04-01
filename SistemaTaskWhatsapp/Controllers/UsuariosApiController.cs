@@ -82,7 +82,7 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
 
-        //Modificar desde el perfil
+        //Modificar el usuario desde perfil y tabla
         [HttpPost("update")]
         public async Task<IActionResult> ActualizarUsuario([FromBody] UsuarioUpdateDto dto)
         {
@@ -98,16 +98,27 @@ namespace SistemaTaskWhatsapp.Controllers
             usuario.Nombre = dto.Name;
             usuario.Email = dto.Email;
             usuario.UserName = dto.Email;
-            usuario.PhoneNumber = dto.PhoneNumber;
+            
+            //El numero de telefono se vuelve opcional ya que en tabla 
+            //de usuario no se actualiza
+            if (dto.PhoneNumber != null)
+            {
+                usuario.PhoneNumber = dto.PhoneNumber;
+            }
 
-            //Debido a que es un valor opcional en Dto
+
+            ///Proceso para cambiar el rol del usuario en TasWhatsApp
+            Roles? nuevoRol = null;
+
             if (dto.UserTypeId.HasValue)
             {
-                usuario.Rol = RoleMapper.MapFromLaravel(dto.UserTypeId.Value);
+                nuevoRol = RoleMapper.MapFromLaravel(dto.UserTypeId.Value);
 
                 var rolesActuales = await _userManager.GetRolesAsync(usuario);
                 await _userManager.RemoveFromRolesAsync(usuario, rolesActuales);
-                await _userManager.AddToRoleAsync(usuario, usuario.Rol.ToString());
+                await _userManager.AddToRoleAsync(usuario, nuevoRol.ToString());
+
+                usuario.Rol = nuevoRol.Value;
             }
 
             var resultado = await _userManager.UpdateAsync(usuario);
@@ -115,9 +126,129 @@ namespace SistemaTaskWhatsapp.Controllers
             if (!resultado.Succeeded)
                 return BadRequest(resultado.Errors);
 
+            //Se hace al cambio si fue necesario
+            if (nuevoRol.HasValue)
+            {
+                // Supervisor
+                if (nuevoRol == Roles.Supervisor)
+                {
+                    var supervisor = await _contenedorTrabajo.Supervisor
+                        .GetFirstOrDefaultAsync(s => s.UsuarioId == usuario.Id);
+
+                    if (supervisor == null)
+                    {
+                        await _contenedorTrabajo.Supervisor.AddAsync(new Supervisor
+                        {
+                            UsuarioId = usuario.Id,
+                            Nombre = usuario.Nombre,
+                            Estado = EstadosSupervisor.Activo
+                        });
+                    }
+                    else
+                    {
+                        supervisor.Nombre = usuario.Nombre;
+                        _contenedorTrabajo.Supervisor.Update(supervisor);
+                    }
+
+                    //Eliminar empleado si existía
+                    var empleado = await _contenedorTrabajo.Empleado
+                        .GetFirstOrDefaultAsync(e => e.UsuarioId == usuario.Id);
+
+                    if (empleado != null)
+                        _contenedorTrabajo.Empleado.Remove(empleado);
+                }
+
+                //Empleado
+                else if (nuevoRol == Roles.Empleado)
+                {
+                    var empleado = await _contenedorTrabajo.Empleado
+                        .GetFirstOrDefaultAsync(e => e.UsuarioId == usuario.Id);
+
+                    if (empleado == null)
+                    {
+                        await _contenedorTrabajo.Empleado.AddAsync(new Empleado
+                        {
+                            UsuarioId = usuario.Id,
+                            Nombre = usuario.Nombre,
+                            Estado = EstadosEmpleado.Activo,
+                            FechaRegistro = DateTime.Now
+                        });
+                    }
+                    else
+                    {
+                        empleado.Nombre = usuario.Nombre;
+                        _contenedorTrabajo.Empleado.Update(empleado);
+                    }
+
+                    //Eliminar supervisor si existía
+                    var supervisor = await _contenedorTrabajo.Supervisor
+                        .GetFirstOrDefaultAsync(s => s.UsuarioId == usuario.Id);
+
+                    if (supervisor != null)
+                        _contenedorTrabajo.Supervisor.Remove(supervisor);
+                }
+
+                //Administrador
+                else
+                {
+                    var supervisor = await _contenedorTrabajo.Supervisor
+                        .GetFirstOrDefaultAsync(s => s.UsuarioId == usuario.Id);
+
+                    if (supervisor != null)
+                        _contenedorTrabajo.Supervisor.Remove(supervisor);
+
+                    var empleado = await _contenedorTrabajo.Empleado
+                        .GetFirstOrDefaultAsync(e => e.UsuarioId == usuario.Id);
+
+                    if (empleado != null)
+                        _contenedorTrabajo.Empleado.Remove(empleado);
+                }
+            }
+
+            await _contenedorTrabajo.SaveAsync();
+
             return Ok(new { message = "Usuario actualizado correctamente" });
+       
         }
 
+        [HttpPost("delete")]
+        public async Task<IActionResult> EliminarUsuario([FromBody] UsuarioDeleteDto dto)
+        {
+            if (dto == null)
+                return BadRequest();
+
+            var usuario = await _contenedorTrabajo.Usuario
+                .GetFirstOrDefaultAsync(u => u.UserId == dto.UserId);
+
+            if (usuario == null)
+                return Ok(new { message = "Usuario no existe" });
+
+            //Eliminar Supervisor si existe
+            var supervisor = await _contenedorTrabajo.Supervisor
+                .GetFirstOrDefaultAsync(s => s.UsuarioId == usuario.Id);
+
+            if (supervisor != null)
+                _contenedorTrabajo.Supervisor.Remove(supervisor);
+
+            //Eliminar Empleado si existe
+            var empleado = await _contenedorTrabajo.Empleado
+                .GetFirstOrDefaultAsync(e => e.UsuarioId == usuario.Id);
+
+            if (empleado != null)
+                _contenedorTrabajo.Empleado.Remove(empleado);
+
+            await _contenedorTrabajo.SaveAsync();
+
+            //Eliminar con Identity
+            var resultado = await _userManager.DeleteAsync(usuario);
+
+            if (!resultado.Succeeded)
+                return BadRequest(resultado.Errors);
+
+            return Ok(new { message = "Usuario eliminado correctamente" });
+        }
+
+        //Función para determinar el equivalente del rol en TaskWhatsApp
         public static class RoleMapper
         {
             public static Roles MapFromLaravel(int userTypeId)

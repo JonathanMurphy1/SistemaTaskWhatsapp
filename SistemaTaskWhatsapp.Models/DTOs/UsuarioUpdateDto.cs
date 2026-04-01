@@ -15,9 +15,15 @@ namespace SistemaTaskWhatsapp.Models
         public int UserId { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
-        public string PhoneNumber { get; set; }
 
-       //Opcional debido a que en perfil no está ese dato
+        //Opcional debido a que aveces se tomar en cuenta para editar
+        public string? PhoneNumber { get; set; }
         public int? UserTypeId { get; set; }
     }
+
+    public class UsuarioDeleteDto
+    {
+        public int UserId { get; set; }
+    }
+
 }
