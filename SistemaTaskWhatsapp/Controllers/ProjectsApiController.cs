@@ -42,5 +42,48 @@ namespace SistemaTaskWhatsapp.Controllers
 
             return Ok(new { message = "Proyecto recibido correctamente" });
         }
+
+        //Editar proyectos
+        [HttpPost("update")]
+        public async Task<IActionResult> ActualizarProyecto([FromBody] ProjectDto dto)
+        {
+            if (dto == null)
+                return BadRequest();
+
+            var proyecto = await _contenedorTrabajo.Proyecto
+                .GetFirstOrDefaultAsync(p => p.ProjectId == dto.Idproject);
+
+            if (proyecto == null)
+                return NotFound();
+
+            proyecto.Nombre = dto.Name;
+            proyecto.Descripcion = dto.Description;
+            proyecto.EmpresaId = dto.EmpresaId;
+            proyecto.Estado = (EstadosProyecto)dto.Estado;
+
+            _contenedorTrabajo.Proyecto.Update(proyecto);
+            await _contenedorTrabajo.SaveAsync();
+
+            return Ok(new { message = "Proyecto actualizado correctamente" });
+        }
+
+        //Eliminar
+        [HttpPost("delete")]
+        public async Task<IActionResult> EliminarProyecto([FromBody] ProjectDto dto)
+        {
+            if (dto == null)
+                return BadRequest();
+
+            var proyecto = await _contenedorTrabajo.Proyecto
+                .GetFirstOrDefaultAsync(p => p.ProjectId == dto.Idproject);
+
+            if (proyecto == null)
+                return Ok(new { message = "Proyecto no existe" });
+
+            _contenedorTrabajo.Proyecto.Remove(proyecto);
+            await _contenedorTrabajo.SaveAsync();
+
+            return Ok(new { message = "Proyecto eliminado correctamente" });
+        }
     }
 }
