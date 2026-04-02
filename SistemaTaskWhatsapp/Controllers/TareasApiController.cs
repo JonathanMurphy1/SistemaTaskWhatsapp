@@ -69,6 +69,17 @@ namespace SistemaTaskWhatsapp.Controllers
             if (dto.Estado.HasValue)
             {
                 tarea.Estado = (EstadosTarea)dto.Estado.Value;
+
+                //Si el estado es en Task es terminado
+                if (tarea.Estado == EstadosTarea.Finalizada)
+                {
+                    tarea.FechaTermino = DateTime.Now;
+                }
+                else
+                {
+                    //Poner la fecha en null si se cambia de terminado a otro
+                    tarea.FechaTermino = null;
+                }
             }
 
             _contenedorTrabajo.Tarea.Update(tarea);
