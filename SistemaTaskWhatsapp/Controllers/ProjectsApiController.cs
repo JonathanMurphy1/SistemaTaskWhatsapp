@@ -31,7 +31,7 @@ namespace SistemaTaskWhatsapp.Controllers
                 ProjectId = dto.Idproject,
                 Nombre = dto.Name,
                 Descripcion = dto.Description,
-                FechaRegistro = DateTime.Now,
+                FechaRegistro = dto.StartDate ?? DateTime.Now,
                 EmpresaId = dto.EmpresaId,
                 Estado = (EstadosProyecto)dto.Estado
 
@@ -59,6 +59,7 @@ namespace SistemaTaskWhatsapp.Controllers
             proyecto.Nombre = dto.Name;
             proyecto.Descripcion = dto.Description;
             proyecto.EmpresaId = dto.EmpresaId;
+            proyecto.FechaRegistro = dto.StartDate ?? DateTime.Now;
             proyecto.Estado = (EstadosProyecto)dto.Estado;
 
             _contenedorTrabajo.Proyecto.Update(proyecto);
@@ -67,18 +68,14 @@ namespace SistemaTaskWhatsapp.Controllers
             return Ok(new { message = "Proyecto actualizado correctamente" });
         }
 
-        //Eliminar
-        [HttpPost("delete")]
-        public async Task<IActionResult> EliminarProyecto([FromBody] ProjectDto dto)
+        [HttpDelete("{Idproject}")]
+        public async Task<IActionResult> EliminarProyecto(int Idproject)
         {
-            if (dto == null)
-                return BadRequest();
-
             var proyecto = await _contenedorTrabajo.Proyecto
-                .GetFirstOrDefaultAsync(p => p.ProjectId == dto.Idproject);
+                .GetFirstOrDefaultAsync(p => p.ProjectId == Idproject);
 
             if (proyecto == null)
-                return Ok(new { message = "Proyecto no existe" });
+                return NotFound(new { message = "Proyecto no existe" });
 
             _contenedorTrabajo.Proyecto.Remove(proyecto);
             await _contenedorTrabajo.SaveAsync();
