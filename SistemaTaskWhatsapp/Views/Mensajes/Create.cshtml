@@ -1,0 +1,110 @@
+﻿@model SistemaTaskWhatsapp.Models.Mensaje
+@using SistemaTaskWhatsapp.Utilidades
+
+@{
+    ViewData["Title"] = "Registrar Mensaje";
+}
+
+<div class="contenedor-principal">
+    <div class="text-center">
+        <h3 class="col-3">@ViewData["Title"]</h3>
+    </div>
+    <div class="col-5 mt-4 border rounded shadow p-3 fade-in-page">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <!-- TIPO -->
+            <div class="form-group">
+                <label>Mensaje para:</label>
+                <select asp-for="Tipo" class="form-control">
+                    <option disabled selected value="">-- Seleccione el tipo de usuario --</option>
+                    <option value="1">Supervisor</option>
+                    <option value="2">Empleado</option>
+                </select>
+                <span asp-validation-for="Tipo" class="text-danger"></span>
+
+            </div>
+
+
+
+            <br/>
+
+            <!-- CONTENIDO -->
+            <div class="form-group">
+                <label>Contenido:</label>
+                <textarea asp-for="Contenido"
+                          class="form-control"
+                          placeholder="Escriba el mensaje..."></textarea>
+                <span asp-validation-for="Contenido" class="text-danger"></span>
+            </div>
+           
+            <br />
+
+
+            <!-- HORA -->
+            <div class="form-group">
+                <label>Hora de envío:</label>
+                <input type="time" id="hora" class="form-control" />
+            </div>
+
+            <br />
+
+            <!-- FRECUENCIA -->
+            <div class="form-group">
+                <label>Frecuencia:</label>
+                <select id="frecuencia" class="form-control">
+                    <option value="diario">Diario</option>
+                    <option value="laboral">Lunes a Viernes</option>
+                    <option value="semanal">Semanal</option>
+                </select>
+            </div>
+
+            <!-- CRON OCULTO -->
+            <input type="hidden" asp-for="Cron" id="cron" />
+
+            <br />
+
+            <div class="d-flex justify-content-center gap-2 mt-3">
+                <a asp-action="Index" class="btn btn-secondary">Volver</a>
+                <button type="submit" class="btn btn-success">Registrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        document.querySelector("form").addEventListener("submit", function (event) {
+
+            const hora = document.getElementById("hora").value;
+            const frecuencia = document.getElementById("frecuencia").value;
+
+            if (!hora) {
+                alert("Selecciona una hora");
+                event.preventDefault();
+                return;
+            }
+
+            const [h, m] = hora.split(":");
+
+            let cron = "";
+
+            switch (frecuencia) {
+                case "diario":
+                    cron = `${m} ${h} * * *`;
+                    break;
+
+                case "laboral":
+                    cron = `${m} ${h} * * 1-5`;
+                    break;
+
+                case "semanal":
+                    cron = `${m} ${h} * * 1`;
+                    break;
+            }
+
+            document.getElementById("cron").value = cron;
+        });
+    </script>
+}
