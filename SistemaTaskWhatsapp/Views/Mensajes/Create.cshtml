@@ -75,16 +75,11 @@
 
 @section Scripts {
     <script>
-        document.querySelector("form").addEventListener("submit", function (event) {
-
+        function generarCron() {
             const hora = document.getElementById("hora").value;
             const frecuencia = document.getElementById("frecuencia").value;
 
-            if (!hora) {
-                alert("Selecciona una hora");
-                event.preventDefault();
-                return;
-            }
+            if (!hora) return;
 
             const [h, m] = hora.split(":");
 
@@ -105,6 +100,25 @@
             }
 
             document.getElementById("cron").value = cron;
+
+            console.log("CRON generado:", cron); //DEBUG
+        }
+
+        //Se ejecuta al cambiar valores
+        document.getElementById("hora").addEventListener("change", generarCron);
+        document.getElementById("frecuencia").addEventListener("change", generarCron);
+
+        //Seguridad extra al enviar
+        document.querySelector("form").addEventListener("submit", function (event) {
+
+            generarCron(); // asegura que se genere
+
+            const cron = document.getElementById("cron").value;
+
+            if (!cron) {
+                alert("No se pudo generar el cron");
+                event.preventDefault();
+            }
         });
     </script>
 }
