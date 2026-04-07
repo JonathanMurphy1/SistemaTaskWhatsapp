@@ -1,4 +1,5 @@
 ﻿@model IEnumerable<SistemaTaskWhatsapp.Models.Mensaje>
+@using SistemaTaskWhatsapp.Utilidades
 
 @{
     ViewData["Title"] = "Administrador de mensajes";
@@ -42,7 +43,7 @@
                             <td>@mensaje.Id</td>
                             <td>@mensaje.Tipo</td>
                             <td>@mensaje.Contenido</td>
-                            <td>@mensaje.Cron</td>
+                            <td>@CronHelper.Formatear(mensaje.Cron)</td>
                             <td>@mensaje.FechaCreacion.ToString("dd/MM/yyyy")</td>
                             <td>
                                 @if (mensaje.Activo)
