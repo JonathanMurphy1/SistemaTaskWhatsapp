@@ -65,11 +65,10 @@ namespace SistemaTaskWhatsapp.Controllers
         //);
 
 
-        // Funcion para Activar / Desactivar
-        [HttpPost("toggle/{id}")]
+        //Funcion para Activar / Desactivar
+        [HttpPost]
         public async Task<IActionResult> Toggle(int id)
         {
-
             var mensaje = await _contenedorTrabajo.Mensaje.GetByIdAsync(id);
 
             if (mensaje == null)
@@ -77,6 +76,7 @@ namespace SistemaTaskWhatsapp.Controllers
 
             mensaje.Activo = !mensaje.Activo;
 
+            _contenedorTrabajo.Mensaje.Update(mensaje);
             await _contenedorTrabajo.SaveAsync();
 
             if (mensaje.Activo)
@@ -95,7 +95,7 @@ namespace SistemaTaskWhatsapp.Controllers
                 RecurringJob.RemoveIfExists($"mensaje-{mensaje.Id}");
             }
 
-            return Ok($"Mensaje {(mensaje.Activo ? "activado" : "desactivado")}");
+            return RedirectToAction("Index");
         }
 
 
