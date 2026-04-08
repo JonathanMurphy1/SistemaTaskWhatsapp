@@ -1,5 +1,4 @@
-﻿@model SistemaTaskWhatsapp.Models.Mensaje
-
+﻿@model SistemaTaskWhatsapp.Models.ViewModels.MensajeVM
 
 @{
     ViewData["Title"] = "Registrar Mensaje";
@@ -13,29 +12,40 @@
         <form asp-action="Create" method="post">
             <div asp-validation-summary="All" class="text-danger"></div>
 
+            <!-- EMPRESA -->
+            <div class="form-group">
+                <label>Empresa:</label>
+                <select asp-for="Mensaje.EmpresaId"
+                        asp-items="@Model.ListaEmpresas"
+                        class="form-select">
+                    <option disabled selected value="">--Elija una empresa--</option>
+                </select>
+                <span asp-validation-for="Mensaje.EmpresaId" class="text-danger"></span>
+            </div>
+
+            <br />
+
             <!-- TIPO -->
             <div class="form-group">
                 <label>Mensaje para:</label>
-                <select asp-for="Tipo" class="form-control">
+                <select asp-for="Mensaje.Tipo" class="form-control">
                     <option disabled selected value="">-- Seleccione el tipo de usuario --</option>
                     <option value="1">Supervisor</option>
                     <option value="2">Empleado</option>
                 </select>
-                <span asp-validation-for="Tipo" class="text-danger"></span>
+                <span asp-validation-for="Mensaje.Tipo" class="text-danger"></span>
 
             </div>
-
-
 
             <br/>
 
             <!-- CONTENIDO -->
             <div class="form-group">
                 <label>Contenido:</label>
-                <textarea asp-for="Contenido"
+                <textarea asp-for="Mensaje.Contenido"
                           class="form-control"
                           placeholder="Escriba el mensaje..."></textarea>
-                <span asp-validation-for="Contenido" class="text-danger"></span>
+                <span asp-validation-for="Mensaje.Contenido" class="text-danger"></span>
             </div>
            
             <br />
@@ -60,7 +70,7 @@
             </div>
 
             <!-- CRON OCULTO -->
-            <input type="hidden" asp-for="Cron" id="cron" />
+            <input type="hidden" asp-for="Mensaje.Cron" id="cron" />
 
             <br />
 

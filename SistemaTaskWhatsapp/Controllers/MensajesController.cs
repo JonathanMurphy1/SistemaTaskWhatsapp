@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Models;
+using SistemaTaskWhatsapp.Models.ViewModels;
 using SistemaTaskWhatsapp.Services;
 using Twilio.TwiML.Messaging;
 
@@ -25,33 +26,40 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var listaMensajes = await _contenedorTrabajo.Mensaje.GetAllAsync();
+            var listaMensajes = await _contenedorTrabajo.Mensaje.GetAllAsync(includeProperties: "Empresa");
 
             return View(listaMensajes);
         }
 
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            var model = new MensajeVM
+            {
+
+                ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown()
+            };
+
+            return View(model);
         }
 
 
         [HttpPost]
-        public async Task<IActionResult> Create(Mensaje model)
+        public async Task<IActionResult> Create(MensajeVM model)
         {
+
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            {
+                model.ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown();
+                return View(model);
+            }
 
-            model.FechaCreacion = DateTime.Now;
-            model.Activo = false; 
- 
+            model.Mensaje.FechaCreacion = DateTime.Now;
+            model.Mensaje.Activo = false; 
 
-
-            await _contenedorTrabajo.Mensaje.AddAsync(model);
+            await _contenedorTrabajo.Mensaje.AddAsync(model.Mensaje);
             await _contenedorTrabajo.SaveAsync();
-
 
 
             return RedirectToAction("Index");

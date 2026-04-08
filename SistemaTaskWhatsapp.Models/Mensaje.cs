@@ -24,7 +24,10 @@ namespace SistemaTaskWhatsapp.Models
        public bool Activo { get; set; }
 
        public DateTime FechaCreacion { get; set; }
-        
+
+       public int? EmpresaId { get; set; }
+       public Empresa? Empresa { get; set; }
+
     }
 }
 
