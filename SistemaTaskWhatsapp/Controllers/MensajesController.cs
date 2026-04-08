@@ -46,7 +46,6 @@ namespace SistemaTaskWhatsapp.Controllers
             return View(model);
         }
 
-
         [HttpPost]
         public async Task<IActionResult> Create(MensajeVM model)
         {
@@ -58,23 +57,14 @@ namespace SistemaTaskWhatsapp.Controllers
             }
 
             model.Mensaje.FechaCreacion = DateTime.Now;
-            model.Mensaje.Activo = false; 
+            model.Mensaje.Activo = false;
 
             await _contenedorTrabajo.Mensaje.AddAsync(model.Mensaje);
             await _contenedorTrabajo.SaveAsync();
 
 
             return RedirectToAction("Index");
-        }
-
-        // Crear job en Hangfire
-        //RecurringJob.AddOrUpdate<MensajesService>(
-        //    $"mensaje-{model.Id}",
-        //    x => x.EnviarMensajeProgramado(model.Id),
-        //    model.Cron,
-        //    TimeZoneInfo.Local
-        //);
-
+        }   
 
         //Funcion para Activar / Desactivar
         [HttpPost]
@@ -92,13 +82,13 @@ namespace SistemaTaskWhatsapp.Controllers
 
             if (mensaje.Activo)
             {
-                // volver a registrar
-                //RecurringJob.AddOrUpdate<MensajesService>(
-                //    $"mensaje-{mensaje.Id}",
-                //    x => x.EnviarMensajeProgramado(mensaje.Id),
-                //    mensaje.Cron,
-                //    TimeZoneInfo.Local
-                //);
+                // Registrar
+                RecurringJob.AddOrUpdate<MensajesService>(
+                    $"mensaje-{mensaje.Id}",
+                    x => x.EnviarMensajeProgramado(mensaje.Id),
+                    mensaje.Cron,
+                   TimeZoneInfo.Local
+                );
             }
             else
             {
@@ -140,9 +130,19 @@ namespace SistemaTaskWhatsapp.Controllers
             _contenedorTrabajo.Mensaje.Update(model.Mensaje);
             await _contenedorTrabajo.SaveAsync();
 
+            //Editar el mensaje en hangfire
+            if (model.Mensaje.Activo)
+            {
+                RecurringJob.AddOrUpdate<MensajesService>(
+                    $"mensaje-{model.Mensaje.Id}",
+                    x => x.EnviarMensajeProgramado(model.Mensaje.Id),
+                    model.Mensaje.Cron,
+                    TimeZoneInfo.Local
+                );
+            }
+
             return RedirectToAction("Index");
         }
-
 
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
@@ -151,7 +151,7 @@ namespace SistemaTaskWhatsapp.Controllers
 
             if (mensaje == null) return RedirectToAction("Index");
 
-            //RecurringJob.RemoveIfExists($"mensaje-{mensaje.Id}");
+            RecurringJob.RemoveIfExists($"mensaje-{mensaje.Id}");
 
             _contenedorTrabajo.Mensaje.Remove(mensaje);
             await _contenedorTrabajo.SaveAsync();

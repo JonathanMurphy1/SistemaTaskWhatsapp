@@ -8,7 +8,6 @@ using SistemaTaskWhatsapp.AccesoDatos.Data.Seed;
 using SistemaTaskWhatsapp.Data;
 using SistemaTaskWhatsapp.Models;
 using SistemaTaskWhatsapp.Services;
-using SistemaTaskWhatsapp.Services.Jobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,7 +34,6 @@ builder.Services.AddScoped<ISupervisorFlowService, SupervisorFlowService>();
 
 builder.Services.AddScoped<IEmpleadoFlowService, EmpleadoFlowService>();
 
-builder.Services.AddScoped<MessageJobs>();
 builder.Services.AddScoped<MensajesService>();
 
 //Registrar servicio de whatsapp
@@ -77,32 +75,6 @@ else
 }
 
 app.UseHangfireDashboard();
-
-//Enviar mensaje todo el año de lunes a viernes a las 9:10
-RecurringJob.AddOrUpdate<MessageJobs>(
-    "recordatorio-empleados",
-    job => job.EnviarRecordatoriosEmpleados(),
-    "10 9 * * 1-5",
-    TimeZoneInfo.Local
-);
-
-RecurringJob.AddOrUpdate<MessageJobs>(
-    "avisar-supervisores",
-    job => job.AvisarSupervisores(),
-    "10 9 * * 1-5",
-    TimeZoneInfo.Local
-);
-
-// minutos / hora / Dia especifico / mes / Dia de la semana 
-// 0 - domingo / 1 - Lunes / 2 - martes... 6 - sabado
-
-//Formato para solo hora
-//RecurringJob.AddOrUpdate<MessageJobs>(
-//    "avisar-supervisores",
-//    job => job.AvisarSupervisores(),
-//    Cron.Daily(12),
-//    TimeZoneInfo.Local
-//);
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

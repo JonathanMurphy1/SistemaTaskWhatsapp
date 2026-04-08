@@ -75,110 +75,73 @@ namespace SistemaTaskWhatsapp.Services
 
         }
 
-        // Recordatorio de tareas para empleados
-        public async Task EnviarRecordatoriosTareas()
+        //Función para cargar los mensajes y enviarlos
+        public async Task EnviarMensajeProgramado(int mensajeId)
         {
-            //Función para revisar si el día es festivo, si lo es no manda mensaje
-            if (await EsDiaFestivo())
-            {
-                //Console.WriteLine("Hoy es festivo (API), no se envían mensajes");
+            var mensaje = await _contenedorTrabajo.Mensaje
+                .GetByIdAsync(mensajeId);
+
+            if (mensaje == null || !mensaje.Activo)
                 return;
+
+            //Validar día festivo
+            if (await EsDiaFestivo())
+                return;
+
+            switch (mensaje.Tipo)
+            {
+                case Roles.Empleado:
+                    await EnviarMensajeAEmpleados(mensaje);
+                    break;
+
+                case Roles.Supervisor:
+                    await EnviarMensajeASupervisores(mensaje);
+                    break;
             }
+        }
 
+        //Función para enviar mensajes unicamente a los empleados activos de la empresa correspondiente
+        private async Task EnviarMensajeAEmpleados(Mensaje mensaje)
+        {
             var empleados = await _contenedorTrabajo.Empleado
-                 .GetAllAsync(
-                     filter: e => e.Estado == EstadosEmpleado.Activo,
-                     includeProperties: "Usuario"
-                 );
-
-            var tareasEmpleado = await _contenedorTrabajo.TareaEmpleado.GetAllAsync(includeProperties: "Tarea");
+                .GetAllAsync(
+                    filter: e => e.Estado == EstadosEmpleado.Activo
+                                && e.Usuario.EmpresaId == mensaje.EmpresaId,
+                    includeProperties: "Usuario"
+                );
 
             foreach (var empleado in empleados)
             {
-
-                int pendientes = tareasEmpleado
-                    .Where(t => t.EmpleadoId == empleado.Id &&
-                                t.Tarea.Estado == EstadosTarea.Pendiente)
-                    .Count();
-
-                string mensaje;
-
-                //Si tiene pendientes se los recuerda
-                if (pendientes > 0)
-                {
-                    mensaje = string.Format(
-                        SystemMessages.RecordatorioTareas,
-                        empleado.Nombre,
-                        pendientes
-                    );
-                }
-                //Si no tiene pendientes se lo notifica
-                else
-                {
-                    mensaje = string.Format(
-                        SystemMessages.SinTareas,
-                        empleado.Nombre
-                    );
-                }
+                string texto = mensaje.Contenido;
 
                 string telefono = empleado.Usuario?.PhoneNumber;
 
                 if (!string.IsNullOrEmpty(telefono))
                 {
-                    await EnviarWhatsApp(telefono, mensaje);
-
-
+                    await EnviarWhatsApp(telefono, texto);
                 }
             }
         }
 
-        // Aviso a supervisores
-        public async Task AvisarSupervisoresReportes()
+        //Función para enviar mensajes unicamente a los supervisores activos de la empresa correspondiente
+        private async Task EnviarMensajeASupervisores(Mensaje mensaje)
         {
-            if (await EsDiaFestivo())
-            {
-                //Console.WriteLine("Hoy es festivo (API), no se envían mensajes");
-                return;
-            }
-
             var supervisores = await _contenedorTrabajo.Supervisor
                 .GetAllAsync(
-                    filter: s => s.Estado == EstadosSupervisor.Activo,
+                    filter: s => s.Estado == EstadosSupervisor.Activo
+                                && s.Usuario.EmpresaId == mensaje.EmpresaId,
                     includeProperties: "Usuario"
                 );
 
-            int totalPendientes = (await _contenedorTrabajo.Reporte
-                        .GetAllAsync(
-                            filter: r => r.Estado == EstadosReporte.PendienteRevisar
-                        )).Count();
-
             foreach (var supervisor in supervisores)
             {
-                string mensaje;
-
-                //Si tiene pendientes se los recuerda
-                if (totalPendientes > 0)
-                {
-                    mensaje = string.Format(
-                        SystemMessages.AvisoSupervisorReportes,
-                        supervisor.Nombre,
-                        totalPendientes
-                    );
-                }
-                //Si no tiene pendientes se lo notifica
-                else
-                {
-                    mensaje = string.Format(
-                        SystemMessages.SinReportes,
-                        supervisor.Nombre
-                    );
-                }
+                string texto = mensaje.Contenido;
 
                 string telefono = supervisor.Usuario?.PhoneNumber;
 
                 if (!string.IsNullOrEmpty(telefono))
                 {
-                    await EnviarWhatsApp(telefono, mensaje);
+                    await EnviarWhatsApp(telefono, texto);
                 }
             }
         }
