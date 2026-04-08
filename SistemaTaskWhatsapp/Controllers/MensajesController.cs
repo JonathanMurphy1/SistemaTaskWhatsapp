@@ -5,6 +5,7 @@ using SistemaTaskWhatsapp.AccesoDatos.Data.Repository;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Models;
 using SistemaTaskWhatsapp.Services;
+using Twilio.TwiML.Messaging;
 
 namespace SistemaTaskWhatsapp.Controllers
 {
@@ -98,26 +99,20 @@ namespace SistemaTaskWhatsapp.Controllers
             return RedirectToAction("Index");
         }
 
-
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var MensajeEliminar = await _contenedorTrabajo.Mensaje.GetByIdAsync(id);
+            var mensaje = await _contenedorTrabajo.Mensaje.GetByIdAsync(id);
 
-            if (MensajeEliminar == null) return RedirectToAction("Index");
+            if (mensaje == null) return RedirectToAction("Index");
 
-            _contenedorTrabajo.Mensaje.Remove(MensajeEliminar);
+            //RecurringJob.RemoveIfExists($"mensaje-{mensaje.Id}");
+
+            _contenedorTrabajo.Mensaje.Remove(mensaje);
             await _contenedorTrabajo.SaveAsync();
             return RedirectToAction("Index");
 
         }
 
-        //Ejecutar manualmente
-        [HttpPost("ejecutar/{id}")]
-        public async Task<IActionResult> Ejecutar(int id)
-        {
-            //await _mensajesService.EnviarMensajeProgramado(id);
-            return Ok("Mensaje ejecutado manualmente");
-        }
     }
 }
