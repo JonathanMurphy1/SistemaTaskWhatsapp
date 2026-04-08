@@ -1,6 +1,8 @@
 ﻿using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Models;
@@ -106,6 +108,41 @@ namespace SistemaTaskWhatsapp.Controllers
 
             return RedirectToAction("Index");
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var mensaje = await _contenedorTrabajo.Mensaje.GetByIdAsync(id);
+
+            if (mensaje == null)
+            {
+                return RedirectToAction("Index");
+            }
+
+            var model = new MensajeVM
+            {
+                Mensaje = mensaje,
+                ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown()
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(MensajeVM model)
+        {
+            if (!ModelState.IsValid)
+            {
+                model.ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown();
+                return View(model);
+            }
+
+            _contenedorTrabajo.Mensaje.Update(model.Mensaje);
+            await _contenedorTrabajo.SaveAsync();
+
+            return RedirectToAction("Index");
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
