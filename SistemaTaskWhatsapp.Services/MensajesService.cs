@@ -62,7 +62,6 @@ namespace SistemaTaskWhatsapp.Services
             {
                 int pendientes = await _utilidadesService.ObtenerTareasPendientes(empleado.Id);
 
-
                 var valores = new Dictionary<string, string>
                 {
                     { "Nombre", empleado.Nombre },
@@ -94,14 +93,14 @@ namespace SistemaTaskWhatsapp.Services
                     includeProperties: "Usuario"
                 );
 
-            int totalReportes = await _utilidadesService.ObtenerReportesPendientes();
+            int pendientes = await _utilidadesService.ObtenerReportesPendientes();
 
             foreach (var supervisor in supervisores)
             {
                 var valores = new Dictionary<string, string>
                 {
                     { "Nombre", supervisor.Nombre },
-                    { "Pendientes", totalReportes.ToString() },
+                    { "Pendientes", pendientes.ToString() },
                     //{ "Empresa", supervisor.Usuario?.Empresa?.Nombre ?? "" }
                 };
 
