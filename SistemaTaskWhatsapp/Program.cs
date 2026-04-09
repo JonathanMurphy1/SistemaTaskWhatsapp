@@ -36,6 +36,8 @@ builder.Services.AddScoped<IEmpleadoFlowService, EmpleadoFlowService>();
 
 builder.Services.AddScoped<MensajesService>();
 
+builder.Services.AddScoped<UtilidadesService>();
+
 //Registrar servicio de whatsapp
 builder.Services.AddSingleton(new WhatsAppService(
     builder.Configuration["Twilio:AccountSid"],

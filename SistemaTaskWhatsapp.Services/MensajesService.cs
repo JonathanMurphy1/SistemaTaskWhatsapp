@@ -11,68 +11,16 @@ namespace SistemaTaskWhatsapp.Services
     {
         private readonly IContenedorTrabajo _contenedorTrabajo;
         private readonly WhatsAppService _whatsAppService;
+        private readonly UtilidadesService _utilidadesService;
 
         public MensajesService(
             IContenedorTrabajo contenedorTrabajo,
-            WhatsAppService whatsAppService)
+            WhatsAppService whatsAppService,
+            UtilidadesService utilidadesService)
         {
             _contenedorTrabajo = contenedorTrabajo;
             _whatsAppService = whatsAppService;
-        }
-
-        //Funcion para obtener días festivos mediante una API y guardarlos en la BD
-        private async Task<List<DiaFestivo>> ObtenerFestivos()
-        {
-            int year = DateTime.Now.Year;
-
-            // Buscar en BD al iniciar
-            var festivosBD = await _contenedorTrabajo.DiaFestivo.GetAllAsync(f => f.Date.Year == year);
-
-            if (festivosBD != null && festivosBD.Any())
-            {
-                return festivosBD.ToList();
-            }
-
-            // Si no hay días guardados en BD llamar a la API
-            using (var http = new HttpClient())
-            {
-                var url = $"https://date.nager.at/api/v3/PublicHolidays/{year}/MX";
-                var response = await http.GetAsync(url);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    Console.WriteLine("Error al consultar API");
-                    return new List<DiaFestivo>();
-                }
-
-                var json = await response.Content.ReadAsStringAsync();
-
-                var festivosApi = System.Text.Json.JsonSerializer.Deserialize<List<DiaFestivo>>(json,
-                    new System.Text.Json.JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
-
-                // Guardar en BD para no depender siempre de la API
-                foreach (var festivo in festivosApi)
-                {
-                    await _contenedorTrabajo.DiaFestivo.AddAsync(festivo);
-                }
-
-                await _contenedorTrabajo.SaveAsync();
-
-                return festivosApi;
-            }
-        }
-
-        //Revisa si el día actual es festivo o no
-        private async Task<bool> EsDiaFestivo()
-        {
-            var festivos = await ObtenerFestivos();
-            var hoy = DateTime.Now.Date;
-
-            return festivos.Any(f => f.Date.Date == hoy);
-
+            _utilidadesService = utilidadesService;
         }
 
         //Función para cargar los mensajes y enviarlos
@@ -85,7 +33,7 @@ namespace SistemaTaskWhatsapp.Services
                 return;
 
             //Validar día festivo
-            if (await EsDiaFestivo())
+            if (await _utilidadesService.EsDiaFestivo())
                 return;
 
             switch (mensaje.Tipo)
@@ -112,7 +60,20 @@ namespace SistemaTaskWhatsapp.Services
 
             foreach (var empleado in empleados)
             {
-                string texto = mensaje.Contenido;
+                int pendientes = await _utilidadesService.ObtenerTareasPendientes(empleado.Id);
+
+
+                var valores = new Dictionary<string, string>
+                {
+                    { "Nombre", empleado.Nombre },
+                    { "Pendientes", pendientes.ToString() },
+                   // { "Empresa", empleado.Usuario?.Empresa?.Nombre ?? "" }
+                };
+
+                string texto = _utilidadesService.ProcesarPlantilla(
+                    mensaje.Contenido,
+                    valores
+                );
 
                 string telefono = empleado.Usuario?.PhoneNumber;
 
@@ -133,9 +94,21 @@ namespace SistemaTaskWhatsapp.Services
                     includeProperties: "Usuario"
                 );
 
+            int totalReportes = await _utilidadesService.ObtenerReportesPendientes();
+
             foreach (var supervisor in supervisores)
             {
-                string texto = mensaje.Contenido;
+                var valores = new Dictionary<string, string>
+                {
+                    { "Nombre", supervisor.Nombre },
+                    { "Pendientes", totalReportes.ToString() },
+                    //{ "Empresa", supervisor.Usuario?.Empresa?.Nombre ?? "" }
+                };
+
+                string texto = _utilidadesService.ProcesarPlantilla(
+                    mensaje.Contenido,
+                    valores
+                );
 
                 string telefono = supervisor.Usuario?.PhoneNumber;
 
