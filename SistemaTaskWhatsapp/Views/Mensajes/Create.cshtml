@@ -53,6 +53,9 @@
                     <button type="button" class="btn btn-sm btn-outline-primary" onclick="insertarVariable('{Pendientes}')">
                         Pendientes
                     </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="insertarVariable('{Empresa}')">
+                        Empresa
+                    </button>
                 </div>
 
                 <!-- AYUDA -->
@@ -62,7 +65,10 @@
                         <br />
                         <b>{Nombre}</b> -> Nombre del usuario
                         <br />
-                        <b>{Pendientes}</b> -> Tareas/Reportes pendientes
+                        <b>{Pendientes}</b> -> Tareas para empleados / 
+                                               Reportes para supervisores pendientes
+                        <br />
+                        <b>{Empresa}</b> -> Empresa responsable
                     </small>
                 </div>
 
@@ -76,7 +82,6 @@
             </div>
 
             <br />
-
 
             <!-- HORA -->
             <div class="form-group">
@@ -124,8 +129,16 @@
             let texto = document.getElementById("contenido").value;
 
             // Simulación de datos reales
-            texto = texto.replace("{Nombre}", "Juan")
-                         .replace("{Pendientes}", "5");
+            const variables = {
+                Nombre: "Juan",
+                Pendientes: "5",
+                Empresa: "Pice Software"
+            };
+
+            for (const key in variables) {
+                const regex = new RegExp(`{${key}}`, "g");
+                texto = texto.replace(regex, variables[key]);
+            }
 
             document.getElementById("preview").innerText = texto;
         }
@@ -135,7 +148,6 @@
         // Ejecutar al cargar (por si ya hay texto en edit)
         document.addEventListener("DOMContentLoaded", actualizarPreview);
     </script>
-
 
     <script>
         function generarCron() {

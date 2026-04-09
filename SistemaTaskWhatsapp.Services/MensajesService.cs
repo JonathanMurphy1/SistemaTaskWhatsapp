@@ -1,5 +1,6 @@
 ﻿using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Models;
+using SistemaTaskWhatsapp.Models.ViewModels;
 using SistemaTaskWhatsapp.Utilidades;
 using System;
 using System.Linq;
@@ -55,8 +56,9 @@ namespace SistemaTaskWhatsapp.Services
                 .GetAllAsync(
                     filter: e => e.Estado == EstadosEmpleado.Activo
                                 && e.Usuario.EmpresaId == mensaje.EmpresaId,
-                    includeProperties: "Usuario"
+                    includeProperties: "Usuario,Usuario.Empresa"
                 );
+    
 
             foreach (var empleado in empleados)
             {
@@ -66,7 +68,8 @@ namespace SistemaTaskWhatsapp.Services
                 {
                     { "Nombre", empleado.Nombre },
                     { "Pendientes", pendientes.ToString() },
-                   // { "Empresa", empleado.Usuario?.Empresa?.Nombre ?? "" }
+                    { "Empresa", empleado.Usuario?.Empresa?.Nombre
+                                          ?? mensaje.Empresa?.Nombre ?? "" }
                 };
 
                 string texto = _utilidadesService.ProcesarPlantilla(
@@ -90,7 +93,7 @@ namespace SistemaTaskWhatsapp.Services
                 .GetAllAsync(
                     filter: s => s.Estado == EstadosSupervisor.Activo
                                 && s.Usuario.EmpresaId == mensaje.EmpresaId,
-                    includeProperties: "Usuario"
+                    includeProperties: "Usuario,Usuario.Empresa"
                 );
 
             int pendientes = await _utilidadesService.ObtenerReportesPendientes();
@@ -101,7 +104,8 @@ namespace SistemaTaskWhatsapp.Services
                 {
                     { "Nombre", supervisor.Nombre },
                     { "Pendientes", pendientes.ToString() },
-                    //{ "Empresa", supervisor.Usuario?.Empresa?.Nombre ?? "" }
+                    { "Empresa", supervisor.Usuario?.Empresa?.Nombre
+                                            ?? mensaje.Empresa?.Nombre ?? "" }
                 };
 
                 string texto = _utilidadesService.ProcesarPlantilla(
