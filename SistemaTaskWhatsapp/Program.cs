@@ -74,7 +74,27 @@ else
     app.UseHsts();
 }
 
+
 app.UseHangfireDashboard();
+
+//Inicializa todos los mensajes guardados cuando se reinicie la aplicación
+using (var scope = app.Services.CreateScope())
+{
+    var servicios = scope.ServiceProvider;
+    var contenedor = servicios.GetRequiredService<IContenedorTrabajo>();
+
+    var mensajes = await contenedor.Mensaje.GetAllAsync(m => m.Activo);
+
+    foreach (var mensaje in mensajes)
+    {
+        RecurringJob.AddOrUpdate<MensajesService>(
+            $"mensaje-{mensaje.Id}",
+            x => x.EnviarMensajeProgramado(mensaje.Id),
+            mensaje.Cron,
+            TimeZoneInfo.Local
+        );
+    }
+}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
