@@ -27,5 +27,7 @@ namespace SistemaTaskWhatsapp.Data
         public DbSet<DiaFestivo> DiaFestivo { get; set; }
 
         public DbSet<Mensaje> Mensaje { get; set; }
+
+        public DbSet<MensajeDiaFestivo> MensajeDiaFestivo { get; set; }
     }
 }

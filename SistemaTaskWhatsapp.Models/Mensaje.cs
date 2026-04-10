@@ -28,6 +28,9 @@ namespace SistemaTaskWhatsapp.Models
        public int? EmpresaId { get; set; }
        public Empresa? Empresa { get; set; }
 
+       //Cada mensaje tendrá sus propios días festivos
+       public ICollection<MensajeDiaFestivo> MensajeDiaFestivos { get; set; }
+
     }
 }
 
