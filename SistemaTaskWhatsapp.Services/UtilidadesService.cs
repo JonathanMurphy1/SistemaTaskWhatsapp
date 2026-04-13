@@ -55,7 +55,14 @@ namespace SistemaTaskWhatsapp.Services
 
                 foreach (var festivo in festivosApi)
                 {
-                    await _contenedorTrabajo.DiaFestivo.AddAsync(festivo);
+                    //Evitar días duplicados
+                    var existe = await _contenedorTrabajo.DiaFestivo
+                        .GetFirstOrDefaultAsync(x => x.Date == festivo.Date);
+
+                    if (existe == null)
+                    {
+                        await _contenedorTrabajo.DiaFestivo.AddAsync(festivo);
+                    }
                 }
 
                 await _contenedorTrabajo.SaveAsync();
@@ -64,13 +71,15 @@ namespace SistemaTaskWhatsapp.Services
             }
         }
 
-        //Revisa si el día actual es festivo o no
-        public async Task<bool> EsDiaFestivo()
+        //Revisa si el día actual es festivo o no del mensaje correspondiente
+        public async Task<bool> EsDiaFestivo(int mensajeId)
         {
-            var festivos = await ObtenerFestivos();
             var hoy = DateTime.Now.Date;
 
-            return festivos.Any(f => f.Date.Date == hoy);
+            var festivos = await _contenedorTrabajo.MensajeDiaFestivo
+                .GetAllAsync(x => x.MensajeId == mensajeId, includeProperties: "DiaFestivo");
+
+            return festivos.Any(f => f.DiaFestivo.Date.Date == hoy);
         }
 
         //Cargar los datos cuando se usen variables en los mensajes

@@ -39,8 +39,8 @@ namespace SistemaTaskWhatsapp.Controllers
         {
             var model = new MensajeVM
             {
-
-                ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown()
+                ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown(),
+                ListaFestivos = await _contenedorTrabajo.MensajeDiaFestivo.ObtenerDiasFestivos()
             };
 
             return View(model);
@@ -53,7 +53,36 @@ namespace SistemaTaskWhatsapp.Controllers
             if (!ModelState.IsValid)
             {
                 model.ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown();
+                model.ListaFestivos = await _contenedorTrabajo.MensajeDiaFestivo.ObtenerDiasFestivos();
                 return View(model);
+            }
+
+            //Crear nuevo festivo si el usuario llenó campos
+            if (model.NuevosFestivos != null && model.NuevosFestivos.Any())
+            {
+                foreach (var festivo in model.NuevosFestivos)
+                {
+                    //Validación básica
+                    if (festivo.Date == default || string.IsNullOrWhiteSpace(festivo.LocalName))
+                        continue;
+
+                    //Evitar duplicados por fecha
+                    var existente = await _contenedorTrabajo.DiaFestivo
+                        .GetFirstOrDefaultAsync(x => x.Date == festivo.Date);
+
+                    if (existente != null)
+                    {
+                        //Si existe usar ese
+                        model.FestivosSeleccionados.Add(existente.Id);
+                    }
+                    else
+                    {
+                        await _contenedorTrabajo.DiaFestivo.AddAsync(festivo);
+                        await _contenedorTrabajo.SaveAsync(); // necesario para obtener ID
+
+                        model.FestivosSeleccionados.Add(festivo.Id);
+                    }
+                }
             }
 
             model.Mensaje.FechaCreacion = DateTime.Now;
@@ -62,9 +91,44 @@ namespace SistemaTaskWhatsapp.Controllers
             await _contenedorTrabajo.Mensaje.AddAsync(model.Mensaje);
             await _contenedorTrabajo.SaveAsync();
 
+            //Relación mensaje - festivos
+            if (model.FestivosSeleccionados != null && model.FestivosSeleccionados.Any())
+            {
+                foreach (var festivoId in model.FestivosSeleccionados.Distinct())
+                {
+                    await _contenedorTrabajo.MensajeDiaFestivo.AddAsync(new MensajeDiaFestivo
+                    {
+                        MensajeId = model.Mensaje.Id,
+                        DiaFestivoId = festivoId
+                    });
+                }
+
+                await _contenedorTrabajo.SaveAsync();
+            }
 
             return RedirectToAction("Index");
-        }   
+        }
+
+        //Función para eliminar los días festivo del mensaje
+        [HttpPost]
+        public async Task<IActionResult> EliminarFestivo(int mensajeId, int festivoId)
+        {
+            if (mensajeId <= 0 || festivoId <= 0)
+                return BadRequest();
+
+            var relacion = await _contenedorTrabajo.MensajeDiaFestivo
+                .GetFirstOrDefaultAsync(x =>
+                    x.MensajeId == mensajeId &&
+                    x.DiaFestivoId == festivoId);
+
+            if (relacion == null)
+                return NotFound();
+
+            _contenedorTrabajo.MensajeDiaFestivo.Remove(relacion);
+            await _contenedorTrabajo.SaveAsync();
+
+            return RedirectToAction("Edit", new { id = mensajeId });
+        }
 
         //Funcion para Activar / Desactivar
         [HttpPost]
@@ -109,10 +173,15 @@ namespace SistemaTaskWhatsapp.Controllers
                 return RedirectToAction("Index");
             }
 
+            var festivosRelacionados = await _contenedorTrabajo.MensajeDiaFestivo
+                                              .GetAllAsync(x => x.MensajeId == id);
+
             var model = new MensajeVM
             {
                 Mensaje = mensaje,
-                ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown()
+                ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown(),
+                ListaFestivos = await _contenedorTrabajo.MensajeDiaFestivo.ObtenerDiasFestivos(),
+                FestivosSeleccionados = festivosRelacionados.Select(x => x.DiaFestivoId).ToList()
             };
 
             return View(model);
@@ -125,6 +194,26 @@ namespace SistemaTaskWhatsapp.Controllers
             {
                 model.ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown();
                 return View(model);
+            }
+
+
+            //Eliminar relaciones actuales
+            var relaciones = await _contenedorTrabajo.MensajeDiaFestivo
+                .GetAllAsync(x => x.MensajeId == model.Mensaje.Id);
+
+            foreach (var r in relaciones)
+            {
+                _contenedorTrabajo.MensajeDiaFestivo.Remove(r);
+            }
+
+            //Agregar nuevas
+            foreach (var festivoId in model.FestivosSeleccionados)
+            {
+                await _contenedorTrabajo.MensajeDiaFestivo.AddAsync(new MensajeDiaFestivo
+                {
+                    MensajeId = model.Mensaje.Id,
+                    DiaFestivoId = festivoId
+                });
             }
 
             _contenedorTrabajo.Mensaje.Update(model.Mensaje);

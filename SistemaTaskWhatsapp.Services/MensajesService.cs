@@ -34,7 +34,7 @@ namespace SistemaTaskWhatsapp.Services
                 return;
 
             //Validar día festivo
-            if (await _utilidadesService.EsDiaFestivo())
+            if (await _utilidadesService.EsDiaFestivo(mensaje.Id))
                 return;
 
             switch (mensaje.Tipo)
