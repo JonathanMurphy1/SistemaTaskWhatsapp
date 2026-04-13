@@ -6,117 +6,172 @@
 
 <div class="contenedor-principal">
     <div class="text-center">
-        <h3 class="col-3">@ViewData["Title"]</h3>
+        <h3>@ViewData["Title"]</h3>
     </div>
-    <div class="col-5 mt-4 border rounded shadow p-3 fade-in-page">
-        <form asp-action="Edit" method="post">
+    
+    <form asp-action="Edit" method="post">
+
+        <div class="row mt-4">
             <div asp-validation-summary="All" class="text-danger"></div>
             <input type="hidden" asp-for="Mensaje.Id" />
             <input type="hidden" asp-for="Mensaje.Activo" />
             <input type="hidden" asp-for="Mensaje.FechaCreacion" />
 
-            <!-- EMPRESA -->
-            <div class="form-group">
-                <label>Empresa:</label>
-                <select asp-for="Mensaje.EmpresaId"
-                        asp-items="@Model.ListaEmpresas"
-                        class="form-select">
-                    <option disabled selected value="">--Elija una empresa--</option>
-                </select>
-                <span asp-validation-for="Mensaje.EmpresaId" class="text-danger"></span>
-            </div>
+            <!-- Columna Izquierda (Formulario Principal) -->
+            <div class="col-md-7">
+                <div class="border rounded shadow p-3">
 
-            <br />
+                    <!-- EMPRESA -->
+                    <div class="form-group">
+                        <label>Empresa:</label>
+                        <select asp-for="Mensaje.EmpresaId"
+                                asp-items="@Model.ListaEmpresas"
+                                class="form-select">
+                            <option disabled selected value="">--Elija una empresa--</option>
+                        </select>
+                    <span asp-validation-for="Mensaje.EmpresaId" class="text-danger"></span>
+                    </div>
 
-            <!-- TIPO -->
-            <div class="form-group">
-                <label>Mensaje para:</label>
-                <select asp-for="Mensaje.Tipo" class="form-control">
-                    <option disabled selected value="">-- Seleccione el tipo de usuario --</option>
-                    <option value="1">Supervisor</option>
-                    <option value="2">Empleado</option>
-                </select>
-                <span asp-validation-for="Mensaje.Tipo" class="text-danger"></span>
+                    <br />
 
-            </div>
+                    <!-- TIPO -->
+                    <div class="form-group">
+                        <label>Mensaje para:</label>
+                        <select asp-for="Mensaje.Tipo" class="form-control">
+                        <option disabled selected value="">-- Seleccione el tipo de usuario --</option>
+                            <option value="1">Supervisor</option>
+                            <option value="2">Empleado</option>
+                        </select>
+                    </div>
 
-            <br />
+                    <br />
 
-            <!--     CONTENIDO        -->
-            <div class="form-group">
-                <label>Contenido:</label>
+                    <!-- CONTENIDO -->
+                    <div class="form-group">
+                        <label>Contenido:</label>
 
-                <textarea asp-for="Mensaje.Contenido" id="contenido" class="form-control" placeholder="Escriba el mensaje..."></textarea>
+                    <textarea asp-for="Mensaje.Contenido"  id="contenido" class="form-control" placeholder="Escriba el mensaje..."></textarea>
 
-                <!-- BOTONES DE VARIABLES -->
-                <div class="mt-2">
-                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="insertarVariable('{Nombre}')">
-                        Nombre
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="insertarVariable('{Pendientes}')">
-                        Pendientes
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="insertarVariable('{Empresa}')">
-                        Empresa
-                    </button>
-                </div>
+                    <!-- BOTONES DE VARIABLES -->
+                        <div class="mt-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="insertarVariable('{Nombre}')">
+                                Nombre
+                            </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="insertarVariable('{Pendientes}')">
+                                Pendientes
+                            </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="insertarVariable('{Empresa}')">
+                                Empresa
+                            </button>
+                        </div>
 
-                <!-- AYUDA -->
-                <div class="mt-2">
-                    <small class="text-muted">
-                        Variables disponibles:
-                        <br />
-                        <b>{Nombre}</b> -> Nombre del usuario
-                        <br />
-                        <b>{Pendientes}</b> -> Tareas para empleados /
-                        Reportes para supervisores pendientes
-                        <br />
-                        <b>{Empresa}</b> -> Empresa responsable
-                    </small>
-                </div>
+                    <!-- AYUDA -->
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            Variables disponibles:
+                            <br />
+                            <b>{Nombre}</b> -> Nombre del usuario
+                            <br />
+                            <b>{Pendientes}</b> -> Tareas para empleados / 
+                                                   Reportes para supervisores pendientes
+                            <br />
+                            <b>{Empresa}</b> -> Empresa responsable
+                        </small>
+                    </div>
 
-                <!-- PREVIEW -->
-                <div class="mt-3">
-                    <label>Vista previa:</label>
-                    <div id="preview" class="form-control"></div>
-                </div>
+                        <!-- PREVIEW -->
+                        <div class="mt-3">
+                            <label>Vista previa:</label>
+                            <div id="preview" class="form-control"></div>
+                        </div>
+                    </div>
 
-                <span asp-validation-for="Mensaje.Contenido" class="text-danger"></span>
-            </div>
+                    <br />
 
-            <br />
+                    <!-- HORA -->
+                    <div class="form-group">
+                    <label>Hora de envío:</label>
+                        <input type="time" id="hora" class="form-control" />
+                    </div>
 
-            <!-- HORA -->
-            <div class="form-group">
-                <label>Hora de envío:</label>
-                <input type="time" id="hora" class="form-control" />
-            </div>
+                    <br />
 
-            <br />
+                    <!-- FRECUENCIA -->
+                    <div class="form-group">
+                        <label>Frecuencia:</label>
+                        <select id="frecuencia" class="form-control">
+                            <option value="diario">Diario</option>
+                            <option value="laboral">Lunes a Viernes</option>
+                        <option value="semanal">Semanal (Cada lunes)</option>
+                        </select>
+                    </div>
 
-            <!-- FRECUENCIA -->
-            <div class="form-group">
-                <label>Frecuencia:</label>
-                <select id="frecuencia" class="form-control">
-                    <option value="diario">Diario</option>
-                    <option value="laboral">Lunes a Viernes</option>
-                    <option value="semanal">Semanal (Cada lunes)</option>
-                </select>
-            </div>
+                <!-- CRON OCULTO -->
+                    <input type="hidden" asp-for="Mensaje.Cron" id="cron" />
 
-            <!-- CRON OCULTO -->
-            <input type="hidden" asp-for="Mensaje.Cron" id="cron" />
+                    <br />
 
-            <br />
-
-            <div class="d-flex justify-content-center gap-2 mt-3">
-                <a asp-action="Index" class="btn btn-secondary">Volver</a>
+                    <div class="d-flex justify-content-center gap-2 mt-3">
+                        <a asp-action="Index" class="btn btn-secondary">Volver</a>
                 <button type="submit" class="btn btn-success">Editar</button>
-            </div>
-        </form>
-    </div>
-</div>
+                    </div>
 
+                </div>
+            </div>
+
+            <!-- Columna derecha (Días festivos) -->
+            <div class="col-md-5">
+                <div class="border rounded shadow p-3">
+
+
+                    <div class="form-group mt-2">
+                        <label>Días festivos</label>
+                        <br />
+                        <small class="text-muted">
+                            Los días que se agreguen no se enviarán los mensajes
+                        </small>
+                    </div>
+
+                    <select id="selectFestivosBD"
+                            asp-items="Model.ListaFestivos"
+                            class="form-select d-none">
+                    </select>
+
+                    <div class="form-group">
+                        <label>Fecha:</label>
+                        <input type="date" id="nuevoFestivoFecha" class="form-control" />
+                    </div>
+
+                    <div class="form-group mt-2">
+                        <label>Nombre:</label>
+                        <input type="text" id="nuevoFestivoNombre" class="form-control" />
+                    </div>
+
+                    <button type="button" class="btn btn-success btn-sm mt-2" onclick="agregarNuevo()">
+                        Agregar 
+                    </button>
+
+                    <br />
+                    <br />
+
+                    <h5>Dias agregados</h5>
+
+                    <small class="text-muted d-block mt-2">
+                        Puedes agregar o quitar días preestablecidos
+                    </small>
+
+                    <ul id="listaFestivos" class="festivos-lista">
+                        <!-- Se llena automáticamente -->
+                    </ul>
+
+                    <div id="inputsFestivos"></div>
+
+                </div>
+            </div> 
+
+        </div>
+    </form>
+</div>
 
 @section Scripts {
 
@@ -124,7 +179,7 @@
     <script>
         function insertarVariable(variable) {
             const textarea = document.getElementById("contenido");
-            textarea.value += " " + variable;
+            textarea.value += variable;
             actualizarPreview();
         }
 
@@ -152,6 +207,7 @@
         document.addEventListener("DOMContentLoaded", actualizarPreview);
     </script>
 
+    <!-- Script para generar el formato del cron -->
     <script>
         function generarCron() {
             const hora = document.getElementById("hora").value;
@@ -179,7 +235,6 @@
 
             document.getElementById("cron").value = cron;
 
-            console.log("CRON generado:", cron); //DEBUG
         }
 
         //Se ejecuta al cambiar valores
@@ -200,6 +255,7 @@
         });
     </script>
 
+    <!-- Script para cargar el Cron al editar -->
     <script>
         //Cargar datos del cron a la hora de editarlo
         function cargarDesdeCron() {
@@ -232,5 +288,162 @@
         document.addEventListener("DOMContentLoaded", function () {
             cargarDesdeCron();
         });
+    </script>
+
+    <!-- Script para agregar días festivos -->
+    <script>
+        const lista = document.getElementById("listaFestivos");
+        const inputsContainer = document.getElementById("inputsFestivos");
+
+        let contadorFestivos = 0;
+   
+        //Convertir dd/MM/yyyy -> yyyy-MM-dd
+        function convertirAISO(fecha) {
+            const [dia, mes, anio] = fecha.split("/");
+            return `${anio}-${mes}-${dia}`;
+        }
+
+ 
+        //Validar que la fecha no esté duplicada
+        function yaExisteFecha(fecha) {
+
+            //Nuevos
+            const nuevos = document.querySelectorAll('input[name^="NuevosFestivos"][name$=".Date"]');
+            for (let input of nuevos) {
+                if (input.value === fecha) return true;
+            }
+
+            //Base de datos
+            const existentes = document.querySelectorAll('input[name="FestivosSeleccionados"]');
+            for (let input of existentes) {
+                if (input.getAttribute("data-fecha") === fecha) return true;
+            }
+
+            return false;
+        }
+
+
+        //cargar días de la base de datos
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const select = document.getElementById("selectFestivosBD");
+
+            for (let option of select.options) {
+
+                //Extraer fecha del texto "(dd/MM/yyyy)"
+                const match = option.text.match(/\((.*?)\)/);
+                const fecha = match ? convertirAISO(match[1]) : null;
+
+                agregarAFestivos(option.value, option.text, false, null, fecha);
+
+            }
+        });
+
+        //agregar nuevo día festivo
+        function agregarNuevo() {
+            const fecha = document.getElementById("nuevoFestivoFecha").value;
+            const nombre = document.getElementById("nuevoFestivoNombre").value;
+
+            if (!fecha || !nombre) {
+                alert("Completa los campos");
+                return;
+            }
+
+            //Evitar días duplicados
+            if (yaExisteFecha(fecha)) {
+                alert("Ese día ya está registrado");
+                return;
+            }
+
+            const id = "nuevo-" + contadorFestivos;
+
+            // Formato dd/MM/yyyy
+            const [year, month, day] = fecha.split("-");
+            const fechaFormateada = `${day}/${month}/${year}`;
+
+            agregarAFestivos(id, `${nombre} (${fechaFormateada})`, true, contadorFestivos);
+
+            //Inputs para backend
+            const inputFecha = document.createElement("input");
+            inputFecha.type = "hidden";
+            inputFecha.name = `NuevosFestivos[${contadorFestivos}].Date`;
+            inputFecha.value = fecha;
+
+            const inputNombre = document.createElement("input");
+            inputNombre.type = "hidden";
+            inputNombre.name = `NuevosFestivos[${contadorFestivos}].LocalName`;
+            inputNombre.value = nombre;
+
+            inputsContainer.appendChild(inputFecha);
+            inputsContainer.appendChild(inputNombre);
+
+            contadorFestivos++;
+
+            //limpiar
+            document.getElementById("nuevoFestivoFecha").value = "";
+            document.getElementById("nuevoFestivoNombre").value = "";
+        }
+
+        //Función principal
+        function agregarAFestivos(id, nombre, esNuevo = false, index = null, fecha = null){
+
+            if (document.getElementById("festivo-" + id)) return;
+
+            const li = document.createElement("li");
+            li.className = "festivo-item";
+            li.id = "festivo-" + id;
+
+            //Guardamos index Solo si es nuevo
+            if (esNuevo) {
+                li.setAttribute("data-index", index);
+            }
+
+            li.innerHTML = `
+                <span class="festivo-texto">${nombre}</span>
+                <button type="button" class="festivo-btn" onclick="eliminarFestivo('${id}', ${esNuevo})">
+                    ✕
+                </button>
+            `;
+
+            lista.appendChild(li);
+
+            //Solo si es de BD
+            if (!esNuevo) {
+                const input = document.createElement("input");
+                input.type = "hidden";
+                input.name = "FestivosSeleccionados";
+                input.value = id;
+                input.id = "input-" + id;
+
+                //Guardar fecha para validación
+                if (fecha) {
+                    input.setAttribute("data-fecha", fecha);
+                }
+
+                inputsContainer.appendChild(input);
+            }
+        }
+
+        //Eliminar
+        function eliminarFestivo(id, esNuevo = false) {
+
+            const li = document.getElementById("festivo-" + id);
+
+            if (!li) return;
+
+            //Si es nuevo, eliminar inputs indexados
+            if (esNuevo) {
+                const index = li.getAttribute("data-index");
+
+                document.querySelector(`input[name="NuevosFestivos[${index}].Date"]`)?.remove();
+                document.querySelector(`input[name="NuevosFestivos[${index}].LocalName"]`)?.remove();
+            }
+            else {
+                //Si es de BD, eliminar input normal
+                document.getElementById("input-" + id)?.remove();
+            }
+
+            li.remove();
+        }
     </script>
 }

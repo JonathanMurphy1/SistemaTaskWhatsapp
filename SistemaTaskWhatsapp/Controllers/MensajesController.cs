@@ -173,15 +173,22 @@ namespace SistemaTaskWhatsapp.Controllers
                 return RedirectToAction("Index");
             }
 
+            // Festivos relacionados al mensaje
             var festivosRelacionados = await _contenedorTrabajo.MensajeDiaFestivo
-                                              .GetAllAsync(x => x.MensajeId == id);
+                .GetAllAsync(x => x.MensajeId == id, includeProperties: "DiaFestivo");
 
             var model = new MensajeVM
             {
                 Mensaje = mensaje,
                 ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown(),
-                ListaFestivos = await _contenedorTrabajo.MensajeDiaFestivo.ObtenerDiasFestivos(),
-                FestivosSeleccionados = festivosRelacionados.Select(x => x.DiaFestivoId).ToList()
+
+                //Dïas festivos del mensaje
+                ListaFestivos = festivosRelacionados.Select(x => new SelectListItem
+                {
+                    Value = x.DiaFestivoId.ToString(),
+                    Text = $"{x.DiaFestivo.LocalName} ({x.DiaFestivo.Date:dd/MM/yyyy})"
+                })
+
             };
 
             return View(model);
@@ -193,9 +200,34 @@ namespace SistemaTaskWhatsapp.Controllers
             if (!ModelState.IsValid)
             {
                 model.ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown();
+                model.ListaFestivos = await _contenedorTrabajo.MensajeDiaFestivo.ObtenerDiasFestivos();
                 return View(model);
             }
 
+            //Procesar nuevos días festivos
+            if (model.NuevosFestivos != null && model.NuevosFestivos.Any())
+            {
+                foreach (var festivo in model.NuevosFestivos)
+                {
+                    if (festivo.Date == default || string.IsNullOrWhiteSpace(festivo.LocalName))
+                        continue;
+
+                    var existente = await _contenedorTrabajo.DiaFestivo
+                        .GetFirstOrDefaultAsync(x => x.Date == festivo.Date);
+
+                    if (existente != null)
+                    {
+                        model.FestivosSeleccionados.Add(existente.Id);
+                    }
+                    else
+                    {
+                        await _contenedorTrabajo.DiaFestivo.AddAsync(festivo);
+                        await _contenedorTrabajo.SaveAsync();
+
+                        model.FestivosSeleccionados.Add(festivo.Id);
+                    }
+                }
+            }
 
             //Eliminar relaciones actuales
             var relaciones = await _contenedorTrabajo.MensajeDiaFestivo
@@ -207,13 +239,16 @@ namespace SistemaTaskWhatsapp.Controllers
             }
 
             //Agregar nuevas
-            foreach (var festivoId in model.FestivosSeleccionados)
+            if (model.FestivosSeleccionados != null && model.FestivosSeleccionados.Any())
             {
-                await _contenedorTrabajo.MensajeDiaFestivo.AddAsync(new MensajeDiaFestivo
+                foreach (var festivoId in model.FestivosSeleccionados.Distinct())
                 {
-                    MensajeId = model.Mensaje.Id,
-                    DiaFestivoId = festivoId
-                });
+                    await _contenedorTrabajo.MensajeDiaFestivo.AddAsync(new MensajeDiaFestivo
+                    {
+                        MensajeId = model.Mensaje.Id,
+                        DiaFestivoId = festivoId
+                    });
+                }
             }
 
             _contenedorTrabajo.Mensaje.Update(model.Mensaje);

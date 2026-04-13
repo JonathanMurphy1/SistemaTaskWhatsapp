@@ -163,7 +163,6 @@
 
                     <div id="inputsFestivos"></div>
 
-
                 </div>
             </div> 
 
@@ -205,6 +204,7 @@
         document.addEventListener("DOMContentLoaded", actualizarPreview);
     </script>
 
+    <!-- Script para generar el formato del cron -->
     <script>
         function generarCron() {
             const hora = document.getElementById("hora").value;
@@ -232,7 +232,6 @@
 
             document.getElementById("cron").value = cron;
 
-            console.log("CRON generado:", cron); //DEBUG
         }
 
         //Se ejecuta al cambiar valores
@@ -266,7 +265,6 @@
             return `${anio}-${mes}-${dia}`;
         }
 
- 
         //Validar que la fecha no esté duplicada
         function yaExisteFecha(fecha) {
 
