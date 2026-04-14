@@ -24,16 +24,39 @@ namespace SistemaTaskWhatsapp.Services
         {
             int year = DateTime.Now.Year;
 
-            //Buscar en BD al iniciar
-            var festivosBD = await _contenedorTrabajo.DiaFestivo
-                .GetAllAsync(f => f.Date.Year == year);
+            //Validación inicial para evitar hacer todo el proceso en cada llamada
+            var festivosActuales = await _contenedorTrabajo.DiaFestivo
+               .GetAllAsync(f => f.Date.Year == year);
 
-            if (festivosBD != null && festivosBD.Any())
+            if (festivosActuales.Any())
             {
-                return festivosBD.ToList();
+                return festivosActuales.ToList();
             }
 
-            //Si no hay días guardados en BD llamar a la API
+            //Obtener días de años anteriores
+            var festivosViejos = await _contenedorTrabajo.DiaFestivo
+                .GetAllAsync(f => f.Date.Year < year);
+
+            var idsViejos = festivosViejos.Select(f => f.Id).ToList();
+
+            //Eliminar relaciones mensaje-dia usando IDs
+            var relaciones = await _contenedorTrabajo.MensajeDiaFestivo
+                .GetAllAsync(r => idsViejos.Contains(r.DiaFestivoId));
+
+            foreach (var r in relaciones)
+            {
+                _contenedorTrabajo.MensajeDiaFestivo.Remove(r);
+            }
+
+            //Eliminar días de años anteriores
+            foreach (var v in festivosViejos)
+            {
+                _contenedorTrabajo.DiaFestivo.Remove(v);
+            }
+
+            await _contenedorTrabajo.SaveAsync();
+
+            //Llamar a la API
             using (var http = new HttpClient())
             {
                 var url = $"https://date.nager.at/api/v3/PublicHolidays/{year}/MX";
@@ -53,6 +76,9 @@ namespace SistemaTaskWhatsapp.Services
                         PropertyNameCaseInsensitive = true
                     });
 
+                if (festivosApi == null)
+                    return new List<DiaFestivo>();
+
                 foreach (var festivo in festivosApi)
                 {
                     //Evitar días duplicados
@@ -61,7 +87,11 @@ namespace SistemaTaskWhatsapp.Services
 
                     if (existe == null)
                     {
-                        await _contenedorTrabajo.DiaFestivo.AddAsync(festivo);
+                        await _contenedorTrabajo.DiaFestivo.AddAsync(new DiaFestivo
+                        {
+                            Date = festivo.Date,
+                            LocalName = festivo.LocalName
+                        });
                     }
                 }
 

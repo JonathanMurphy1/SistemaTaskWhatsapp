@@ -79,6 +79,14 @@ else
 
 app.UseHangfireDashboard();
 
+//Función para limiar la base de datos de días festivos cada inicio de año
+RecurringJob.AddOrUpdate<UtilidadesService>(
+    "actualizar-festivos-anuales",
+    x => x.ObtenerFestivos(),
+    "0 3 1 1 *",
+    TimeZoneInfo.Local
+);
+
 //Inicializa todos los mensajes guardados cuando se reinicie la aplicación
 using (var scope = app.Services.CreateScope())
 {

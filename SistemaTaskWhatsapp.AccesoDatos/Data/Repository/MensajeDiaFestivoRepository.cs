@@ -22,13 +22,20 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository
 
         public async Task<IEnumerable<SelectListItem>> ObtenerDiasFestivos()
         {
-            var dias = await _db.DiaFestivo.ToListAsync();
+            //Mandamos unicamente los festivos del año actual
+            int year = DateTime.Now.Year;
+            var hoy = DateTime.Today;
+
+            var dias = await _db.DiaFestivo
+                .Where(d => d.Date.Year == hoy.Year)
+                .ToListAsync();
 
             return dias.Select(d => new SelectListItem
             {
                 Text = $"{d.LocalName} ({d.Date:dd/MM/yyyy})",
                 Value = d.Id.ToString()
             });
+
         }
     }
 }
