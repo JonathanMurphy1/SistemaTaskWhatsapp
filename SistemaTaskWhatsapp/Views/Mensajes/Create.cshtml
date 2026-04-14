@@ -258,14 +258,24 @@
         const inputsContainer = document.getElementById("inputsFestivos");
 
         let contadorFestivos = 0;
-   
+
+        //Iniciador
+        document.addEventListener("DOMContentLoaded", function () {
+            cargarFestivos();
+        });
+
         //Convertir dd/MM/yyyy -> yyyy-MM-dd
         function convertirAISO(fecha) {
             const [dia, mes, anio] = fecha.split("/");
             return `${anio}-${mes}-${dia}`;
         }
 
-        //Validar que la fecha no esté duplicada
+        function obtenerFechaDeTexto(texto) {
+            const match = texto.match(/\((.*?)\)/);
+            if (!match) return null;
+            return convertirAISO(match[1]);
+        }
+
         function yaExisteFecha(fecha) {
 
             //Nuevos
@@ -283,10 +293,8 @@
             return false;
         }
 
-
         //cargar días de la base de datos
-        document.addEventListener("DOMContentLoaded", function () {
-
+        function cargarFestivos() {
             const select = document.getElementById("selectFestivosBD");
 
             for (let option of select.options) {
@@ -296,9 +304,10 @@
                 const fecha = match ? convertirAISO(match[1]) : null;
 
                 agregarAFestivos(option.value, option.text, false, null, fecha);
-
             }
-        });
+
+            ordenarLista();
+        }
 
         //agregar nuevo día festivo
         function agregarNuevo() {
@@ -310,7 +319,6 @@
                 return;
             }
 
-            //Evitar días duplicados
             if (yaExisteFecha(fecha)) {
                 alert("Ese día ya está registrado");
                 return;
@@ -318,11 +326,10 @@
 
             const id = "nuevo-" + contadorFestivos;
 
-            // Formato dd/MM/yyyy
             const [year, month, day] = fecha.split("-");
             const fechaFormateada = `${day}/${month}/${year}`;
 
-            agregarAFestivos(id, `${nombre} (${fechaFormateada})`, true, contadorFestivos);
+            agregarAFestivos(id, `${nombre} (${fechaFormateada})`, true, contadorFestivos, fecha);
 
             //Inputs para backend
             const inputFecha = document.createElement("input");
@@ -346,7 +353,7 @@
         }
 
         //Función principal
-        function agregarAFestivos(id, nombre, esNuevo = false, index = null, fecha = null){
+        function agregarAFestivos(id, nombre, esNuevo = false, index = null, fecha = null) {
 
             if (document.getElementById("festivo-" + id)) return;
 
@@ -383,13 +390,14 @@
 
                 inputsContainer.appendChild(input);
             }
+
+            ordenarLista();
         }
 
         //Eliminar
         function eliminarFestivo(id, esNuevo = false) {
 
             const li = document.getElementById("festivo-" + id);
-
             if (!li) return;
 
             //Si es nuevo, eliminar inputs indexados
@@ -406,5 +414,21 @@
 
             li.remove();
         }
+
+        // Ordenar lista por fecha
+        function ordenarLista() {
+            const items = Array.from(lista.children);
+
+            items.sort((a, b) => {
+                const fechaA = obtenerFechaDeTexto(a.innerText);
+                const fechaB = obtenerFechaDeTexto(b.innerText);
+
+                return new Date(fechaA) - new Date(fechaB);
+            });
+
+            lista.innerHTML = "";
+            items.forEach(item => lista.appendChild(item));
+        }
     </script>
+
 }
