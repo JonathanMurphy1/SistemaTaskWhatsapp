@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaTaskWhatsapp.Data;
 
@@ -11,9 +12,11 @@ using SistemaTaskWhatsapp.Data;
 namespace SistemaTaskWhatsapp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260407213647_CambiarTipoMensajeAInt")]
+    partial class CambiarTipoMensajeAInt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -303,9 +306,6 @@ namespace SistemaTaskWhatsapp.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("EmpresaId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("datetime2");
 
@@ -314,32 +314,7 @@ namespace SistemaTaskWhatsapp.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EmpresaId");
-
                     b.ToTable("Mensaje");
-                });
-
-            modelBuilder.Entity("SistemaTaskWhatsapp.Models.MensajeDiaFestivo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("DiaFestivoId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MensajeId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DiaFestivoId");
-
-                    b.HasIndex("MensajeId");
-
-                    b.ToTable("MensajeDiaFestivo");
                 });
 
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Proyecto", b =>
@@ -705,34 +680,6 @@ namespace SistemaTaskWhatsapp.Data.Migrations
                     b.Navigation("Reporte");
                 });
 
-            modelBuilder.Entity("SistemaTaskWhatsapp.Models.Mensaje", b =>
-                {
-                    b.HasOne("SistemaTaskWhatsapp.Models.Empresa", "Empresa")
-                        .WithMany()
-                        .HasForeignKey("EmpresaId");
-
-                    b.Navigation("Empresa");
-                });
-
-            modelBuilder.Entity("SistemaTaskWhatsapp.Models.MensajeDiaFestivo", b =>
-                {
-                    b.HasOne("SistemaTaskWhatsapp.Models.DiaFestivo", "DiaFestivo")
-                        .WithMany()
-                        .HasForeignKey("DiaFestivoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SistemaTaskWhatsapp.Models.Mensaje", "Mensaje")
-                        .WithMany("MensajeDiaFestivos")
-                        .HasForeignKey("MensajeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DiaFestivo");
-
-                    b.Navigation("Mensaje");
-                });
-
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Proyecto", b =>
                 {
                     b.HasOne("SistemaTaskWhatsapp.Models.Empresa", "Empresa")
@@ -842,11 +789,6 @@ namespace SistemaTaskWhatsapp.Data.Migrations
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Empresa", b =>
                 {
                     b.Navigation("Proyectos");
-                });
-
-            modelBuilder.Entity("SistemaTaskWhatsapp.Models.Mensaje", b =>
-                {
-                    b.Navigation("MensajeDiaFestivos");
                 });
 
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.Reporte", b =>

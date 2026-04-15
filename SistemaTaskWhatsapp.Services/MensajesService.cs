@@ -1,5 +1,6 @@
 ﻿using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Models;
+using SistemaTaskWhatsapp.Models.ViewModels;
 using SistemaTaskWhatsapp.Utilidades;
 using System;
 using System.Linq;
@@ -11,174 +12,112 @@ namespace SistemaTaskWhatsapp.Services
     {
         private readonly IContenedorTrabajo _contenedorTrabajo;
         private readonly WhatsAppService _whatsAppService;
+        private readonly UtilidadesService _utilidadesService;
 
         public MensajesService(
             IContenedorTrabajo contenedorTrabajo,
-            WhatsAppService whatsAppService)
+            WhatsAppService whatsAppService,
+            UtilidadesService utilidadesService)
         {
             _contenedorTrabajo = contenedorTrabajo;
             _whatsAppService = whatsAppService;
+            _utilidadesService = utilidadesService;
         }
 
-        //Funcion para obtener días festivos mediante una API y guardarlos en la BD
-        private async Task<List<DiaFestivo>> ObtenerFestivos()
+        //Función para cargar los mensajes y enviarlos
+        public async Task EnviarMensajeProgramado(int mensajeId)
         {
-            int year = DateTime.Now.Year;
+            var mensaje = await _contenedorTrabajo.Mensaje
+                .GetByIdAsync(mensajeId);
 
-            // Buscar en BD al iniciar
-            var festivosBD = await _contenedorTrabajo.DiaFestivo.GetAllAsync(f => f.Date.Year == year);
-
-            if (festivosBD != null && festivosBD.Any())
-            {
-                return festivosBD.ToList();
-            }
-
-            // Si no hay días guardados en BD llamar a la API
-            using (var http = new HttpClient())
-            {
-                var url = $"https://date.nager.at/api/v3/PublicHolidays/{year}/MX";
-                var response = await http.GetAsync(url);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    Console.WriteLine("Error al consultar API");
-                    return new List<DiaFestivo>();
-                }
-
-                var json = await response.Content.ReadAsStringAsync();
-
-                var festivosApi = System.Text.Json.JsonSerializer.Deserialize<List<DiaFestivo>>(json,
-                    new System.Text.Json.JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
-
-                // Guardar en BD para no depender siempre de la API
-                foreach (var festivo in festivosApi)
-                {
-                    await _contenedorTrabajo.DiaFestivo.AddAsync(festivo);
-                }
-
-                await _contenedorTrabajo.SaveAsync();
-
-                return festivosApi;
-            }
-        }
-
-        //Revisa si el día actual es festivo o no
-        private async Task<bool> EsDiaFestivo()
-        {
-            var festivos = await ObtenerFestivos();
-            var hoy = DateTime.Now.Date;
-
-            return festivos.Any(f => f.Date.Date == hoy);
-
-        }
-
-        // Recordatorio de tareas para empleados
-        public async Task EnviarRecordatoriosTareas()
-        {
-            //Función para revisar si el día es festivo, si lo es no manda mensaje
-            if (await EsDiaFestivo())
-            {
-                //Console.WriteLine("Hoy es festivo (API), no se envían mensajes");
+            if (mensaje == null || !mensaje.Activo)
                 return;
+
+            //Validar día festivo
+            if (await _utilidadesService.EsDiaFestivo(mensaje.Id))
+                return;
+
+            switch (mensaje.Tipo)
+            {
+                case Roles.Empleado:
+                    await EnviarMensajeAEmpleados(mensaje);
+                    break;
+
+                case Roles.Supervisor:
+                    await EnviarMensajeASupervisores(mensaje);
+                    break;
             }
+        }
 
+        //Función para enviar mensajes unicamente a los empleados activos de la empresa correspondiente
+        private async Task EnviarMensajeAEmpleados(Mensaje mensaje)
+        {
             var empleados = await _contenedorTrabajo.Empleado
-                 .GetAllAsync(
-                     filter: e => e.Estado == EstadosEmpleado.Activo,
-                     includeProperties: "Usuario"
-                 );
-
-            var tareasEmpleado = await _contenedorTrabajo.TareaEmpleado.GetAllAsync(includeProperties: "Tarea");
+                .GetAllAsync(
+                    filter: e => e.Estado == EstadosEmpleado.Activo
+                                && e.Usuario.EmpresaId == mensaje.EmpresaId,
+                    includeProperties: "Usuario,Usuario.Empresa"
+                );
+    
 
             foreach (var empleado in empleados)
             {
+                int pendientes = await _utilidadesService.ObtenerTareasPendientes(empleado.Id);
 
-                int pendientes = tareasEmpleado
-                    .Where(t => t.EmpleadoId == empleado.Id &&
-                                t.Tarea.Estado == EstadosTarea.Pendiente)
-                    .Count();
-
-                string mensaje;
-
-                //Si tiene pendientes se los recuerda
-                if (pendientes > 0)
+                var valores = new Dictionary<string, string>
                 {
-                    mensaje = string.Format(
-                        SystemMessages.RecordatorioTareas,
-                        empleado.Nombre,
-                        pendientes
-                    );
-                }
-                //Si no tiene pendientes se lo notifica
-                else
-                {
-                    mensaje = string.Format(
-                        SystemMessages.SinTareas,
-                        empleado.Nombre
-                    );
-                }
+                    { "Nombre", empleado.Nombre },
+                    { "Pendientes", pendientes.ToString() },
+                    { "Empresa", empleado.Usuario?.Empresa?.Nombre
+                                          ?? mensaje.Empresa?.Nombre ?? "" }
+                };
+
+                string texto = _utilidadesService.ProcesarPlantilla(
+                    mensaje.Contenido,
+                    valores
+                );
 
                 string telefono = empleado.Usuario?.PhoneNumber;
 
                 if (!string.IsNullOrEmpty(telefono))
                 {
-                    await EnviarWhatsApp(telefono, mensaje);
-
-
+                    await EnviarWhatsApp(telefono, texto);
                 }
             }
         }
 
-        // Aviso a supervisores
-        public async Task AvisarSupervisoresReportes()
+        //Función para enviar mensajes unicamente a los supervisores activos de la empresa correspondiente
+        private async Task EnviarMensajeASupervisores(Mensaje mensaje)
         {
-            if (await EsDiaFestivo())
-            {
-                //Console.WriteLine("Hoy es festivo (API), no se envían mensajes");
-                return;
-            }
-
             var supervisores = await _contenedorTrabajo.Supervisor
                 .GetAllAsync(
-                    filter: s => s.Estado == EstadosSupervisor.Activo,
-                    includeProperties: "Usuario"
+                    filter: s => s.Estado == EstadosSupervisor.Activo
+                                && s.Usuario.EmpresaId == mensaje.EmpresaId,
+                    includeProperties: "Usuario,Usuario.Empresa"
                 );
 
-            int totalPendientes = (await _contenedorTrabajo.Reporte
-                        .GetAllAsync(
-                            filter: r => r.Estado == EstadosReporte.PendienteRevisar
-                        )).Count();
+            int pendientes = await _utilidadesService.ObtenerReportesPendientes();
 
             foreach (var supervisor in supervisores)
             {
-                string mensaje;
+                var valores = new Dictionary<string, string>
+                {
+                    { "Nombre", supervisor.Nombre },
+                    { "Pendientes", pendientes.ToString() },
+                    { "Empresa", supervisor.Usuario?.Empresa?.Nombre
+                                            ?? mensaje.Empresa?.Nombre ?? "" }
+                };
 
-                //Si tiene pendientes se los recuerda
-                if (totalPendientes > 0)
-                {
-                    mensaje = string.Format(
-                        SystemMessages.AvisoSupervisorReportes,
-                        supervisor.Nombre,
-                        totalPendientes
-                    );
-                }
-                //Si no tiene pendientes se lo notifica
-                else
-                {
-                    mensaje = string.Format(
-                        SystemMessages.SinReportes,
-                        supervisor.Nombre
-                    );
-                }
+                string texto = _utilidadesService.ProcesarPlantilla(
+                    mensaje.Contenido,
+                    valores
+                );
 
                 string telefono = supervisor.Usuario?.PhoneNumber;
 
                 if (!string.IsNullOrEmpty(telefono))
                 {
-                    await EnviarWhatsApp(telefono, mensaje);
+                    await EnviarWhatsApp(telefono, texto);
                 }
             }
         }

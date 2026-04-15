@@ -144,6 +144,56 @@ body {
     color: #ffffff;
 }
 
+/* Lista de dias festivos */
+.festivos-lista {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0;
+    list-style: none;
+    max-height: 200px; /*límite de altura */
+    overflow-y: auto; /* scroll vertical */
+    overflow-x: hidden;
+    padding-right: 5px; /* espacio para scrollbar */
+}
+
+.festivo-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    border: 1px solid rgba(255,255,255,0.1);
+    background-color: rgba(255,255,255,0.05);
+    backdrop-filter: blur(5px);
+    transition: all 0.2s ease;
+}
+
+    .festivo-item:hover {
+        background-color: rgba(255,255,255,0.1);
+    }
+
+.festivo-texto {
+    white-space: nowrap;
+}
+
+.festivo-btn {
+    border: none;
+    background: transparent;
+    color: #ff6b6b;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0 4px;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+    .festivo-btn:hover {
+        transform: scale(1.2);
+        color: #ff3b3b;
+    }
+
+
 /* ------MODO OSCURO--------- */
 body.dark-mode {
     background-color: #121212;

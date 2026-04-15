@@ -1,0 +1,123 @@
+﻿@model IEnumerable<SistemaTaskWhatsapp.Models.Mensaje>
+@using SistemaTaskWhatsapp.Utilidades
+
+@{
+    ViewData["Title"] = "Administrador de mensajes";
+}
+
+<div class="contenedor-principal">
+    <div class="d-flex justify-content-between align-items-center">
+        <h3>@ViewData["Title"]</h3>
+        <a asp-action="Create" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Nuevo Mensaje
+        </a>
+    </div>
+    <div class="mt-4 table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Empresa</th>
+                    <th>Destinatario</th>
+                    <th>Contenido</th>
+                    <th>Envio</th>
+                    <th>Creado</th>
+                    <th>Estado</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model == null || !Model.Any())
+                {
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-4">
+                            <i class="bi bi-list-task"></i>
+                            No hay mensajes registrados...
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var mensaje in Model)
+                    {
+                        <tr>
+                            <td>@mensaje.Id</td>
+                            <td>@(mensaje.EmpresaId != null ? mensaje.Empresa.Nombre : "Sin asignar")</td>
+                            <td>@mensaje.Tipo</td>
+                            <td>@mensaje.Contenido</td>
+                            <td>@CronHelper.Formatear(mensaje.Cron)</td>
+                            <td>@mensaje.FechaCreacion.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                @if (mensaje.Activo)
+                                {
+                                    <span class="badge bg-success">Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Inactivo</span>
+                                }
+                            </td>
+                             <td class="text-center">
+
+                                <!-- Activar / Desactivar -->
+                                <form asp-action="Toggle" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@mensaje.Id" />
+                                    <button class="btn btn-sm @(mensaje.Activo ? "btn-warning" : "btn-success")">
+                                        <i class="bi @(mensaje.Activo ? "bi-pause" : "bi-play")"></i>
+                                    </button>
+                                </form>
+
+                                <a class="btn btn-sm btn-warning me-1"
+                                   asp-action="Edit" asp-route-id="@mensaje.Id">
+                                   <i class="bi bi-pencil-square"></i>
+                                </a>
+
+                                <button class="btn btn-sm btn-danger"
+                                    data-id="@mensaje.Id" data-nombre="@mensaje.Id"
+                                    data-bs-toggle="modal" data-bs-target="#modalEliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Eliminar -->
+<div class="modal fade" id="modalEliminar">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header bg-danger">
+                <h4 class="modal-title text-white">Eliminar mensaje</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <h5>¿Deseas eliminar este mensaje?</h5>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+                <form asp-action="Delete" method="post">
+                    <input class="inputId" name="id" type="hidden" />
+                    <button type="submit" class="btn btn-danger">
+                        Eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/mensaje/mensajeIndex.js"></script>
+}

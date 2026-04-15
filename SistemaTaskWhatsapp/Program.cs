@@ -8,7 +8,6 @@ using SistemaTaskWhatsapp.AccesoDatos.Data.Seed;
 using SistemaTaskWhatsapp.Data;
 using SistemaTaskWhatsapp.Models;
 using SistemaTaskWhatsapp.Services;
-using SistemaTaskWhatsapp.Services.Jobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,8 +34,9 @@ builder.Services.AddScoped<ISupervisorFlowService, SupervisorFlowService>();
 
 builder.Services.AddScoped<IEmpleadoFlowService, EmpleadoFlowService>();
 
-builder.Services.AddScoped<MessageJobs>();
 builder.Services.AddScoped<MensajesService>();
+
+builder.Services.AddScoped<UtilidadesService>();
 
 //Registrar servicio de whatsapp
 builder.Services.AddSingleton(new WhatsAppService(
@@ -76,33 +76,35 @@ else
     app.UseHsts();
 }
 
+
 app.UseHangfireDashboard();
 
-//Enviar mensaje todo el año de lunes a viernes a las 9:10
-RecurringJob.AddOrUpdate<MessageJobs>(
-    "recordatorio-empleados",
-    job => job.EnviarRecordatoriosEmpleados(),
-    "10 9 * * 1-5",
+//Función para limiar la base de datos de días festivos cada inicio de año
+RecurringJob.AddOrUpdate<UtilidadesService>(
+    "actualizar-festivos-anuales",
+    x => x.ObtenerFestivos(),
+    "0 3 1 1 *",
     TimeZoneInfo.Local
 );
 
-RecurringJob.AddOrUpdate<MessageJobs>(
-    "avisar-supervisores",
-    job => job.AvisarSupervisores(),
-    "10 9 * * 1-5",
-    TimeZoneInfo.Local
-);
+//Inicializa todos los mensajes guardados cuando se reinicie la aplicación
+using (var scope = app.Services.CreateScope())
+{
+    var servicios = scope.ServiceProvider;
+    var contenedor = servicios.GetRequiredService<IContenedorTrabajo>();
 
-// minutos / hora / Dia especifico / mes / Dia de la semana 
-// 0 - domingo / 1 - Lunes / 2 - martes... 6 - sabado
+    var mensajes = await contenedor.Mensaje.GetAllAsync(m => m.Activo);
 
-//Formato para solo hora
-//RecurringJob.AddOrUpdate<MessageJobs>(
-//    "avisar-supervisores",
-//    job => job.AvisarSupervisores(),
-//    Cron.Daily(12),
-//    TimeZoneInfo.Local
-//);
+    foreach (var mensaje in mensajes)
+    {
+        RecurringJob.AddOrUpdate<MensajesService>(
+            $"mensaje-{mensaje.Id}",
+            x => x.EnviarMensajeProgramado(mensaje.Id),
+            mensaje.Cron,
+            TimeZoneInfo.Local
+        );
+    }
+}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

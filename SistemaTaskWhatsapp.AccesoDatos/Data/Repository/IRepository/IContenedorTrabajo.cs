@@ -21,6 +21,8 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository
         IRetroalimentacionRepository Retroalimentacion { get; }
         IChatSessionRepository ChatSession { get; }
         IDiaFestivoRepository DiaFestivo { get; }
+        IMensajeRepository Mensaje { get; }
+        IMensajeDiaFestivoRepository MensajeDiaFestivo { get; }
 
         Task SaveAsync();
     }
