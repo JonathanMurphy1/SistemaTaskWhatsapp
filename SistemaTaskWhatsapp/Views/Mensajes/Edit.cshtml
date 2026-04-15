@@ -358,6 +358,15 @@
                 return;
             }
 
+            const yearActual = new Date().getFullYear();
+            const yearFecha = new Date(fecha).getFullYear();
+
+            //Evitar fechas de años no correspondientes
+            if (yearFecha !== yearActual) {
+                alert("Solo puedes agregar días festivos del año actual");
+                return;
+            }
+
             //Evitar días duplicados
             if (yaExisteFecha(fecha)) {
                 alert("Ese día ya está registrado");
