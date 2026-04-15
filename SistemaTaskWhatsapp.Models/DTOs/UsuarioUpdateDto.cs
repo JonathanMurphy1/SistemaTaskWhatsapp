@@ -10,13 +10,20 @@ using System.Threading.Tasks;
 
 namespace SistemaTaskWhatsapp.Models
 {
-    public class ProjectDto
+    public class UsuarioUpdateDto
     {
-        public int Idproject { get; set; } //Id de Task
+        public int UserId { get; set; }
         public string Name { get; set; }
-        public string Description { get; set; }
-        public DateTime? StartDate { get; set; }
-        public int EmpresaId { get; set; }
-        public int Estado { get; set; }
+        public string Email { get; set; }
+
+        //Opcional debido a que aveces se tomar en cuenta para editar
+        public string? PhoneNumber { get; set; }
+        public int? UserTypeId { get; set; }
     }
+
+    public class UsuarioDeleteDto
+    {
+        public int UserId { get; set; }
+    }
+
 }

@@ -19,6 +19,7 @@ namespace SistemaTaskWhatsapp.Controllers
             _contenedorTrabajo = contenedorTrabajo;
         }
 
+
         [HttpPost]
         public async Task<IActionResult> RecibirProyecto([FromBody] ProjectDto dto)
         {
@@ -27,9 +28,10 @@ namespace SistemaTaskWhatsapp.Controllers
 
             var proyecto = new Proyecto
             {
+                ProjectId = dto.Idproject,
                 Nombre = dto.Name,
                 Descripcion = dto.Description,
-                FechaRegistro = DateTime.Now,
+                FechaRegistro = dto.StartDate ?? DateTime.Now,
                 EmpresaId = dto.EmpresaId,
                 Estado = (EstadosProyecto)dto.Estado
 
@@ -39,6 +41,46 @@ namespace SistemaTaskWhatsapp.Controllers
             await _contenedorTrabajo.SaveAsync();
 
             return Ok(new { message = "Proyecto recibido correctamente" });
+        }
+
+        //Editar proyectos
+        [HttpPost("update")]
+        public async Task<IActionResult> ActualizarProyecto([FromBody] ProjectDto dto)
+        {
+            if (dto == null)
+                return BadRequest();
+
+            var proyecto = await _contenedorTrabajo.Proyecto
+                .GetFirstOrDefaultAsync(p => p.ProjectId == dto.Idproject);
+
+            if (proyecto == null)
+                return NotFound();
+
+            proyecto.Nombre = dto.Name;
+            proyecto.Descripcion = dto.Description;
+            proyecto.EmpresaId = dto.EmpresaId;
+            proyecto.FechaRegistro = dto.StartDate ?? DateTime.Now;
+            proyecto.Estado = (EstadosProyecto)dto.Estado;
+
+            _contenedorTrabajo.Proyecto.Update(proyecto);
+            await _contenedorTrabajo.SaveAsync();
+
+            return Ok(new { message = "Proyecto actualizado correctamente" });
+        }
+
+        [HttpDelete("{Idproject}")]
+        public async Task<IActionResult> EliminarProyecto(int Idproject)
+        {
+            var proyecto = await _contenedorTrabajo.Proyecto
+                .GetFirstOrDefaultAsync(p => p.ProjectId == Idproject);
+
+            if (proyecto == null)
+                return NotFound(new { message = "Proyecto no existe" });
+
+            _contenedorTrabajo.Proyecto.Remove(proyecto);
+            await _contenedorTrabajo.SaveAsync();
+
+            return Ok(new { message = "Proyecto eliminado correctamente" });
         }
     }
 }

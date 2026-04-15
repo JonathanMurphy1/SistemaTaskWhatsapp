@@ -16,8 +16,9 @@ namespace SistemaTaskWhatsapp.Models
         public string Description { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? DeliveryDate { get; set; }
-        public int Estado { get; set; }
-        public string ProjectName { get; set; }
+        public int? Estado { get; set; }
+        public string? ProjectName { get; set; }
         public int SubtaskId { get; set; }
     }
+
 }

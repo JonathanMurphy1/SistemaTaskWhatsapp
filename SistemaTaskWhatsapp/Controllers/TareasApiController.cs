@@ -65,6 +65,23 @@ namespace SistemaTaskWhatsapp.Controllers
             tarea.Nombre = dto.Title;
             tarea.Descripcion = dto.Description;
 
+            //Esto en caso de que se actualice el estado desde el panel
+            if (dto.Estado.HasValue)
+            {
+                tarea.Estado = (EstadosTarea)dto.Estado.Value;
+
+                //Si el estado es en Task es terminado
+                if (tarea.Estado == EstadosTarea.Finalizada)
+                {
+                    tarea.FechaTermino = DateTime.Now;
+                }
+                else
+                {
+                    //Poner la fecha en null si se cambia de terminado a otro
+                    tarea.FechaTermino = null;
+                }
+            }
+
             _contenedorTrabajo.Tarea.Update(tarea);
             await _contenedorTrabajo.SaveAsync();
 
@@ -85,5 +102,6 @@ namespace SistemaTaskWhatsapp.Controllers
 
             return Ok(new { message = "Tarea eliminada correctamente" });
         }
+
     }
 }

@@ -79,6 +79,16 @@
                     </div>
                 </div>
                 <div class="col-6">
+
+                    <div class="form-group">
+                        <label for="empresa">Empresa:</label>
+                        <select id="empresa" asp-for="EmpresaId" asp-items="@Model.ListaEmpresas" class="form-select">
+                            <option disabled selected value="">--Elija una empresa--</option>
+                        </select>
+                        <span asp-validation-for="EmpresaId" class="text-danger"></span>
+                    </div>
+                    <br />
+
                     <div class="form-group">
                         <label asp-for="Rol">Rol:</label>
                         <select id="selectRol" asp-for="Rol" class="form-control">

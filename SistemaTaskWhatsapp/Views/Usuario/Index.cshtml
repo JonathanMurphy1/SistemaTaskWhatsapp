@@ -19,6 +19,7 @@
                     <th>Nombre</th>
                     <th>Email</th>
                     <th>Teléfono</th>
+                    <th>Empresa</th>
                     <th>Rol</th>
                     <th class="text-center">Acciones</th>
                 </tr>
@@ -41,6 +42,7 @@
                             <td><strong>@usuario.Nombre</strong></td>
                             <td>@usuario.Email</td>
                             <td>@(usuario.PhoneNumber ?? "Sin número")</td>
+                            <td>@(usuario.EmpresaId != null ? usuario.Empresa.Nombre : "Sin asignar")</td>
                             <td>
                                 @if (usuario.Rol == Roles.Administrador)
                                 {

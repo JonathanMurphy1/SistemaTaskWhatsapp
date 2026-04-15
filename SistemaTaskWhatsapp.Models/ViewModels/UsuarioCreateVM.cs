@@ -1,4 +1,5 @@
-﻿using SistemaTaskWhatsapp.Utilidades;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using SistemaTaskWhatsapp.Utilidades;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -23,7 +24,7 @@ namespace SistemaTaskWhatsapp.Models.ViewModels
 
         [Required(ErrorMessage = "Escriba el teléfono")]
         [RegularExpression(@"^\d{10}$", ErrorMessage = "El teléfono solo deben de ser 10 números.")]
-        public string Telefono { get; set; }
+        public string? Telefono { get; set; }
 
         [Required(ErrorMessage = "Seleccione un rol")]
         public Roles Rol { get; set; }
@@ -32,5 +33,9 @@ namespace SistemaTaskWhatsapp.Models.ViewModels
 
         public Empleado? Empleado { get; set; }
 
+        [Required(ErrorMessage = "Seleccione una empresa")]
+        public int? EmpresaId { get; set; }
+
+        public IEnumerable<SelectListItem>? ListaEmpresas { get; set; }
     }
 }
