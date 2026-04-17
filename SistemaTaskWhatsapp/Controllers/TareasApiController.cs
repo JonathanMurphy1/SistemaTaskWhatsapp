@@ -103,5 +103,58 @@ namespace SistemaTaskWhatsapp.Controllers
             return Ok(new { message = "Tarea eliminada correctamente" });
         }
 
+        [HttpPost("asignar-responsable")]
+        public async Task<IActionResult> AsignarResponsable([FromBody] AsignarResponsableDto dto)
+        {
+            if (dto == null)
+                return BadRequest();
+
+            //Buscar la tarea usando SubtaskId
+            var tarea = await _contenedorTrabajo.Tarea
+                .GetFirstOrDefaultAsync(t => t.SubtaskId == dto.SubtaskId);
+
+            if (tarea == null)
+            {
+                return BadRequest($"No existe tarea con SubtaskId {dto.SubtaskId}");
+            }
+
+            //Buscar usuario
+            var usuario = await _contenedorTrabajo.Usuario
+                .GetFirstOrDefaultAsync(u => u.UserId == dto.UserId);
+
+            if (usuario == null)
+            {
+                return BadRequest($"No existe usuario {dto.UserId}");
+            }
+
+            //Buscar empleado en base al usuario
+            var empleado = await _contenedorTrabajo.Empleado
+                .GetFirstOrDefaultAsync(e => e.UsuarioId == usuario.Id);
+
+            if (empleado == null)
+            {
+                return BadRequest($"No existe empleado para usuario {dto.UserId}");
+            }
+
+            //Evitar duplicados
+            var existe = await _contenedorTrabajo.TareaEmpleado
+                .GetFirstOrDefaultAsync(te => te.EmpleadoId == empleado.Id && te.TareaId == tarea.Id);
+
+            if (existe != null)
+            {
+                return Ok(new { message = "Ya asignado" });
+            }
+
+            var nuevo = new TareaEmpleado
+            {
+                TareaId = tarea.Id,
+                EmpleadoId = empleado.Id
+            };
+
+            await _contenedorTrabajo.TareaEmpleado.AddAsync(nuevo);
+            await _contenedorTrabajo.SaveAsync();
+
+            return Ok(new { message = "Responsable asignado correctamente" });
+        }
     }
 }
