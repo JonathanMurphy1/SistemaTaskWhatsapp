@@ -136,13 +136,13 @@ namespace SistemaTaskWhatsapp.Controllers
                 return BadRequest($"No existe empleado para usuario {dto.UserId}");
             }
 
-            //Evitar duplicados
-            var existe = await _contenedorTrabajo.TareaEmpleado
-                .GetFirstOrDefaultAsync(te => te.EmpleadoId == empleado.Id && te.TareaId == tarea.Id);
+            //Eliminar responsables anteriores
+            var responsablesActuales = await _contenedorTrabajo.TareaEmpleado
+                .GetAllAsync(te => te.TareaId == tarea.Id);
 
-            if (existe != null)
+            foreach (var rel in responsablesActuales)
             {
-                return Ok(new { message = "Ya asignado" });
+                _contenedorTrabajo.TareaEmpleado.Remove(rel);
             }
 
             var nuevo = new TareaEmpleado
