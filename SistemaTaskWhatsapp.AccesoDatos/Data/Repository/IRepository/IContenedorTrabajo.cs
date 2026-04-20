@@ -23,6 +23,7 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository
         IDiaFestivoRepository DiaFestivo { get; }
         IMensajeRepository Mensaje { get; }
         IMensajeDiaFestivoRepository MensajeDiaFestivo { get; }
+        IProgramaRepository Programa { get; }
 
         Task SaveAsync();
     }
