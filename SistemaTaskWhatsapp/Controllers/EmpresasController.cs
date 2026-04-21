@@ -93,11 +93,6 @@ namespace SistemaTaskWhatsapp.Controllers
 
             if(empresaEliminar == null) return RedirectToAction("Index");
 
-            foreach(var proyecto in empresaEliminar.Proyectos)
-            {
-                proyecto.EmpresaId = null;
-            }
-
             _contenedorTrabajo.Empresa.Remove(empresaEliminar);
             await _contenedorTrabajo.SaveAsync();
             return RedirectToAction("Index");

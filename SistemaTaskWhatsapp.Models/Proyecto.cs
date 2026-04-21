@@ -19,7 +19,7 @@ namespace SistemaTaskWhatsapp.Models
         public string Nombre { get; set; }
 
         [Required(ErrorMessage = "El estado es obligarorio")]
-        public EstadosProyecto? Estado { get; set; }
+        public EstadosProyecto Estado { get; set; }
 
         [Required(ErrorMessage = "La descripción es obligatoria")]
         public string Descripcion { get; set; }
@@ -28,10 +28,12 @@ namespace SistemaTaskWhatsapp.Models
 
         public DateTime? FechaFin { get; set; }
 
+        //Empresa que tiene el proyecto
         [Required(ErrorMessage = "Elija una empresa")]
-        public int? EmpresaId { get; set; }
+        public int EmpresaId { get; set; }
+
         [ForeignKey("EmpresaId")]
-        public Empresa? Empresa { get; set; }
+        public Empresa Empresa { get; set; }
 
         public int? ProjectId { get; set; }
 
