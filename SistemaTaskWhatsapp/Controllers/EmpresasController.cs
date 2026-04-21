@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
+using SistemaTaskWhatsapp.AccesoDatos.Data.Repository;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Models;
+using SistemaTaskWhatsapp.Models.ViewModels;
 using System.Threading.Tasks;
 
 namespace SistemaTaskWhatsapp.Controllers
@@ -16,39 +19,49 @@ namespace SistemaTaskWhatsapp.Controllers
             _contenedorTrabajo = contenedorTrabajo; 
         }
 
+
+
+
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var listaEmpresas = await _contenedorTrabajo.Empresa.GetAllAsync();
+            var listaEmpresas = await _contenedorTrabajo.Empresa.GetAllAsync(includeProperties: "Programa");
 
             return View(listaEmpresas);
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> CreateAsync()
         {
-            return View();
+            var model = new EmpresaVM
+            {
+                ListaProgramas = await _contenedorTrabajo.Programa.GetProgramaDropdown()
+            };
+
+            return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Empresa model)
+        public async Task<IActionResult> Create(EmpresaVM model)
         {
             if(!ModelState.IsValid)
             {
+                model.ListaProgramas = await _contenedorTrabajo.Programa.GetProgramaDropdown();
                 return View(model);
             }
 
-            var existeNombre = await _contenedorTrabajo.Empresa.GetFirstOrDefaultAsync(e => e.Nombre == model.Nombre);
+            var existeNombre = await _contenedorTrabajo.Empresa.GetFirstOrDefaultAsync(e => e.Nombre == model.Empresa.Nombre);
 
             if(existeNombre != null)
             {
                 ModelState.AddModelError("", "Ya existe una empresa con ese nombre");
+                model.ListaProgramas = await _contenedorTrabajo.Programa.GetProgramaDropdown();
                 return View(model);
             }
 
-            model.FechaRegistro = DateTime.Now;
+            model.Empresa.FechaRegistro = DateTime.Now;
 
-            await _contenedorTrabajo.Empresa.AddAsync(model);
+            await _contenedorTrabajo.Empresa.AddAsync(model.Empresa);
             await _contenedorTrabajo.SaveAsync();
 
             return RedirectToAction("Index");
@@ -57,30 +70,38 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var model = await _contenedorTrabajo.Empresa.GetByIdAsync(id);
+            var empresa = await _contenedorTrabajo.Empresa.GetByIdAsync(id);
 
-            if (model == null) return RedirectToAction("Index");
+            if (empresa == null) return RedirectToAction("Index");
+
+            var model = new EmpresaVM
+            {
+                Empresa = empresa,
+                ListaProgramas = await _contenedorTrabajo.Programa.GetProgramaDropdown()
+            };
 
             return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Empresa model)
+        public async Task<IActionResult> Edit(EmpresaVM model)
         {
             if (!ModelState.IsValid)
             {
+                model.ListaProgramas = await _contenedorTrabajo.Programa.GetProgramaDropdown();
                 return View(model);
             }
 
-            var existeNombre = await _contenedorTrabajo.Empresa.GetFirstOrDefaultAsync(e => e.Nombre == model.Nombre && e.Id != model.Id);
+            var existeNombre = await _contenedorTrabajo.Empresa.GetFirstOrDefaultAsync(e => e.Nombre == model.Empresa.Nombre && e.Id != model.Empresa.Id);
 
             if (existeNombre != null)
             {
                 ModelState.AddModelError("", "Ya existe una empresa con ese nombre");
+                model.ListaProgramas = await _contenedorTrabajo.Programa.GetProgramaDropdown();
                 return View(model);
             }
 
-            _contenedorTrabajo.Empresa.Update(model);
+            _contenedorTrabajo.Empresa.Update(model.Empresa);
             await _contenedorTrabajo.SaveAsync();
 
             return RedirectToAction("Index");

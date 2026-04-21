@@ -17,6 +17,7 @@
                 <tr>
                     <th>Id</th>
                     <th>Nombre</th>
+                    <th>Vincula de:</th>
                     <th>Fecha de registro</th>
                     <th class="text-center">Acciones</th>
                 </tr>
@@ -38,6 +39,7 @@
                         <tr>
                             <td>@empresa.Id</td>
                             <td><strong>@empresa.Nombre</strong></td>
+                            <td>@(empresa.ProgramaId != null ? empresa.Programa.Nombre : "Sin asignar")</td>
                             <td>@empresa.FechaRegistro.ToString("dd/MM/yyyy")</td>
                             <td class="text-center">
                                 <a class="btn btn-sm btn-warning me-1"

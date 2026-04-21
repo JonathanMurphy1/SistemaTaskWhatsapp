@@ -28,8 +28,8 @@ namespace SistemaTaskWhatsapp.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var listaUsuarios = await _contenedorTrabajo.Usuario.GetAllAsync(u => u.Email != "admin@sistema.com");
-            var listaProyectos = await _contenedorTrabajo.Proyecto.GetAllAsync(includeProperties: "Empresa");
+            var listaUsuarios = await _contenedorTrabajo.Usuario.GetAllAsync(u => u.Email != "admin@sistema.com", includeProperties: "Empresa");
+          //var listaProyectos = await _contenedorTrabajo.Proyecto.GetAllAsync(includeProperties: "Empresa");
             return View(listaUsuarios);
         }
 

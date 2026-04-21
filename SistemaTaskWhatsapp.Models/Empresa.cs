@@ -25,7 +25,7 @@ namespace SistemaTaskWhatsapp.Models
         public int ProgramaId { get; set; }
 
         [ForeignKey("ProgramaId")]
-        public Programa Programa { get; set; }
+        public Programa? Programa { get; set; }
 
         public IEnumerable<Proyecto>? Proyectos { get; set; }
     }
