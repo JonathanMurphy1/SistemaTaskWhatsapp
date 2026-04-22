@@ -20,6 +20,26 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
 
+        [HttpGet]
+        public async Task<IActionResult> GetProyectos()
+        {
+            var lista = await _contenedorTrabajo.Proyecto.GetAllAsync();
+
+            var resultado = lista.Select(p => new ProjectDto
+            {
+                Idproject = p.Id,
+                Name = p.Nombre,
+                Description = p.Descripcion,
+                StartDate = p.FechaRegistro,
+                EmpresaId = p.EmpresaId,
+                Estado = (int)p.Estado,
+               
+            });
+
+            return Ok(resultado);
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> RecibirProyecto([FromBody] ProjectDto dto)
         {
