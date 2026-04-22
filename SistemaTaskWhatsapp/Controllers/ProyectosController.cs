@@ -20,7 +20,7 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var listaProyectos = await _contenedorTrabajo.Proyecto.GetAllAsync(includeProperties:"Empresa");
+            var listaProyectos = await _contenedorTrabajo.Proyecto.GetAllAsync(includeProperties: "Empresa,Empresa.Programa");
             return View(listaProyectos);
         }
 

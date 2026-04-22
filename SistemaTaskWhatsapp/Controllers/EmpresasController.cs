@@ -50,9 +50,13 @@ namespace SistemaTaskWhatsapp.Controllers
                 return View(model);
             }
 
-            var existeNombre = await _contenedorTrabajo.Empresa.GetFirstOrDefaultAsync(e => e.Nombre == model.Empresa.Nombre);
+            var existeNombre = await _contenedorTrabajo.Empresa
+                                    .GetFirstOrDefaultAsync(e =>
+                                        e.Nombre == model.Empresa.Nombre &&
+                                        e.ProgramaId == model.Empresa.ProgramaId
+                                    );
 
-            if(existeNombre != null)
+            if (existeNombre != null)
             {
                 ModelState.AddModelError("", "Ya existe una empresa con ese nombre");
                 model.ListaProgramas = await _contenedorTrabajo.Programa.GetProgramaDropdown();

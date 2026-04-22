@@ -30,5 +30,16 @@ namespace SistemaTaskWhatsapp.Data
 
         public DbSet<MensajeDiaFestivo> MensajeDiaFestivo { get; set; }
         public DbSet<Programa> Programa { get; set; }
+
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            //Índice único compuesto
+            modelBuilder.Entity<Empresa>()
+                .HasIndex(e => new { e.Nombre, e.ProgramaId })
+                .IsUnique();
+        }
     }
 }
