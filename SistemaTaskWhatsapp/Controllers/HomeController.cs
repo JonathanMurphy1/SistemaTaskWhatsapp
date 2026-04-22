@@ -24,7 +24,7 @@ namespace SistemaTaskWhatsapp.Controllers
             if (!(User.Identity.IsAuthenticated && (User.IsInRole("Administrador") || User.IsInRole("Supervisor"))))
                 return View();
 
-            var lista = await _contenedorTrabajo.Proyecto.GetAllAsync(includeProperties: "Empresa");
+            var lista = await _contenedorTrabajo.Proyecto.GetAllAsync(includeProperties: "Empresa,Empresa.Programa");
 
             var model = lista.Select(x => new ProyectoHomeVM
             {
