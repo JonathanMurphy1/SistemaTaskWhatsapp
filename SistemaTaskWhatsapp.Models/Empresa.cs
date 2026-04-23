@@ -19,7 +19,7 @@ namespace SistemaTaskWhatsapp.Models
 
         public DateTime FechaRegistro { get; set; }
 
-        public int? CompaniesId { get; set; }
+        public int? IdExterno { get; set; } //Id de referencia del otro programa
 
         //Programa que envia los datos
         public int ProgramaId { get; set; }

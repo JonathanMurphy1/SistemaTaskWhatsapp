@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using SistemaTaskWhatsapp.Data;
 using SistemaTaskWhatsapp.Models;
 using SistemaTaskWhatsapp.Utilidades;
 using System;
@@ -12,8 +13,10 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Seed
     public static class DbInitializer
     {
         public static async Task InicializarAsync(
+            ApplicationDbContext context,
             RoleManager<IdentityRole> roleManager,
-            UserManager<Usuario> userManager)
+            UserManager<Usuario> userManager
+            )
         {
             //Crear los roles si no existen
             foreach (var rol in Enum.GetValues(typeof(Roles)))
@@ -24,6 +27,20 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Seed
                 {
                     await roleManager.CreateAsync(new IdentityRole(nombreRol));
                 }
+            }
+
+            var programa = context.Programa.FirstOrDefault();
+
+            if (programa == null)
+            {
+                programa = new Programa
+                {
+                    Nombre = "SistemaTaskWhatsapp",
+                    FechaRegistro = DateTime.Now
+                };
+
+                context.Programa.Add(programa);
+                await context.SaveChangesAsync();
             }
 
             string adminEmail = "admin@sistema.com";
@@ -39,6 +56,7 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Seed
                     NormalizedEmail = adminEmail.ToUpper(),
                     EmailConfirmed = true,
                     Nombre = "Administrador",
+                    ProgramaId = programa.Id,
                     Rol = (int)Roles.Administrador
                 };
 

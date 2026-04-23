@@ -48,7 +48,7 @@ namespace SistemaTaskWhatsapp.Controllers
 
             var proyecto = new Proyecto
             {
-                ProjectId = dto.Idproject,
+
                 Nombre = dto.Name,
                 Descripcion = dto.Description,
                 FechaRegistro = dto.StartDate ?? DateTime.Now,
@@ -71,7 +71,7 @@ namespace SistemaTaskWhatsapp.Controllers
                 return BadRequest();
 
             var proyecto = await _contenedorTrabajo.Proyecto
-                .GetFirstOrDefaultAsync(p => p.ProjectId == dto.Idproject);
+                .GetFirstOrDefaultAsync(p => p.IdExterno == dto.Idproject);
 
             if (proyecto == null)
                 return NotFound();
@@ -92,7 +92,7 @@ namespace SistemaTaskWhatsapp.Controllers
         public async Task<IActionResult> EliminarProyecto(int Idproject)
         {
             var proyecto = await _contenedorTrabajo.Proyecto
-                .GetFirstOrDefaultAsync(p => p.ProjectId == Idproject);
+                .GetFirstOrDefaultAsync(p => p.IdExterno == Idproject);
 
             if (proyecto == null)
                 return NotFound(new { message = "Proyecto no existe" });

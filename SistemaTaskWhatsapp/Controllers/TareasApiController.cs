@@ -43,7 +43,7 @@ namespace SistemaTaskWhatsapp.Controllers
                 FechaEntrega = dto.DeliveryDate ?? DateTime.Now.AddDays(1),
                 Estado = (EstadosTarea)dto.Estado,
                 ProyectoId = proyecto.Id,
-                SubtaskId = dto.SubtaskId
+                IdExterno = dto.SubtaskId
             };
 
             await _contenedorTrabajo.Tarea.AddAsync(tarea);
@@ -56,7 +56,7 @@ namespace SistemaTaskWhatsapp.Controllers
         public async Task<IActionResult> ActualizarTarea([FromBody] TareaDto dto)
         {
             var tarea = await _contenedorTrabajo.Tarea
-                .GetFirstOrDefaultAsync(t => t.SubtaskId == dto.SubtaskId);
+                .GetFirstOrDefaultAsync(t => t.IdExterno == dto.SubtaskId);
 
             if (tarea == null)
                 return NotFound($"No existe tarea con SubtaskId {dto.SubtaskId}");
@@ -92,7 +92,7 @@ namespace SistemaTaskWhatsapp.Controllers
         public async Task<IActionResult> EliminarTarea(int subtaskId)
         {
             var tarea = await _contenedorTrabajo.Tarea
-                .GetFirstOrDefaultAsync(t => t.SubtaskId == subtaskId);
+                .GetFirstOrDefaultAsync(t => t.IdExterno == subtaskId);
 
             if (tarea != null)
             {
@@ -111,7 +111,7 @@ namespace SistemaTaskWhatsapp.Controllers
 
             //Buscar la tarea usando SubtaskId
             var tarea = await _contenedorTrabajo.Tarea
-                .GetFirstOrDefaultAsync(t => t.SubtaskId == dto.SubtaskId);
+                .GetFirstOrDefaultAsync(t => t.IdExterno == dto.SubtaskId);
 
             if (tarea == null)
             {
@@ -120,7 +120,7 @@ namespace SistemaTaskWhatsapp.Controllers
 
             //Buscar usuario
             var usuario = await _contenedorTrabajo.Usuario
-                .GetFirstOrDefaultAsync(u => u.UserId == dto.UserId);
+                .GetFirstOrDefaultAsync(u => u.IdExterno == dto.UserId);
 
             if (usuario == null)
             {

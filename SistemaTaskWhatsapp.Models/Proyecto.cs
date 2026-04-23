@@ -35,7 +35,15 @@ namespace SistemaTaskWhatsapp.Models
         [ForeignKey("EmpresaId")]
         public Empresa? Empresa { get; set; }
 
-        public int? ProjectId { get; set; }
 
+        //Programa de donde viene el proyecto
+        public int ProgramaId { get; set; } //Id del programa para navegación más rapida
+
+        [ForeignKey("ProgramaId")]
+        public Programa? Programa{ get; set; }
+
+        public int? IdExterno { get; set; } //Id de referencia del otro programa
+
+        public ICollection<Tarea>? Tareas { get; set; }
     }
 }

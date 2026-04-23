@@ -26,7 +26,7 @@ namespace SistemaTaskWhatsapp.Controllers
 
             //Validacion de Id
             var existe = await _contenedorTrabajo.Empresa
-                .GetFirstOrDefaultAsync(e => e.CompaniesId == dto.CompaniesId);
+                .GetFirstOrDefaultAsync(e => e.IdExterno == dto.CompaniesId);
 
             if (existe != null)
             {
@@ -35,7 +35,7 @@ namespace SistemaTaskWhatsapp.Controllers
 
             var empresa = new Empresa
             {
-                CompaniesId = dto.CompaniesId,
+                IdExterno = dto.CompaniesId,
                 Nombre = dto.Name,
                 FechaRegistro = DateTime.Now
             };

@@ -40,6 +40,53 @@ namespace SistemaTaskWhatsapp.Data
             modelBuilder.Entity<Empresa>()
                 .HasIndex(e => new { e.Nombre, e.ProgramaId })
                 .IsUnique();
+
+            //Relación Empresa → Proyecto (CASCADE)
+            modelBuilder.Entity<Proyecto>()
+                .HasOne(p => p.Empresa)
+                .WithMany(e => e.Proyectos)
+                .HasForeignKey(p => p.EmpresaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            //Relación Proyecto → Programa (SIN CASCADE)
+            modelBuilder.Entity<Proyecto>()
+                .HasOne(p => p.Programa)
+                .WithMany()
+                .HasForeignKey(p => p.ProgramaId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            //Índice único para IdExterno + Programa
+            modelBuilder.Entity<Proyecto>()
+                .HasIndex(p => new { p.IdExterno, p.ProgramaId })
+                .IsUnique()
+                .HasFilter("[IdExterno] IS NOT NULL");
+
+            //Índice único para IdExterno + Empresa
+            modelBuilder.Entity<Empresa>()
+                .HasIndex(e => new { e.IdExterno, e.ProgramaId })
+                .IsUnique()
+                .HasFilter("[IdExterno] IS NOT NULL");
+
+
+            modelBuilder.Entity<Usuario>()
+                .HasIndex(u => new { u.IdExterno, u.ProgramaId })
+                .IsUnique()
+                .HasFilter("[IdExterno] IS NOT NULL");
+
+            modelBuilder.Entity<Tarea>()
+                .HasOne(t => t.Proyecto)
+                .WithMany(p => p.Tareas)
+                .HasForeignKey(t => t.ProyectoId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Tarea>()
+                .HasIndex(t => new { t.IdExterno, t.ProyectoId })
+                .IsUnique()
+                .HasFilter("[IdExterno] IS NOT NULL");
+
+            modelBuilder.Entity<Tarea>()
+                .HasIndex(t => new { t.Nombre, t.ProyectoId })
+                .IsUnique();
         }
     }
 }
