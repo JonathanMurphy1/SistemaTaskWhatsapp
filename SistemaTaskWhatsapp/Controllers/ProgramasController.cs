@@ -67,6 +67,13 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(Programa model)
         {
+
+            if (model.Id == 1)
+            {
+                TempData["Error"] = "No se puede editar el programa principal";
+                return RedirectToAction("Index");
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -89,14 +96,16 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var programasEliminar = await _contenedorTrabajo.Programa.GetFirstOrDefaultAsync(p => p.Id == id, includeProperties:"Proyectos");
+            if (id == 1)
+            {
+                TempData["Error"] = "No se puede eliminar el programa principal";
+                return RedirectToAction("Index");
+            }
+
+            var programasEliminar = await _contenedorTrabajo.Programa.GetFirstOrDefaultAsync(p => p.Id == id);
 
             if(programasEliminar == null) return RedirectToAction("Index");
 
-            //foreach(var proyecto in programasEliminar.Proyectos)
-            //{
-              //  proyecto.EmpresaId = null;
-            //}
 
             _contenedorTrabajo.Programa.Remove(programasEliminar);
             await _contenedorTrabajo.SaveAsync();

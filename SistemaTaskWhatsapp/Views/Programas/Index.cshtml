@@ -4,6 +4,7 @@
     ViewData["Title"] = "Programas vinculados";
 }
 
+
 <div class="contenedor-principal">
     <div class="d-flex justify-content-between align-items-center">
         <h3>@ViewData["Title"]</h3>
@@ -11,6 +12,16 @@
             <i class="bi bi-plus-circle"></i> Nuevo programa
         </a>
     </div>
+
+    <!-- Mensaje para indicar que no se puede editar el programa principal-->
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
     <div class="mt-4 table-responsive">
         <table class="table table-hover">
             <thead>
@@ -39,16 +50,22 @@
                             <td>@programa.Id</td>
                             <td><strong>@programa.Nombre</strong></td>
                             <td>@programa.FechaRegistro.ToString("dd/MM/yyyy")</td>
+                      
                             <td class="text-center">
-                                <a class="btn btn-sm btn-warning me-1"
-                                   asp-action="Edit" asp-route-id="@programa.Id"
-                                   title="Editar"> <i class="bi bi-pencil-square"></i>
-                                </a>
-                                <button class="btn btn-sm btn-danger"
-                                    title="Eliminar" data-id="@programa.Id" data-nombre="@programa.Nombre"
-                                    data-bs-toggle="modal" data-bs-target="#modalEliminar">
-                                    <i class="bi bi-trash"></i>
-                                </button>
+
+                                @if (programa.Id != 1) // ID del programa base para que no sea editable
+                                {
+                                    <a class="btn btn-sm btn-warning me-1"
+                                       asp-action="Edit" asp-route-id="@programa.Id"
+                                       title="Editar">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-danger"
+                                            title="Eliminar" data-id="@programa.Id" data-nombre="@programa.Nombre"
+                                            data-bs-toggle="modal" data-bs-target="#modalEliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                }
                             </td>
                         </tr>
                     }
