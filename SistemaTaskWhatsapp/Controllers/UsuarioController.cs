@@ -29,7 +29,6 @@ namespace SistemaTaskWhatsapp.Controllers
         public async Task<IActionResult> Index()
         {
             var listaUsuarios = await _contenedorTrabajo.Usuario.GetAllAsync(u => u.Email != "admin@sistema.com", includeProperties: "Empresa");
-          //var listaProyectos = await _contenedorTrabajo.Proyecto.GetAllAsync(includeProperties: "Empresa");
             return View(listaUsuarios);
         }
 
@@ -82,6 +81,17 @@ namespace SistemaTaskWhatsapp.Controllers
                 return View(model);
             }
 
+            var empresa = await _contenedorTrabajo.Empresa
+                                .GetByIdAsync(model.EmpresaId.Value);
+
+            if (empresa == null)
+            {
+                ModelState.AddModelError("", "Empresa inválida");
+
+                model.ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown();
+                return View(model);
+            }
+
             var usuario = new Usuario
             {
                 Nombre = model.Nombre,
@@ -89,7 +99,8 @@ namespace SistemaTaskWhatsapp.Controllers
                 Email = model.Email,
                 PhoneNumber = model.Telefono,
                 Rol = model.Rol,
-                EmpresaId = model.EmpresaId
+                EmpresaId = model.EmpresaId,
+                ProgramaId = empresa.ProgramaId
             };
 
             var resultado = await _userManager.CreateAsync(usuario, model.Password);
@@ -225,6 +236,17 @@ namespace SistemaTaskWhatsapp.Controllers
                 model.Rol.ToString()
             );
 
+            //Obtener empresa
+            var empresa = await _contenedorTrabajo.Empresa
+                .GetByIdAsync(model.EmpresaId.Value);
+
+            if (empresa == null)
+            {
+                ModelState.AddModelError("", "Empresa inválida");
+                model.ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown();
+                return View(model);
+            }
+
             //Usuario
             usuario.Nombre = model.Nombre;
             usuario.Email = model.Email;
@@ -232,6 +254,7 @@ namespace SistemaTaskWhatsapp.Controllers
             usuario.PhoneNumber = model.Telefono;
             usuario.EmpresaId = model.EmpresaId;
             usuario.Rol = model.Rol;
+            usuario.ProgramaId = empresa.ProgramaId;
 
             //Función por si se edita la contraseña
             if (!string.IsNullOrWhiteSpace(model.Password))
