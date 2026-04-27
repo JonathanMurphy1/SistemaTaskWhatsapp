@@ -75,35 +75,36 @@
         </table>
     </div>
 </div>
+
 <div class="modal fade" id="modalProgramas" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content shadow">
+        <div class="modal-content shadow modal-custom">
 
-            <!-- HEADER -->
-            <div class="modal-header bg-light">
-                <h5 class="modal-title">
-                    <i class="bi bi-diagram-3 me-2 text-primary"></i>
+            <!-- Modal Header -->
+            <div class="modal-header modal-header-custom">
+                <h5 class="modal-title d-flex align-items-center gap-2">
+                    <i class="bi bi-diagram-3 text-info"></i>
                     Vinculaciones de <strong id="nombreEmpresa"></strong>
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
-            <!-- BODY -->
+            <!-- Modal body -->
             <div class="modal-body">
 
                 <!-- Agregar -->
-                <div class="card border-0 shadow-sm mb-4">
+                <div class="card card-modal mb-4">
                     <div class="card-body">
 
-                        <h6 class="text-muted mb-3">
-                            <i class="bi bi-plus-circle me-1 text-success"></i>
+                        <h6 class="modal-subtitle">
+                            <i class="bi bi-plus-circle text-success"></i>
                             Agregar programa
                         </h6>
 
                         <div class="d-flex gap-2">
                             <select id="selectProgramas" class="form-select"></select>
 
-                            <button class="btn btn-success px-3" id="btnAgregarPrograma">
+                            <button class="btn btn-success px-3 btn-add" id="btnAgregarPrograma">
                                 <i class="bi bi-plus-lg"></i>
                             </button>
                         </div>
@@ -113,12 +114,12 @@
 
                 <!-- lista -->
                 <div>
-                    <h6 class="text-muted mb-3">
-                        <i class="bi bi-link-45deg me-1 text-primary"></i>
+                    <h6 class="modal-subtitle">
+                        <i class="bi bi-link-45deg text-info"></i>
                         Programas vinculados
                     </h6>
 
-                    <div id="contenedorProgramas">
+                    <div id="contenedorProgramas" class="contenedor-programas">
                         <p class="text-muted">Cargando...</p>
                     </div>
                 </div>
