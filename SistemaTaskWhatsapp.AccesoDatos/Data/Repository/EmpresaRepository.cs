@@ -23,17 +23,12 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository
 
         public async Task<IEnumerable<SelectListItem>> GetEmpresasDropdown()
         {
-            var empresas = await _db.Empresa
-                .Include(e => e.EmpresaProgramas)
-                    .ThenInclude(ep => ep.Programa)
-                .ToListAsync();
+            var empresas = await _db.Empresa.ToListAsync();
 
             return empresas.Select(e => new SelectListItem
             {
                 Value = e.Id.ToString(),
-                Text = e.EmpresaProgramas.Any()
-                    ? $"{e.Nombre} ({string.Join(", ", e.EmpresaProgramas.Select(ep => ep.Programa.Nombre))})"
-                    : $"{e.Nombre} (Sin programa)"
+                Text = e.Nombre
             });
         }
 
