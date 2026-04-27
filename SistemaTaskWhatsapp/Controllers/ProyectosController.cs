@@ -20,7 +20,7 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var listaProyectos = await _contenedorTrabajo.Proyecto.GetAllAsync(includeProperties: "Empresa,Empresa.Programa");
+            var listaProyectos = await _contenedorTrabajo.Proyecto.GetAllAsync(includeProperties: "Empresa,Programa");
             return View(listaProyectos);
         }
 
@@ -29,7 +29,7 @@ namespace SistemaTaskWhatsapp.Controllers
         {
             var model = new ProyectoVM
             {
-                ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown()
+               ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown()
             };
 
             return View(model);
@@ -53,6 +53,7 @@ namespace SistemaTaskWhatsapp.Controllers
                 return View(model);
             }
 
+            model.Proyecto.ProgramaId = 1;
             model.Proyecto.FechaRegistro = DateTime.Now;
 
             await _contenedorTrabajo.Proyecto.AddAsync(model.Proyecto);
@@ -90,13 +91,16 @@ namespace SistemaTaskWhatsapp.Controllers
                 return View(model);
             }
 
-            var mismoNombre = await _contenedorTrabajo.Proyecto.GetFirstOrDefaultAsync(p => p.Id != model.Proyecto.Id && p.Nombre == model.Proyecto.Nombre);
+            var mismoNombre = await _contenedorTrabajo.Proyecto.GetFirstOrDefaultAsync(p => p.Nombre == model.Proyecto.Nombre
+                                                                                        && p.ProgramaId == model.Proyecto.ProgramaId);
+           
             if (mismoNombre != null)
             {
                 ModelState.AddModelError("", "Ya existe un proyecto con ese nombre");
                 model.ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown();
                 return View(model);
             }
+
 
             _contenedorTrabajo.Proyecto.Update(model.Proyecto);
             await _contenedorTrabajo.SaveAsync();

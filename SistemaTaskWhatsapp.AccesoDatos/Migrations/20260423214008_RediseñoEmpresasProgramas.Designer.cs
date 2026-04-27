@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaTaskWhatsapp.Data;
 
@@ -11,9 +12,11 @@ using SistemaTaskWhatsapp.Data;
 namespace SistemaTaskWhatsapp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260423214008_RediseñoEmpresasProgramas")]
+    partial class RediseñoEmpresasProgramas
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -253,39 +256,25 @@ namespace SistemaTaskWhatsapp.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("ProgramaOrigenId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("Nombre")
                         .IsUnique();
-
-                    b.HasIndex("ProgramaOrigenId");
 
                     b.ToTable("Empresa");
                 });
 
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.EmpresaPrograma", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
                     b.Property<int>("EmpresaId")
                         .HasColumnType("int");
 
                     b.Property<int>("ProgramaId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("EmpresaId", "ProgramaId");
 
                     b.HasIndex("ProgramaId");
-
-                    b.HasIndex("EmpresaId", "ProgramaId")
-                        .IsUnique();
 
                     b.ToTable("EmpresaPrograma");
                 });
@@ -764,17 +753,6 @@ namespace SistemaTaskWhatsapp.Data.Migrations
                     b.Navigation("Usuario");
                 });
 
-            modelBuilder.Entity("SistemaTaskWhatsapp.Models.Empresa", b =>
-                {
-                    b.HasOne("SistemaTaskWhatsapp.Models.Programa", "ProgramaOrigen")
-                        .WithMany()
-                        .HasForeignKey("ProgramaOrigenId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("ProgramaOrigen");
-                });
-
             modelBuilder.Entity("SistemaTaskWhatsapp.Models.EmpresaPrograma", b =>
                 {
                     b.HasOne("SistemaTaskWhatsapp.Models.Empresa", "Empresa")
@@ -786,7 +764,7 @@ namespace SistemaTaskWhatsapp.Data.Migrations
                     b.HasOne("SistemaTaskWhatsapp.Models.Programa", "Programa")
                         .WithMany("EmpresaProgramas")
                         .HasForeignKey("ProgramaId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Empresa");

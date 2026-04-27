@@ -99,8 +99,7 @@ namespace SistemaTaskWhatsapp.Controllers
                 Email = model.Email,
                 PhoneNumber = model.Telefono,
                 Rol = model.Rol,
-                EmpresaId = model.EmpresaId,
-                ProgramaId = empresa.ProgramaId
+                EmpresaId = model.EmpresaId
             };
 
             var resultado = await _userManager.CreateAsync(usuario, model.Password);
@@ -254,7 +253,6 @@ namespace SistemaTaskWhatsapp.Controllers
             usuario.PhoneNumber = model.Telefono;
             usuario.EmpresaId = model.EmpresaId;
             usuario.Rol = model.Rol;
-            usuario.ProgramaId = empresa.ProgramaId;
 
             //Función por si se edita la contraseña
             if (!string.IsNullOrWhiteSpace(model.Password))

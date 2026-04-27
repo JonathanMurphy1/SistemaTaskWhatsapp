@@ -11,6 +11,9 @@ namespace SistemaTaskWhatsapp.Models.ViewModels
     {
         public Empresa? Empresa { get; set; }
 
+        public int? ProgramaId { get; set; } 
+
         public IEnumerable<SelectListItem>? ListaProgramas { get; set; }
+      
     }
 }

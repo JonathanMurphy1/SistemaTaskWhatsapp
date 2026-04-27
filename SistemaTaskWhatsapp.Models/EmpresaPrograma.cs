@@ -8,17 +8,15 @@ using System.Threading.Tasks;
 
 namespace SistemaTaskWhatsapp.Models
 {
-    [Table("Programa")]
-    public class Programa
+    [Table("EmpresaPrograma")]
+    public class EmpresaPrograma
     {
-        [Key]
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Escriba el nombre por favor")]
-        public string Nombre { get; set; }
+        public int EmpresaId { get; set; }
+        public Empresa Empresa { get; set; }
 
-        public DateTime FechaRegistro { get; set; }
-
-        public ICollection<EmpresaPrograma>? EmpresaProgramas { get; set; }
+        public int ProgramaId { get; set; }
+        public Programa Programa { get; set; }
     }
 }

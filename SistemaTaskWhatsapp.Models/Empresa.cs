@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -21,12 +22,15 @@ namespace SistemaTaskWhatsapp.Models
 
         public int? IdExterno { get; set; } //Id de referencia del otro programa
 
-        //Programa que envia los datos
-        public int ProgramaId { get; set; }
+        public int ProgramaOrigenId { get; set; }  //Id de referencia de quien creo el programa
+        
+        [ValidateNever]
+        public Programa ProgramaOrigen { get; set; }
 
-        [ForeignKey("ProgramaId")]
-        public Programa? Programa { get; set; }
+        public ICollection<EmpresaPrograma>? EmpresaProgramas { get; set; }
 
-        public IEnumerable<Proyecto>? Proyectos { get; set; }
+        public ICollection<Proyecto>? Proyectos { get; set; }
+
+        public ICollection<Usuario>? Usuarios { get; set; }
     }
 }

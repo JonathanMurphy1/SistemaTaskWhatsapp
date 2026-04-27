@@ -17,7 +17,7 @@
                 <tr>
                     <th>Id</th>
                     <th>Nombre</th>
-                    <th>Vincula de:</th>
+                    <th>Creada por:</th>
                     <th>Fecha de registro</th>
                     <th class="text-center">Acciones</th>
                 </tr>
@@ -37,18 +37,26 @@
                     foreach (var empresa in Model)
                     {
                         <tr>
+
                             <td>@empresa.Id</td>
                             <td><strong>@empresa.Nombre</strong></td>
-                            <td>@(empresa.ProgramaId != null ? empresa.Programa.Nombre : "Sin asignar")</td>
+                            <td>@empresa.ProgramaOrigen?.Nombre</td>
                             <td>@empresa.FechaRegistro.ToString("dd/MM/yyyy")</td>
+
+
                             <td class="text-center">
+
+
                                 <a class="btn btn-sm btn-warning me-1"
                                    asp-action="Edit" asp-route-id="@empresa.Id"
                                    title="Editar"> <i class="bi bi-pencil-square"></i>
                                 </a>
                                 <button class="btn btn-sm btn-danger"
-                                    title="Eliminar" data-id="@empresa.Id" data-nombre="@empresa.Nombre"
-                                    data-bs-toggle="modal" data-bs-target="#modalEliminar">
+                                        title="Eliminar"
+                                        data-id="@empresa.Id"
+                                        data-nombre="@empresa.Nombre"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalEliminar">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </td>
@@ -57,6 +65,28 @@
                 }
             </tbody>
         </table>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalRelaciones">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header bg-info">
+                <h5 class="modal-title text-white">Relaciones de la empresa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <h6 id="nombreEmpresaRelaciones"></h6>
+
+                <ul id="listaRelaciones" class="list-group mt-3">
+                    <!-- dinámico -->
+                </ul>
+            </div>
+
+        </div>
     </div>
 </div>
 
@@ -81,7 +111,7 @@
                 <div class="d-flex justify-content-center gap-3">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                     <form asp-action="Delete" method="post">
-                        <input id="inputId" name="id" value="" type="hidden"/>
+                        <input id="inputId" name="id" type="hidden" />
                         <button type="submit" class="btn btn-danger">Borrar</button>
                     </form>
                 </div>
@@ -90,6 +120,23 @@
         </div>
     </div>
 </div>
+
+
+<script>
+    window.relacionesEmpresa = {
+        @foreach (var empresa in Model)
+        {
+                <text>
+                "@empresa.Id": [
+                    @foreach (var rel in empresa.EmpresaProgramas)
+                    {
+                            <text>"@rel.Programa.Nombre",</text>
+                    }
+                ],
+                </text>
+        }
+    };
+</script>
 
 @section Scripts {
     <script src="~/js/empresa/empresaIndex.js"></script>

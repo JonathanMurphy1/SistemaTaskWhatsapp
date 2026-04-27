@@ -30,6 +30,7 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository
             Mensaje = new MensajeRepository(_db);
             MensajeDiaFestivo = new MensajeDiaFestivoRepository(_db);
             Programa = new ProgramaRepository(_db);
+            EmpresaPrograma = new EmpresaProgramaRepository(_db);
         }
 
         public IUsuarioRepository Usuario {  get; private set; }
@@ -47,6 +48,8 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository
         public IMensajeRepository Mensaje { get; private set; }
         public IMensajeDiaFestivoRepository MensajeDiaFestivo { get;private set; }
         public IProgramaRepository Programa { get; private set; }
+
+        public IEmpresaProgramaRepository EmpresaPrograma { get; private set; }
 
         public void Dispose()
         {

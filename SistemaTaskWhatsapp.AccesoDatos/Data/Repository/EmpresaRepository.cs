@@ -21,17 +21,21 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository
             _db = db;
         }
 
-        public async Task<IEnumerable<SelectListItem>> GetEmpresasDropdown(int? id = null)
+        public async Task<IEnumerable<SelectListItem>> GetEmpresasDropdown()
         {
             var empresas = await _db.Empresa
-                             .Include(e => e.Programa)
-                             .ToListAsync();
+                .Include(e => e.EmpresaProgramas)
+                    .ThenInclude(ep => ep.Programa)
+                .ToListAsync();
 
             return empresas.Select(e => new SelectListItem
             {
                 Value = e.Id.ToString(),
-                Text = $"{e.Nombre} ({e.Programa?.Nombre ?? "Sin programa"})"
+                Text = e.EmpresaProgramas.Any()
+                    ? $"{e.Nombre} ({string.Join(", ", e.EmpresaProgramas.Select(ep => ep.Programa.Nombre))})"
+                    : $"{e.Nombre} (Sin programa)"
             });
         }
+
     }
 }
