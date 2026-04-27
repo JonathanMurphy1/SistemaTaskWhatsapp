@@ -31,6 +31,24 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> GetProgramasByEmpresa(int id)
+        {
+            var lista = await _contenedorTrabajo.EmpresaPrograma
+                .GetAllAsync(
+                    x => x.EmpresaId == id,
+                    includeProperties: "Programa"
+                );
+
+            var result = lista.Select(x => new
+            {
+                id = x.Id,
+                nombre = x.Programa.Nombre
+            });
+
+            return Json(result);
+        }
+
+        [HttpGet]
         public async Task<IActionResult> CreateAsync()
         {
             var model = new EmpresaVM
@@ -70,6 +88,39 @@ namespace SistemaTaskWhatsapp.Controllers
             await _contenedorTrabajo.SaveAsync();
 
             return RedirectToAction("Index");
+
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetProgramas()
+        {
+            var lista = await _contenedorTrabajo.Programa.GetAllAsync();
+
+            return Json(lista.Select(x => new {
+                id = x.Id,
+                nombre = x.Nombre
+            }));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddRelacion(int empresaId, int programaId)
+        {
+            var existe = await _contenedorTrabajo.EmpresaPrograma
+                .GetFirstOrDefaultAsync(x => x.EmpresaId == empresaId && x.ProgramaId == programaId);
+
+            if (existe != null)
+                return BadRequest("Ya existe la relación");
+
+            var relacion = new EmpresaPrograma
+            {
+                EmpresaId = empresaId,
+                ProgramaId = programaId
+            };
+
+            await _contenedorTrabajo.EmpresaPrograma.AddAsync(relacion);
+            await _contenedorTrabajo.SaveAsync();
+
+            return Ok();
         }
 
         [HttpGet]
@@ -156,18 +207,17 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> DeleteRelacion(int id)
+        public async Task<IActionResult> DeleteRelacionAjax(int id)
         {
-            var relacion = await _contenedorTrabajo.EmpresaPrograma
-                .GetByIdAsync(id);
+            var relacion = await _contenedorTrabajo.EmpresaPrograma.GetByIdAsync(id);
 
             if (relacion == null)
-                return RedirectToAction("Index");
+                return NotFound();
 
             _contenedorTrabajo.EmpresaPrograma.Remove(relacion);
             await _contenedorTrabajo.SaveAsync();
 
-            return RedirectToAction("Index");
+            return Ok();
         }
 
 
