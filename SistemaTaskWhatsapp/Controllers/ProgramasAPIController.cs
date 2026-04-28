@@ -4,7 +4,7 @@ using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Models;
 using System.Threading.Tasks;
 
-[Route("api/[controller]")]
+[Route("api/programas")]
 [ApiController]
 public class ProgramasApiController : ControllerBase
 {

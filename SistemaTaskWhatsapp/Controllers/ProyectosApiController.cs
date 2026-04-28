@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 namespace SistemaTaskWhatsapp.Controllers
 {
     [ApiController]
-    [Route("api/projects")]
+    [Route("api/proyectos")]
     [AllowAnonymous]
-    public class ProjectsApiController : ControllerBase
+    public class ProyectosApiController : ControllerBase
     {
         private readonly IContenedorTrabajo _contenedorTrabajo;
 
-        public ProjectsApiController(IContenedorTrabajo contenedorTrabajo)
+        public ProyectosApiController(IContenedorTrabajo contenedorTrabajo)
         {
             _contenedorTrabajo = contenedorTrabajo;
         }
@@ -25,15 +25,17 @@ namespace SistemaTaskWhatsapp.Controllers
         {
             var lista = await _contenedorTrabajo.Proyecto.GetAllAsync();
 
-            var resultado = lista.Select(p => new ProjectDto
+            var resultado = lista.Select(p => new ProyectoResponseDto
             {
-                Idproject = p.Id,
-                Name = p.Nombre,
-                Description = p.Descripcion,
-                StartDate = p.FechaRegistro,
+                Id = p.Id,
+                Nombre = p.Nombre,
+                Descripcion = p.Descripcion,
+                FechaRegistro = p.FechaRegistro,
+                FechaFin = p.FechaFin,
                 EmpresaId = p.EmpresaId,
+                ProgramaId = p.ProgramaId,
                 Estado = (int)p.Estado,
-               
+                IdExterno = p.IdExterno
             });
 
             return Ok(resultado);
@@ -41,45 +43,46 @@ namespace SistemaTaskWhatsapp.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> RecibirProyecto([FromBody] ProjectDto dto)
+        public async Task<IActionResult> RecibirProyecto([FromBody] ProyectoCreateDto dto)
         {
             if (dto == null)
                 return BadRequest();
 
             var proyecto = new Proyecto
             {
-
-                Nombre = dto.Name,
-                Descripcion = dto.Description,
-                FechaRegistro = dto.StartDate ?? DateTime.Now,
+                Nombre = dto.Nombre,
+                Descripcion = dto.Descripcion,
+                FechaRegistro = dto.FechaRegistro ?? DateTime.Now,
                 EmpresaId = dto.EmpresaId,
-                Estado = (EstadosProyecto)dto.Estado
-
+                ProgramaId = dto.ProgramaId,
+                Estado = (EstadosProyecto)dto.Estado,
+                IdExterno = dto.IdExterno
             };
 
             await _contenedorTrabajo.Proyecto.AddAsync(proyecto);
             await _contenedorTrabajo.SaveAsync();
 
-            return Ok(new { message = "Proyecto recibido correctamente" });
+            return Ok(new { message = "Proyecto creado correctamente" });
         }
 
         //Editar proyectos
         [HttpPost("update")]
-        public async Task<IActionResult> ActualizarProyecto([FromBody] ProjectDto dto)
+        public async Task<IActionResult> ActualizarProyecto([FromBody] ProyectoCreateDto dto)
         {
             if (dto == null)
                 return BadRequest();
 
             var proyecto = await _contenedorTrabajo.Proyecto
-                .GetFirstOrDefaultAsync(p => p.IdExterno == dto.Idproject);
+                .GetFirstOrDefaultAsync(p => p.IdExterno == dto.IdExterno);
 
             if (proyecto == null)
                 return NotFound();
 
-            proyecto.Nombre = dto.Name;
-            proyecto.Descripcion = dto.Description;
+            proyecto.Nombre = dto.Nombre;
+            proyecto.Descripcion = dto.Descripcion;
             proyecto.EmpresaId = dto.EmpresaId;
-            proyecto.FechaRegistro = dto.StartDate ?? DateTime.Now;
+            proyecto.ProgramaId = dto.ProgramaId;
+            proyecto.FechaRegistro = dto.FechaRegistro ?? proyecto.FechaRegistro;
             proyecto.Estado = (EstadosProyecto)dto.Estado;
 
             _contenedorTrabajo.Proyecto.Update(proyecto);
@@ -88,11 +91,12 @@ namespace SistemaTaskWhatsapp.Controllers
             return Ok(new { message = "Proyecto actualizado correctamente" });
         }
 
-        [HttpDelete("{Idproject}")]
-        public async Task<IActionResult> EliminarProyecto(int Idproject)
+
+        [HttpDelete("{idExterno}")]
+        public async Task<IActionResult> EliminarProyecto(int idExterno)
         {
             var proyecto = await _contenedorTrabajo.Proyecto
-                .GetFirstOrDefaultAsync(p => p.IdExterno == Idproject);
+                .GetFirstOrDefaultAsync(p => p.IdExterno == idExterno);
 
             if (proyecto == null)
                 return NotFound(new { message = "Proyecto no existe" });

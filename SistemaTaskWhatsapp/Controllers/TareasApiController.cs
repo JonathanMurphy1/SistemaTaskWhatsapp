@@ -18,68 +18,84 @@ namespace SistemaTaskWhatsapp.Controllers
             _contenedorTrabajo = contenedorTrabajo;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetTareas()
+        {
+            var lista = await _contenedorTrabajo.Tarea.GetAllAsync();
+
+            var resultado = lista.Select(t => new TareaResponseDto
+            {
+                Id = t.Id,
+                Nombre = t.Nombre,
+                Descripcion = t.Descripcion,
+                FechaInicio = t.FechaInicio,
+                FechaTermino = t.FechaTermino,
+                FechaEntrega = t.FechaEntrega,
+                Estado = (int)t.Estado,
+                ProyectoId = t.ProyectoId,
+                IdExterno = t.IdExterno
+            });
+
+            return Ok(resultado);
+        }
+
         [HttpPost]
-        public async Task<IActionResult> RecibirTarea([FromBody] TareaDto dto)
+        public async Task<IActionResult> RecibirTarea([FromBody] TareaCreateDto dto)
         {
             if (dto == null)
                 return BadRequest();
 
-            //Se busca el proyecto por nombre
-            var proyecto = await _contenedorTrabajo.Proyecto
-                    .GetFirstOrDefaultAsync(p =>
-                     p.Nombre.Trim().ToLower() == dto.ProjectName.Trim().ToLower()); //Se ajusta el formato para que coicida con Task
+            Proyecto proyecto = null;
+
+            if (dto.ProyectoId.HasValue)
+            {
+                proyecto = await _contenedorTrabajo.Proyecto
+                    .GetFirstOrDefaultAsync(p => p.Id == dto.ProyectoId);
+            }
 
             if (proyecto == null)
-            {
-                Console.WriteLine("Proyecto no encontrado: " + dto.ProjectName);
-                return BadRequest($"Proyecto no encontrado: {dto.ProjectName}");
-            }
+                return BadRequest("Proyecto no encontrado");
 
             var tarea = new Tarea
             {
-                Nombre = dto.Title,
-                Descripcion = dto.Description,
-                FechaInicio = dto.StartDate ?? DateTime.Now,
-                FechaEntrega = dto.DeliveryDate ?? DateTime.Now.AddDays(1),
+                Nombre = dto.Nombre,
+                Descripcion = dto.Descripcion,
+                FechaInicio = dto.FechaInicio ?? DateTime.Now,
+                FechaEntrega = dto.FechaEntrega ?? DateTime.Now.AddDays(1),
                 Estado = (EstadosTarea)dto.Estado,
                 ProyectoId = proyecto.Id,
-                IdExterno = dto.SubtaskId
+                IdExterno = dto.IdExterno
             };
 
             await _contenedorTrabajo.Tarea.AddAsync(tarea);
             await _contenedorTrabajo.SaveAsync();
 
-            return Ok(new { message = "Tarea recibida correctamente" });
+            return Ok(new { message = "Tarea creada correctamente" });
         }
 
         [HttpPut]
-        public async Task<IActionResult> ActualizarTarea([FromBody] TareaDto dto)
+        public async Task<IActionResult> ActualizarTarea([FromBody] TareaCreateDto dto)
         {
+            if (dto == null || dto.IdExterno == null)
+                return BadRequest();
+
             var tarea = await _contenedorTrabajo.Tarea
-                .GetFirstOrDefaultAsync(t => t.IdExterno == dto.SubtaskId);
+                .GetFirstOrDefaultAsync(t => t.IdExterno == dto.IdExterno);
 
             if (tarea == null)
-                return NotFound($"No existe tarea con SubtaskId {dto.SubtaskId}");
+                return NotFound($"No existe tarea con IdExterno {dto.IdExterno}");
 
-            //Unicamente se actualizan estos datos en task
-            tarea.Nombre = dto.Title;
-            tarea.Descripcion = dto.Description;
+            tarea.Nombre = dto.Nombre;
+            tarea.Descripcion = dto.Descripcion;
 
-            //Esto en caso de que se actualice el estado desde el panel
-            if (dto.Estado.HasValue)
+            if (dto.Estado >= 0)
             {
-                tarea.Estado = (EstadosTarea)dto.Estado.Value;
+                tarea.Estado = (EstadosTarea)dto.Estado;
 
-                //Si el estado es en Task es terminado
                 if (tarea.Estado == EstadosTarea.Finalizada)
-                {
                     tarea.FechaTermino = DateTime.Now;
-                }
                 else
-                {
-                    //Poner la fecha en null si se cambia de terminado a otro
                     tarea.FechaTermino = null;
-                }
             }
 
             _contenedorTrabajo.Tarea.Update(tarea);
@@ -88,17 +104,17 @@ namespace SistemaTaskWhatsapp.Controllers
             return Ok(new { message = "Tarea actualizada correctamente" });
         }
 
-        [HttpDelete("{subtaskId}")]
-        public async Task<IActionResult> EliminarTarea(int subtaskId)
+        [HttpDelete("{idExterno}")]
+        public async Task<IActionResult> EliminarTarea(int idExterno)
         {
             var tarea = await _contenedorTrabajo.Tarea
-                .GetFirstOrDefaultAsync(t => t.IdExterno == subtaskId);
+                .GetFirstOrDefaultAsync(t => t.IdExterno == idExterno);
 
-            if (tarea != null)
-            {
-                _contenedorTrabajo.Tarea.Remove(tarea);
-                await _contenedorTrabajo.SaveAsync();
-            }
+            if (tarea == null)
+                return NotFound(new { message = "Tarea no existe" });
+
+            _contenedorTrabajo.Tarea.Remove(tarea);
+            await _contenedorTrabajo.SaveAsync();
 
             return Ok(new { message = "Tarea eliminada correctamente" });
         }
@@ -111,11 +127,11 @@ namespace SistemaTaskWhatsapp.Controllers
 
             //Buscar la tarea usando SubtaskId
             var tarea = await _contenedorTrabajo.Tarea
-                .GetFirstOrDefaultAsync(t => t.IdExterno == dto.SubtaskId);
+                .GetFirstOrDefaultAsync(t => t.IdExterno == dto.IdExterno);
 
             if (tarea == null)
             {
-                return BadRequest($"No existe tarea con SubtaskId {dto.SubtaskId}");
+                return BadRequest($"No existe tarea con IdExterno {dto.IdExterno}");
             }
 
             //Buscar usuario

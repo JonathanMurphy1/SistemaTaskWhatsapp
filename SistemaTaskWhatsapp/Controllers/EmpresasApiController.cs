@@ -7,26 +7,43 @@ using System.Threading.Tasks;
 namespace SistemaTaskWhatsapp.Controllers
 {
     [ApiController]
-    [Route("api/companies")]
+    [Route("api/empresas")]
     [AllowAnonymous]
-    public class CompaniesApiController : ControllerBase
+    public class EmpresasApiController : ControllerBase
     {
         private readonly IContenedorTrabajo _contenedorTrabajo;
 
-        public CompaniesApiController(IContenedorTrabajo contenedorTrabajo)
+        public EmpresasApiController(IContenedorTrabajo contenedorTrabajo)
         {
             _contenedorTrabajo = contenedorTrabajo;
         }
 
+        //Mostrar datos en un Json
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            var lista = await _contenedorTrabajo.Empresa.GetAllAsync();
+
+            var resultado = lista.Select(e => new EmpresaResponseDto
+            {
+                Id = e.Id,
+                Nombre = e.Nombre,
+                FechaRegistro = e.FechaRegistro,
+                IdExterno = e.IdExterno,
+                ProgramaOrigenId = e.ProgramaOrigenId
+            });
+
+            return Ok(resultado);
+        }
+
         [HttpPost]
-        public async Task<IActionResult> CrearEmpresa([FromBody] EmpresaDto dto)
+        public async Task<IActionResult> CrearEmpresa([FromBody] EmpresaCreateDto dto)
         {
             if (dto == null)
                 return BadRequest();
 
-            //Validacion de Id
             var existe = await _contenedorTrabajo.Empresa
-                .GetFirstOrDefaultAsync(e => e.IdExterno == dto.CompaniesId);
+                .GetFirstOrDefaultAsync(e => e.IdExterno == dto.IdExterno);
 
             if (existe != null)
             {
@@ -35,8 +52,9 @@ namespace SistemaTaskWhatsapp.Controllers
 
             var empresa = new Empresa
             {
-                IdExterno = dto.CompaniesId,
-                Nombre = dto.Name,
+                Nombre = dto.Nombre,
+                IdExterno = dto.IdExterno,
+                ProgramaOrigenId = dto.ProgramaOrigenId,
                 FechaRegistro = DateTime.Now
             };
 

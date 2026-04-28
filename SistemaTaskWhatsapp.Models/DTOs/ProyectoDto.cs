@@ -10,35 +10,27 @@ using System.Threading.Tasks;
 
 namespace SistemaTaskWhatsapp.Models
 {
-    public class TareaCreateDto
+    public class ProyectoCreateDto
     {
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
-
-        public DateTime? FechaInicio { get; set; }
-        public DateTime? FechaEntrega { get; set; }
-
-        public int Estado { get; set; }
-
-        public int? ProyectoId { get; set; }
-
+        public DateTime? FechaRegistro { get; set; }
+        public int EmpresaId { get; set; }
+        public int ProgramaId { get; set; }
+        public int Estado { get; set; } // se convierte a enum
         public int? IdExterno { get; set; }
     }
 
-    public class TareaResponseDto
+    public class ProyectoResponseDto
     {
         public int Id { get; set; }
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
-
-        public DateTime FechaInicio { get; set; }
-        public DateTime? FechaTermino { get; set; }
-        public DateTime? FechaEntrega { get; set; }
-
+        public DateTime FechaRegistro { get; set; }
+        public DateTime? FechaFin { get; set; }
+        public int EmpresaId { get; set; }
+        public int ProgramaId { get; set; }
         public int Estado { get; set; }
-
-        public int ProyectoId { get; set; }
-
         public int? IdExterno { get; set; }
     }
 }

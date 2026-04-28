@@ -12,7 +12,7 @@ namespace SistemaTaskWhatsapp.Models
 {
     public class AsignarResponsableDto
     {
-        public int SubtaskId { get; set; }
+        public int IdExterno { get; set; }
         public int UserId { get; set; }
     }
 }
