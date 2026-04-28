@@ -14,5 +14,6 @@ namespace SistemaTaskWhatsapp.Models
     {
         public int CompaniesId { get; set; } 
         public string Name { get; set; }
+
     }
 }
