@@ -18,6 +18,7 @@
                 <tr>
                     <th>Id</th>
                     <th>Nombre</th>
+                    <th>Programa</th>
                     <th>Empresa</th>
                     <th>Descripción</th>
                     <th>Fecha de registro</th>
@@ -42,8 +43,9 @@
                     {
                         <tr>
                             <td>@proyecto.Id</td>
-                            <td><strong>@proyecto.Nombre</strong></td>
-                            <td>@(proyecto.EmpresaId != null ? proyecto.Empresa.Nombre : "Sin asignar")</td>
+                            <td><strong>@proyecto.Nombre</strong></td>@* 
+                            <td>@(proyecto.Empresa?.Programa?.Nombre ?? "Sin programa")</td> *@
+                            <td>@(proyecto.Empresa?.Nombre ?? "Sin asignar")</td>
                             <td>@proyecto.Descripcion</td>
                             <td>@proyecto.FechaRegistro.ToString("dd/MM/yyyy")</td>
                             <td>@(proyecto.FechaFin == null ? "Vigente" : proyecto.FechaFin?.ToString("dd/MM/yyyy"))</td>

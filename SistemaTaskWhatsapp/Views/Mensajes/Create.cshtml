@@ -99,12 +99,21 @@
                         <select id="frecuencia" class="form-control">
                             <option value="diario">Diario</option>
                             <option value="laboral">Lunes a Viernes</option>
-                        <option value="semanal">Semanal (Cada lunes)</option>
+                            <option value="semanal">Semanal (Cada lunes)</option>
+                            <option value="viernes">Semanal (Cada viernes)</option>
+                            <option value="anual">Día específico (cada año)</option>
                         </select>
                     </div>
 
                 <!-- CRON OCULTO -->
                     <input type="hidden" asp-for="Mensaje.Cron" id="cron" />
+
+                    <br />
+
+                    <div class="form-group" id="contenedorFecha" style="display:none;">
+                        <label>Fecha específica:</label>
+                        <input type="date" id="fechaEspecifica" class="form-control" />
+                    </div>
 
                     <br />
 
@@ -206,6 +215,26 @@
 
     <!-- Script para generar el formato del cron -->
     <script>
+        const frecuenciaSelect = document.getElementById("frecuencia");
+        const contenedorFecha = document.getElementById("contenedorFecha");
+        const inputFecha = document.getElementById("fechaEspecifica");
+        const inputHora = document.getElementById("hora");
+        const inputCron = document.getElementById("cron");
+
+        //Mostrar / ocultar fecha según frecuencia
+        frecuenciaSelect.addEventListener("change", function () {
+
+            if (this.value === "anual") {
+                contenedorFecha.style.display = "block";
+            } else {
+                contenedorFecha.style.display = "none";
+                inputFecha.value = "";
+            }
+
+            inputCron.value = ""; // evitar cron anterior
+            generarCron();
+        });
+
         function generarCron() {
             const hora = document.getElementById("hora").value;
             const frecuencia = document.getElementById("frecuencia").value;
@@ -228,27 +257,67 @@
                 case "semanal":
                     cron = `${m} ${h} * * 1`;
                     break;
+
+                case "viernes":
+                    cron = `${m} ${h} * * 5`;
+                    break;
+
+                case "anual":
+
+                    const fecha = inputFecha.value;
+
+                    if (!fecha) {
+                        inputCron.value = ""; //evita cron incorrecto
+                        return;
+                    }
+
+                    const [year, month, day] = fecha.split("-");
+
+                    // CRON: minuto hora día mes *
+                    cron = `${m} ${h} ${day} ${month} *`;
+
+                    break;
             }
 
-            document.getElementById("cron").value = cron;
+            inputCron.value = cron;
 
         }
 
-        //Se ejecuta al cambiar valores
-        document.getElementById("hora").addEventListener("change", generarCron);
-        document.getElementById("frecuencia").addEventListener("change", generarCron);
+        //Eventos que recalculan automáticamente
+        inputHora.addEventListener("change", generarCron);
+        inputFecha.addEventListener("change", generarCron);
 
-        //Seguridad extra al enviar
+        //Validación antes de enviar
         document.querySelector("form").addEventListener("submit", function (event) {
 
-            generarCron(); // asegura que se genere
+            generarCron(); // asegurar cálculo
 
-            const cron = document.getElementById("cron").value;
+            const frecuencia = frecuenciaSelect.value;
+            const fecha = inputFecha.value;
+            const cron = inputCron.value;
 
             if (!cron) {
                 alert("No se pudo generar el cron");
                 event.preventDefault();
+                return;
             }
+
+            if (frecuencia === "anual" && !fecha) {
+                alert("Debes seleccionar una fecha para frecuencia anual");
+                event.preventDefault();
+            }
+        });
+
+        //Estado inicial al cargar (por si hay edición)
+        document.addEventListener("DOMContentLoaded", function () {
+
+            if (frecuenciaSelect.value === "anual") {
+                contenedorFecha.style.display = "block";
+            } else {
+                contenedorFecha.style.display = "none";
+            }
+
+            generarCron();
         });
     </script>
 

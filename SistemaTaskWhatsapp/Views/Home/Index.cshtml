@@ -48,7 +48,7 @@
                                 </div>
                                 <div class="card-body text-start">
                                     <strong>Estado:</strong> <span class="badge bg-@estadoColor">@vm.Proyecto.Estado</span>
-                                    <p><strong>Empresa:</strong> @vm.Proyecto.Empresa.Nombre</p>
+                                    <p><strong>Empresa:</strong> @(vm.Proyecto.Empresa?.Nombre ?? "Sin asignar")</p>
                                     <strong>Descripción:</strong>
                                     <p>@vm.Proyecto.Descripcion</p>
                                     <p><strong>Fecha de registro:</strong> @vm.Proyecto.FechaRegistro.ToString("dd/MM/yyyy")</p>

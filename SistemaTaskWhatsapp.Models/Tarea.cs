@@ -37,8 +37,7 @@ namespace SistemaTaskWhatsapp.Models
 
         //Propiedades de navegación
         public ICollection<TareaEmpleado>? TareaEmpleados { get; set; }
-        
-        //ID de subtask en el programa task
-        public int? SubtaskId { get; set; }
+
+        public int? IdExterno { get; set; } //Id de referencia del otro programa
     }
 }

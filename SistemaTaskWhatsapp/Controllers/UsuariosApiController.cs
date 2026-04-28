@@ -30,7 +30,7 @@ namespace SistemaTaskWhatsapp.Controllers
                 return BadRequest();
 
             var existe = await _contenedorTrabajo.Usuario
-                .GetFirstOrDefaultAsync(u => u.UserId == dto.UserId || u.Email == dto.Email);
+                .GetFirstOrDefaultAsync(u => u.IdExterno == dto.UserId || u.Email == dto.Email);
 
             if (existe != null)
             {
@@ -39,7 +39,7 @@ namespace SistemaTaskWhatsapp.Controllers
 
             var usuario = new Usuario
             {
-                UserId = dto.UserId,
+                IdExterno = dto.UserId,
                 Nombre = dto.Name,
                 UserName = dto.Email,
                 Email = dto.Email,
@@ -90,7 +90,7 @@ namespace SistemaTaskWhatsapp.Controllers
                 return BadRequest();
 
             var usuario = await _contenedorTrabajo.Usuario
-                .GetFirstOrDefaultAsync(u => u.UserId == dto.UserId);
+                .GetFirstOrDefaultAsync(u => u.IdExterno == dto.UserId);
 
             if (usuario == null)
                 return NotFound();
@@ -218,7 +218,7 @@ namespace SistemaTaskWhatsapp.Controllers
                 return BadRequest();
 
             var usuario = await _contenedorTrabajo.Usuario
-                .GetFirstOrDefaultAsync(u => u.UserId == dto.UserId);
+                .GetFirstOrDefaultAsync(u => u.IdExterno == dto.UserId);
 
             if (usuario == null)
                 return Ok(new { message = "Usuario no existe" });

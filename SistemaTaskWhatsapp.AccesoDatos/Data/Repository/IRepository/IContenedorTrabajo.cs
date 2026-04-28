@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SistemaTaskWhatsapp.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,9 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository
         IDiaFestivoRepository DiaFestivo { get; }
         IMensajeRepository Mensaje { get; }
         IMensajeDiaFestivoRepository MensajeDiaFestivo { get; }
+        IProgramaRepository Programa { get; }
+
+        IEmpresaProgramaRepository EmpresaPrograma { get; }
 
         Task SaveAsync();
     }

@@ -17,6 +17,7 @@
                 <tr>
                     <th>Id</th>
                     <th>Nombre</th>
+                    <th>Creada por:</th>
                     <th>Fecha de registro</th>
                     <th class="text-center">Acciones</th>
                 </tr>
@@ -36,17 +37,34 @@
                     foreach (var empresa in Model)
                     {
                         <tr>
+
                             <td>@empresa.Id</td>
                             <td><strong>@empresa.Nombre</strong></td>
+                            <td>@empresa.ProgramaOrigen?.Nombre</td>
                             <td>@empresa.FechaRegistro.ToString("dd/MM/yyyy")</td>
+
+
                             <td class="text-center">
+                                <button class="btn btn-sm btn-info me-1 btnProgramas"
+                                        data-id="@empresa.Id"
+                                        data-nombre="@empresa.Nombre"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalProgramas"
+                                        title="Programas vinculados">
+                                    <i class="bi bi-laptop"></i>
+                                </button>
+
                                 <a class="btn btn-sm btn-warning me-1"
                                    asp-action="Edit" asp-route-id="@empresa.Id"
                                    title="Editar"> <i class="bi bi-pencil-square"></i>
                                 </a>
+
                                 <button class="btn btn-sm btn-danger"
-                                    title="Eliminar" data-id="@empresa.Id" data-nombre="@empresa.Nombre"
-                                    data-bs-toggle="modal" data-bs-target="#modalEliminar">
+                                        title="Eliminar"
+                                        data-id="@empresa.Id"
+                                        data-nombre="@empresa.Nombre"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalEliminar">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </td>
@@ -55,6 +73,60 @@
                 }
             </tbody>
         </table>
+    </div>
+</div>
+
+<div class="modal fade" id="modalProgramas" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow modal-custom">
+
+            <!-- Modal Header -->
+            <div class="modal-header modal-header-custom">
+                <h5 class="modal-title d-flex align-items-center gap-2">
+                    <i class="bi bi-diagram-3 text-info"></i>
+                    Vinculaciones de <strong id="nombreEmpresa"></strong>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+
+                <!-- Agregar -->
+                <div class="card card-modal mb-4">
+                    <div class="card-body">
+
+                        <h6 class="modal-subtitle">
+                            <i class="bi bi-plus-circle text-success"></i>
+                            Agregar programa
+                        </h6>
+
+                        <div class="d-flex gap-2">
+                            <select id="selectProgramas" class="form-select"></select>
+
+                            <button class="btn btn-success px-3 btn-add" id="btnAgregarPrograma">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- lista -->
+                <div>
+                    <h6 class="modal-subtitle">
+                        <i class="bi bi-link-45deg text-info"></i>
+                        Programas vinculados
+                    </h6>
+
+                    <div id="contenedorProgramas" class="contenedor-programas">
+                        <p class="text-muted">Cargando...</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
     </div>
 </div>
 
@@ -79,7 +151,7 @@
                 <div class="d-flex justify-content-center gap-3">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                     <form asp-action="Delete" method="post">
-                        <input id="inputId" name="id" value="" type="hidden"/>
+                        <input id="inputId" name="id" type="hidden" />
                         <button type="submit" class="btn btn-danger">Borrar</button>
                     </form>
                 </div>

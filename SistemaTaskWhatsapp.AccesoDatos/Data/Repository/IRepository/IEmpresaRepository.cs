@@ -11,6 +11,6 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository
 {
     public interface IEmpresaRepository : IRepository<Empresa>
     {
-        Task<IEnumerable<SelectListItem>> GetEmpresasDropdown(int? id = null);
+        Task<IEnumerable<SelectListItem>> GetEmpresasDropdown();
     }
 }

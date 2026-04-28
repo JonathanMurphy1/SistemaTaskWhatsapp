@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Data;
 using SistemaTaskWhatsapp.Models;
+using SistemaTaskWhatsapp.Models.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,13 +21,16 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository
             _db = db;
         }
 
-        public async Task<IEnumerable<SelectListItem>> GetEmpresasDropdown(int? id = null)
+        public async Task<IEnumerable<SelectListItem>> GetEmpresasDropdown()
         {
-            return await _db.Empresa.Select(e => new SelectListItem
+            var empresas = await _db.Empresa.ToListAsync();
+
+            return empresas.Select(e => new SelectListItem
             {
-                Text = e.Nombre,
-                Value = e.Id.ToString()
-            }).ToListAsync();
+                Value = e.Id.ToString(),
+                Text = e.Nombre
+            });
         }
+
     }
 }

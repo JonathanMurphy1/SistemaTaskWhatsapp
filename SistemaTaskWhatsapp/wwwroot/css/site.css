@@ -1,4 +1,4 @@
-html {
+Ôªøhtml {
   font-size: 14px;
 }
 
@@ -21,7 +21,70 @@ body {
   margin-bottom: 60px;
 }
 
-/* AnimaciÛn general de la vista */
+
+/* NAVBAR SCROLL */
+.nav-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    flex: 1 1 auto;
+    min-width: 0;
+    scroll-behavior: smooth;
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+}
+
+/*  Scroll (Chrome, Edge, Safari) */
+.nav-scroll::-webkit-scrollbar {
+    height: 2px;
+}
+
+.nav-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.nav-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.35);
+    border-radius: 1px;
+    opacity: 0; 
+    transition: opacity 0.25s ease, background 0.2s ease;
+}
+
+/*  aparece al pasar el mouse */
+.nav-scroll:hover::-webkit-scrollbar-thumb {
+    opacity: 1;
+}
+
+/* mejora visual al interactuar */
+.nav-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.6);
+}
+
+/* Firefox visible al interactuar */
+.nav-scroll:hover {
+    scrollbar-color: rgba(255,255,255,0.35) transparent;
+}
+
+/*  NAV ITEMS  */
+.nav-scroll .nav-link {
+    white-space: nowrap;
+}
+
+/* fix overflow */
+.navbar-collapse {
+    min-width: 0;
+}
+
+/* Login visible */
+.login-fixed {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+
+/* Animaci√≥n general de la vista */
 .fade-in-page {
     animation: fadeIn 0.6s ease forwards;
 }
@@ -82,7 +145,7 @@ body {
     font-size: 0.75rem;
 }
 
-/* FunciÛn para expandir el texto en las tablas */
+/* Funci√≥n para expandir el texto en las tablas */
 .contenido-preview {
     max-width: 100px;
     white-space: nowrap;
@@ -90,8 +153,8 @@ body {
     text-overflow: ellipsis;
 }
 
-/* FunciÛn para expandir el texto en evidencia, 
-    se le diÛ mas espacio en la tabla */
+/* Funci√≥n para expandir el texto en evidencia, 
+    se le di√≥ mas espacio en la tabla */
 .contenido-preview-ev {
     max-width: 400px;
     white-space: nowrap;
@@ -115,7 +178,7 @@ body {
     transition: all 0.3s ease;
 }
 
-/*Aumento en el tamaÒo de las card*/
+/*Aumento en el tama√±o de las card*/
 .contenedor-cartas .card {
     border-radius: 14px;
     transition: transform 0.25s ease, box-shadow 0.25s ease;
@@ -126,7 +189,7 @@ body {
     box-shadow: 0 16px 32px rgba(0, 0, 0, 0.18);
 }
 
-/* Header m·s marcado */
+/* Header m√°s marcado */
 .contenedor-cartas .card-header {
     background: linear-gradient(90deg, #212529, #343a40);
     color: #fff;
@@ -151,7 +214,7 @@ body {
     gap: 8px;
     padding: 0;
     list-style: none;
-    max-height: 200px; /*lÌmite de altura */
+    max-height: 200px; /*l√≠mite de altura */
     overflow-y: auto; /* scroll vertical */
     overflow-x: hidden;
     padding-right: 5px; /* espacio para scrollbar */
@@ -256,7 +319,7 @@ body.dark-mode .modal-footer {
     border-top: 1px solid #2c2c2c;
 }
 
-/* BotÛn cerrar */
+/* Bot√≥n cerrar */
 body.dark-mode .modal-header .btn-close {
     filter: invert(1);
 }
@@ -268,7 +331,7 @@ body.dark-mode .modal-content .form-control, body.dark-mode .modal-content .form
     border-color: #333;
 }
 
-/* Men˙ del Dropdown */
+/* Men√∫ del Dropdown */
 body.dark-mode .dropdown-menu {
     background-color: #1f1f1f;
     border-color: #333;
@@ -286,3 +349,87 @@ body.dark-mode .dropdown-divider {
     border-color: #444;
 }
 
+
+
+/* Modal empresa-programa */
+
+.modal-custom {
+    border-radius: 14px;
+    overflow: hidden;
+    animation: fadeIn 0.4s ease;
+}
+
+/* Header con estilo como tus tablas */
+.modal-header-custom {
+    background: linear-gradient(90deg, #212529, #343a40);
+    color: #fff;
+    border-bottom: none;
+}
+
+/* Subt√≠tulos */
+.modal-subtitle {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Cards internas */
+.card-modal {
+    border-radius: 12px;
+    border: none;
+    background: #f8f9fa;
+    transition: all 0.25s ease;
+}
+
+    .card-modal:hover {
+        transform: scale(1.01);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+    }
+
+/* Lista de programas */
+.contenedor-programas .list-group-item {
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+}
+
+    .contenedor-programas .list-group-item:hover {
+        background: #f1f3f5;
+        transform: scale(1.01);
+    }
+
+/* Bot√≥n agregar */
+.btn-add {
+    transition: all 0.2s ease;
+}
+
+    .btn-add:hover {
+        transform: scale(1.1);
+    }
+
+/* Bot√≥n eliminar */
+.btnEliminarRelacion {
+    transition: all 0.2s ease;
+}
+
+    .btnEliminarRelacion:hover {
+        transform: scale(1.15);
+    }
+
+/* Modo oscuro */
+body.dark-mode .card-modal {
+    background-color: #2a2a2a;
+}
+
+body.dark-mode .contenedor-programas .list-group-item {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+    body.dark-mode .contenedor-programas .list-group-item:hover {
+        background-color: #2a2a2a;
+    }

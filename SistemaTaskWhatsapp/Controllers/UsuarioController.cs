@@ -28,8 +28,7 @@ namespace SistemaTaskWhatsapp.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var listaUsuarios = await _contenedorTrabajo.Usuario.GetAllAsync(u => u.Email != "admin@sistema.com");
-            var listaProyectos = await _contenedorTrabajo.Proyecto.GetAllAsync(includeProperties: "Empresa");
+            var listaUsuarios = await _contenedorTrabajo.Usuario.GetAllAsync(u => u.Email != "admin@sistema.com", includeProperties: "Empresa");
             return View(listaUsuarios);
         }
 
@@ -78,6 +77,17 @@ namespace SistemaTaskWhatsapp.Controllers
 
             if (!ModelState.IsValid)
             {
+                model.ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown();
+                return View(model);
+            }
+
+            var empresa = await _contenedorTrabajo.Empresa
+                                .GetByIdAsync(model.EmpresaId.Value);
+
+            if (empresa == null)
+            {
+                ModelState.AddModelError("", "Empresa inválida");
+
                 model.ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown();
                 return View(model);
             }
@@ -224,6 +234,17 @@ namespace SistemaTaskWhatsapp.Controllers
                 usuario,
                 model.Rol.ToString()
             );
+
+            //Obtener empresa
+            var empresa = await _contenedorTrabajo.Empresa
+                .GetByIdAsync(model.EmpresaId.Value);
+
+            if (empresa == null)
+            {
+                ModelState.AddModelError("", "Empresa inválida");
+                model.ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown();
+                return View(model);
+            }
 
             //Usuario
             usuario.Nombre = model.Nombre;

@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
+using SistemaTaskWhatsapp.AccesoDatos.Data.Repository;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Models;
+using SistemaTaskWhatsapp.Models.ViewModels;
 using System.Threading.Tasks;
 
 namespace SistemaTaskWhatsapp.Controllers
@@ -16,71 +19,162 @@ namespace SistemaTaskWhatsapp.Controllers
             _contenedorTrabajo = contenedorTrabajo; 
         }
 
+
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var listaEmpresas = await _contenedorTrabajo.Empresa.GetAllAsync();
+            var empresas = await _contenedorTrabajo.Empresa.GetAllAsync(
+                includeProperties: "ProgramaOrigen,EmpresaProgramas,EmpresaProgramas.Programa"
+            );
 
-            return View(listaEmpresas);
+            return View(empresas);
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> GetProgramasByEmpresa(int id)
         {
-            return View();
-        }
+            var lista = await _contenedorTrabajo.EmpresaPrograma
+                .GetAllAsync(
+                    x => x.EmpresaId == id,
+                    includeProperties: "Programa"
+                );
 
-        [HttpPost]
-        public async Task<IActionResult> Create(Empresa model)
-        {
-            if(!ModelState.IsValid)
+            var result = lista.Select(x => new
             {
-                return View(model);
-            }
+                id = x.Id,
+                nombre = x.Programa.Nombre
+            });
 
-            var existeNombre = await _contenedorTrabajo.Empresa.GetFirstOrDefaultAsync(e => e.Nombre == model.Nombre);
-
-            if(existeNombre != null)
-            {
-                ModelState.AddModelError("", "Ya existe una empresa con ese nombre");
-                return View(model);
-            }
-
-            model.FechaRegistro = DateTime.Now;
-
-            await _contenedorTrabajo.Empresa.AddAsync(model);
-            await _contenedorTrabajo.SaveAsync();
-
-            return RedirectToAction("Index");
+            return Json(result);
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> CreateAsync()
         {
-            var model = await _contenedorTrabajo.Empresa.GetByIdAsync(id);
-
-            if (model == null) return RedirectToAction("Index");
+            var model = new EmpresaVM
+            {
+                ListaProgramas = await _contenedorTrabajo.Programa.GetProgramaDropdown()
+            };
 
             return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Empresa model)
+        public async Task<IActionResult> Create(EmpresaVM model)
         {
             if (!ModelState.IsValid)
             {
+                model.ListaProgramas = await _contenedorTrabajo.Programa.GetProgramaDropdown();
                 return View(model);
             }
 
-            var existeNombre = await _contenedorTrabajo.Empresa.GetFirstOrDefaultAsync(e => e.Nombre == model.Nombre && e.Id != model.Id);
+            //Validar duplicado por nombre
+            var existe = await _contenedorTrabajo.Empresa
+                .GetFirstOrDefaultAsync(e =>
+                    e.Nombre.ToLower() == model.Empresa.Nombre.ToLower());
+
+            if (existe != null)
+            {
+                ModelState.AddModelError("", "Ya existe una empresa con ese nombre");
+                model.ListaProgramas = await _contenedorTrabajo.Programa.GetProgramaDropdown();
+                return View(model);
+            }
+
+            //Crear empresa
+            model.Empresa.FechaRegistro = DateTime.Now;
+            model.Empresa.ProgramaOrigenId = 1; //Por defecto de mientras ya que todos las empresas vienen de TW
+
+            await _contenedorTrabajo.Empresa.AddAsync(model.Empresa);
+            await _contenedorTrabajo.SaveAsync();
+
+            return RedirectToAction("Index");
+
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetProgramas()
+        {
+            var lista = await _contenedorTrabajo.Programa.GetAllAsync();
+
+            return Json(lista.Select(x => new {
+                id = x.Id,
+                nombre = x.Nombre
+            }));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddRelacion(int empresaId, int programaId)
+        {
+            var existe = await _contenedorTrabajo.EmpresaPrograma
+                .GetFirstOrDefaultAsync(x => x.EmpresaId == empresaId && x.ProgramaId == programaId);
+
+            if (existe != null)
+                return BadRequest("Ya existe la relación");
+
+            var relacion = new EmpresaPrograma
+            {
+                EmpresaId = empresaId,
+                ProgramaId = programaId
+            };
+
+            await _contenedorTrabajo.EmpresaPrograma.AddAsync(relacion);
+            await _contenedorTrabajo.SaveAsync();
+
+            return Ok();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var empresa = await _contenedorTrabajo.Empresa.GetByIdAsync(id);
+
+            if (empresa == null)
+                return RedirectToAction("Index");
+
+            var model = new EmpresaVM
+            {
+                Empresa = empresa,
+                ListaProgramas = await _contenedorTrabajo.Programa.GetProgramaDropdown()
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(int id, EmpresaVM model)
+        {
+            if (!ModelState.IsValid)
+            {
+                model.ListaProgramas = await _contenedorTrabajo.Programa.GetProgramaDropdown();
+                return View(model);
+            }
+
+            var empresa = await _contenedorTrabajo.Empresa.GetByIdAsync(model.Empresa.Id);
+
+            if (empresa == null)
+                return RedirectToAction("Index");
+
+            // Validar permisos
+            //if (empresa.ProgramaOrigenId != model.ProgramaId)
+            //{
+            //    ModelState.AddModelError("", "No tienes permisos para editar esta empresa");
+            //                            model.ListaProgramas = await _contenedorTrabajo.Programa.GetProgramaDropdown();
+            //                            return View(model);
+            //}
+
+            var existeNombre = await _contenedorTrabajo.Empresa
+                                    .GetFirstOrDefaultAsync(e => e.Nombre == 
+                                    model.Empresa.Nombre && e.Id != empresa.Id);
 
             if (existeNombre != null)
             {
                 ModelState.AddModelError("", "Ya existe una empresa con ese nombre");
+                model.ListaProgramas = await _contenedorTrabajo.Programa.GetProgramaDropdown();
                 return View(model);
             }
 
-            _contenedorTrabajo.Empresa.Update(model);
+            empresa.Nombre = model.Empresa.Nombre;
+
             await _contenedorTrabajo.SaveAsync();
 
             return RedirectToAction("Index");
@@ -89,18 +183,43 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var empresaEliminar = await _contenedorTrabajo.Empresa.GetFirstOrDefaultAsync(e => e.Id == id, includeProperties:"Proyectos");
+            var empresa = await _contenedorTrabajo.Empresa
+                .GetByIdAsync(id);
 
-            if(empresaEliminar == null) return RedirectToAction("Index");
+            if (empresa == null)
+                return RedirectToAction("Index");
 
-            foreach(var proyecto in empresaEliminar.Proyectos)
+            //eliminar relaciones primero
+            var relaciones = await _contenedorTrabajo.EmpresaPrograma
+                .GetAllAsync(x => x.EmpresaId == id);
+
+            foreach (var rel in relaciones)
             {
-                proyecto.EmpresaId = null;
+                _contenedorTrabajo.EmpresaPrograma.Remove(rel);
             }
 
-            _contenedorTrabajo.Empresa.Remove(empresaEliminar);
+            //eliminar empresa
+            _contenedorTrabajo.Empresa.Remove(empresa);
+
             await _contenedorTrabajo.SaveAsync();
+
             return RedirectToAction("Index");
         }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteRelacionAjax(int id)
+        {
+            var relacion = await _contenedorTrabajo.EmpresaPrograma.GetByIdAsync(id);
+
+            if (relacion == null)
+                return NotFound();
+
+            _contenedorTrabajo.EmpresaPrograma.Remove(relacion);
+            await _contenedorTrabajo.SaveAsync();
+
+            return Ok();
+        }
+
+
     }
 }

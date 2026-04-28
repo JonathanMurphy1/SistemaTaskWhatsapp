@@ -365,3 +365,5 @@ FodyWeavers.xsd
 # App settings de desarrollo
 appsettings.Development.json
 /SistemaTaskWhatsapp/appsettings.Development.json
+/SistemaTaskWhatsapp/Controllers/MensajesController.cs
+/.gitignore
