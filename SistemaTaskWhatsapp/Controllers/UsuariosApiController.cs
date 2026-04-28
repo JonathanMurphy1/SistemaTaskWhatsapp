@@ -10,7 +10,7 @@ using SistemaTaskWhatsapp.Utilidades;
 namespace SistemaTaskWhatsapp.Controllers
 {
     [ApiController]
-    [Route("api/users")]
+    [Route("api/usuarios")]
     [AllowAnonymous]
     public class UsuariosApiController : ControllerBase
     {
@@ -23,14 +23,38 @@ namespace SistemaTaskWhatsapp.Controllers
             _userManager = userManager;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetUsuarios()
+        {
+            var lista = await _contenedorTrabajo.Usuario
+                .GetAllAsync(includeProperties: "Empresa");
+
+            var resultado = lista.Select(u => new UsuarioResponseDto
+            {
+                Id = u.Id,
+                Nombre = u.Nombre,
+                Email = u.Email,
+                PhoneNumber = u.PhoneNumber,
+
+                Rol = u.Rol.ToString(),
+
+                EmpresaId = u.EmpresaId,
+                EmpresaNombre = u.Empresa != null ? u.Empresa.Nombre : "Sin empresa",
+
+                IdExterno = u.IdExterno
+            });
+
+            return Ok(resultado);
+        }
+
         [HttpPost]
-        public async Task<IActionResult> CrearUsuario([FromBody] UsuarioDto dto)
+        public async Task<IActionResult> CrearUsuario([FromBody] UsuarioResponseDto dto)
         {
             if (dto == null)
                 return BadRequest();
 
             var existe = await _contenedorTrabajo.Usuario
-                .GetFirstOrDefaultAsync(u => u.IdExterno == dto.UserId || u.Email == dto.Email);
+                .GetFirstOrDefaultAsync(u => u.IdExterno == dto.IdExterno || u.Email == dto.Email);
 
             if (existe != null)
             {
@@ -39,20 +63,14 @@ namespace SistemaTaskWhatsapp.Controllers
 
             var usuario = new Usuario
             {
-                IdExterno = dto.UserId,
-                Nombre = dto.Name,
+                IdExterno = dto.IdExterno,
+                Nombre = dto.Nombre,
                 UserName = dto.Email,
                 Email = dto.Email,
                 PhoneNumber = null,
                 Rol = RoleMapper.MapFromLaravel(dto.UserTypeId)
             };
 
-            var resultado = await _userManager.CreateAsync(usuario, dto.Password);
-
-            if (!resultado.Succeeded)
-            {
-                return BadRequest(resultado.Errors);
-            }
 
             await _userManager.AddToRoleAsync(usuario, usuario.Rol.ToString());
 
