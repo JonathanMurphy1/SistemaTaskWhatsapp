@@ -48,6 +48,7 @@ namespace SistemaTaskWhatsapp.Utilidades
                     "*" => "Todos los días",
                     "1-5" => "Lunes a viernes",
                     "1" => "Cada lunes",
+                    "5" => "Cada viernes",
                     _ => "Frecuencia personalizada"
                 };
             }
