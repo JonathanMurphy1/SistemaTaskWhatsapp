@@ -36,26 +36,40 @@ if (modalProgramas) {
 function cargarProgramasRelacionados() {
 
     const contenedor = document.getElementById("contenedorProgramas");
-    contenedor.innerHTML = "Cargando...";
+    contenedor.innerHTML = "<p class='text-muted'>Cargando...</p>";
 
     fetch(`/Empresas/GetProgramasByEmpresa?id=${empresaActualId}`)
         .then(res => res.json())
         .then(data => {
 
             if (!data || data.length === 0) {
-                contenedor.innerHTML = "No hay programas";
+                contenedor.innerHTML = "<p class='text-muted'>No hay programas relacionados</p>";
                 return;
             }
 
             let html = "<ul class='list-group'>";
 
             data.forEach(p => {
-                html += `
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span class="fw-medium">${p.nombre}</span>
+
+                let accion = "";
+
+                console.log(p);
+
+
+                if (!p.puedeEliminar) {
+                    accion = `<span class="badge bg-secondary">Origen</span>`;
+                } else {
+                    accion = `
                         <button class="btn btn-sm btn-outline-danger btnEliminarRelacion" data-id="${p.id}">
                             <i class="bi bi-trash"></i>
                         </button>
+                    `;
+                }
+
+                html += `
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span class="fw-medium">${p.nombre}</span>
+                        ${accion}
                     </li>
                 `;
             });
@@ -65,9 +79,10 @@ function cargarProgramasRelacionados() {
 
         })
         .catch(() => {
-            contenedor.innerHTML = "Error al cargar";
+            contenedor.innerHTML = "<p class='text-danger'>Error al cargar datos</p>";
         });
 }
+
 
 //Cargar programas
 function cargarProgramasSelect() {
