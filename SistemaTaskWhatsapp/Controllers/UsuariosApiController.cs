@@ -35,9 +35,7 @@ namespace SistemaTaskWhatsapp.Controllers
                 Nombre = u.Nombre,
                 Email = u.Email,
                 PhoneNumber = u.PhoneNumber,
-
                 Rol = u.Rol.ToString(),
-
                 EmpresaId = u.EmpresaId,
                 EmpresaNombre = u.Empresa != null ? u.Empresa.Nombre : "Sin empresa",
 
@@ -48,18 +46,22 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CrearUsuario([FromBody] UsuarioResponseDto dto)
+        public async Task<IActionResult> CrearUsuario([FromBody] UsuarioCreateDto dto)
         {
             if (dto == null)
                 return BadRequest();
 
-            var existe = await _contenedorTrabajo.Usuario
-                .GetFirstOrDefaultAsync(u => u.IdExterno == dto.IdExterno || u.Email == dto.Email);
+            var existeEmail = await _userManager.FindByEmailAsync(dto.Email);
+            if (existeEmail != null)
+                return BadRequest("El email ya está registrado");
 
-            if (existe != null)
-            {
-                return Ok(new { message = "El usuario ya existe" });
-            }
+            //Validar IdExterno
+            var existeExterno = await _contenedorTrabajo.Usuario
+                .GetFirstOrDefaultAsync(u => u.IdExterno == dto.IdExterno);
+
+            if (existeExterno != null)
+                return Ok(new { message = "Usuario ya sincronizado" });
+
 
             var usuario = new Usuario
             {
@@ -67,11 +69,18 @@ namespace SistemaTaskWhatsapp.Controllers
                 Nombre = dto.Nombre,
                 UserName = dto.Email,
                 Email = dto.Email,
-                PhoneNumber = null,
+                PhoneNumber = dto.PhoneNumber,
+                EmpresaId = dto.EmpresaId,
                 Rol = RoleMapper.MapFromLaravel(dto.UserTypeId)
             };
 
+            //Crear usuario en Identity
+            var resultado = await _userManager.CreateAsync(usuario, dto.Password);
 
+            if (!resultado.Succeeded)
+                return BadRequest(resultado.Errors);
+
+            //Asignar rol
             await _userManager.AddToRoleAsync(usuario, usuario.Rol.ToString());
 
             if (usuario.Rol == Roles.Supervisor)
@@ -108,12 +117,12 @@ namespace SistemaTaskWhatsapp.Controllers
                 return BadRequest();
 
             var usuario = await _contenedorTrabajo.Usuario
-                .GetFirstOrDefaultAsync(u => u.IdExterno == dto.UserId);
+                .GetFirstOrDefaultAsync(u => u.IdExterno == dto.IdExterno);
 
             if (usuario == null)
                 return NotFound();
 
-            usuario.Nombre = dto.Name;
+            usuario.Nombre = dto.Nombre;
             usuario.Email = dto.Email;
             usuario.UserName = dto.Email;
             
@@ -230,13 +239,10 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
         [HttpPost("delete")]
-        public async Task<IActionResult> EliminarUsuario([FromBody] UsuarioDeleteDto dto)
+        public async Task<IActionResult> EliminarUsuario(int IdExterno)
         {
-            if (dto == null)
-                return BadRequest();
-
             var usuario = await _contenedorTrabajo.Usuario
-                .GetFirstOrDefaultAsync(u => u.IdExterno == dto.UserId);
+                .GetFirstOrDefaultAsync(u => u.IdExterno == IdExterno);
 
             if (usuario == null)
                 return Ok(new { message = "Usuario no existe" });
@@ -273,11 +279,10 @@ namespace SistemaTaskWhatsapp.Controllers
             {
                 return userTypeId switch
                 {
-                    1 => Roles.Supervisor,     // Administrador -> Supervisor
-                    2 => Roles.Empleado,       // Practicante -> Empleado
-                    4 => Roles.Administrador,  // Super Admin -> Administrador
-                    40 => Roles.Empleado,      // JCF -> Empleado
-                    _ => Roles.Empleado        // default por seguridad
+                    0 => Roles.Administrador,  // Origen a Administrador
+                    1 => Roles.Supervisor,     // Origen a Supervisor
+                    2 => Roles.Empleado,       // Origen a Empleado
+                    _ => Roles.Empleado        //Cualquier otra opción será empleado por defecto
                 };
             }
         }
