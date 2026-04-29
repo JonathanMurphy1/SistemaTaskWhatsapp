@@ -23,6 +23,7 @@ namespace SistemaTaskWhatsapp.Models
         public string EmpresaNombre { get; set; }
 
         public int? IdExterno { get; set; }
+
     }
 
     public class UsuarioCreateDto

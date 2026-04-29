@@ -56,6 +56,7 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Seed
                     NormalizedEmail = adminEmail.ToUpper(),
                     EmailConfirmed = true,
                     Nombre = "Administrador",
+                    ProgramaId = null,
                     EmpresaId = null, // puede no tener empresa al inicio
                     IdExterno = null, // No tiene relación con otro programa
                     Rol = (int)Roles.Administrador

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Data;
@@ -28,7 +29,7 @@ namespace SistemaTaskWhatsapp.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var listaUsuarios = await _contenedorTrabajo.Usuario.GetAllAsync(u => u.Email != "admin@sistema.com", includeProperties: "Empresa");
+            var listaUsuarios = await _contenedorTrabajo.Usuario.GetAllAsync(u => u.Email != "admin@sistema.com", includeProperties: "Empresa,Programa");
             return View(listaUsuarios);
         }
 
@@ -46,7 +47,8 @@ namespace SistemaTaskWhatsapp.Controllers
             {
                 Supervisor = new Supervisor(),
                 Empleado = new Empleado(),
-                ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown()
+                ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown(),
+                ListaProgramas = await _contenedorTrabajo.Programa.GetProgramaDropdown()
             };
 
             return View(model);
@@ -78,6 +80,7 @@ namespace SistemaTaskWhatsapp.Controllers
             if (!ModelState.IsValid)
             {
                 model.ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown();
+                model.ListaProgramas = await _contenedorTrabajo.Programa.GetProgramaDropdown();
                 return View(model);
             }
 
@@ -89,6 +92,21 @@ namespace SistemaTaskWhatsapp.Controllers
                 ModelState.AddModelError("", "Empresa inválida");
 
                 model.ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown();
+                model.ListaProgramas = await _contenedorTrabajo.Programa.GetProgramaDropdown();
+                return View(model);
+            }
+
+
+            var relacionValida = await _contenedorTrabajo.EmpresaPrograma
+                                                            .GetFirstOrDefaultAsync(ep =>
+                                                                ep.EmpresaId == model.EmpresaId &&
+                                                                ep.ProgramaId == model.ProgramaId);
+
+            if (relacionValida == null)
+            {
+                ModelState.AddModelError("", "La empresa no pertenece al programa seleccionado");
+
+                model.ListaProgramas = await _contenedorTrabajo.Programa.GetProgramaDropdown();
                 return View(model);
             }
 
@@ -99,7 +117,8 @@ namespace SistemaTaskWhatsapp.Controllers
                 Email = model.Email,
                 PhoneNumber = model.Telefono,
                 Rol = model.Rol,
-                EmpresaId = model.EmpresaId
+                EmpresaId = model.EmpresaId,
+                ProgramaId = model.ProgramaId.Value
             };
 
             var resultado = await _userManager.CreateAsync(usuario, model.Password);
@@ -165,10 +184,21 @@ namespace SistemaTaskWhatsapp.Controllers
                 Telefono = usuario.PhoneNumber,
                 Rol = usuario.Rol,
                 EmpresaId = usuario.EmpresaId,
-                ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown(),
+                ProgramaId = usuario.ProgramaId,
+                ListaProgramas = await _contenedorTrabajo.Programa.GetProgramaDropdown(),
                 Supervisor = new Supervisor(),
                 Empleado = new Empleado()
             };
+
+            if (model.ProgramaId.HasValue)
+            {
+                model.ListaEmpresas = await _contenedorTrabajo.Empresa
+                    .GetEmpresasPorProgramaDropdown(model.ProgramaId.Value);
+            }
+            else
+            {
+                model.ListaEmpresas = new List<SelectListItem>();
+            }
 
             if (usuario.Rol == Roles.Supervisor)
             {
@@ -208,6 +238,8 @@ namespace SistemaTaskWhatsapp.Controllers
             if (!ModelState.IsValid)
             {
                 model.ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown();
+                model.ListaProgramas = await _contenedorTrabajo.Programa.GetProgramaDropdown();
+
                 return View(model);
             }
 
@@ -216,6 +248,8 @@ namespace SistemaTaskWhatsapp.Controllers
             if (!ModelState.IsValid)
             {
                 model.ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown();
+
+                model.ListaProgramas = await _contenedorTrabajo.Programa.GetProgramaDropdown();
                 return View(model);
             }
 
@@ -243,6 +277,8 @@ namespace SistemaTaskWhatsapp.Controllers
             {
                 ModelState.AddModelError("", "Empresa inválida");
                 model.ListaEmpresas = await _contenedorTrabajo.Empresa.GetEmpresasDropdown();
+
+                model.ListaProgramas = await _contenedorTrabajo.Programa.GetProgramaDropdown();
                 return View(model);
             }
 
@@ -252,6 +288,7 @@ namespace SistemaTaskWhatsapp.Controllers
             usuario.UserName = model.Email;
             usuario.PhoneNumber = model.Telefono;
             usuario.EmpresaId = model.EmpresaId;
+            usuario.ProgramaId = model.ProgramaId;
             usuario.Rol = model.Rol;
 
             //Función por si se edita la contraseña
@@ -403,6 +440,21 @@ namespace SistemaTaskWhatsapp.Controllers
             {
                 ModelState.AddModelError("Telefono", "Este teléfono ya está registrado.");
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetEmpresasPorPrograma(int programaId)
+        {
+            var lista = await _contenedorTrabajo.EmpresaPrograma
+                .GetAllAsync(ep => ep.ProgramaId == programaId, includeProperties: "Empresa");
+
+            var resultado = lista.Select(ep => new
+            {
+                id = ep.Empresa.Id,
+                nombre = ep.Empresa.Nombre
+            });
+
+            return Json(resultado);
         }
     }
 }

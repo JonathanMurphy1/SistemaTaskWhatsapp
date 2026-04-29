@@ -23,5 +23,11 @@ namespace SistemaTaskWhatsapp.Models
 
         public int? IdExterno { get; set; } //Id de referencia del otro programa
 
+        //Programa de origen
+        public int? ProgramaId { get; set; }
+
+        [ForeignKey("ProgramaId")]
+        public Programa? Programa { get; set; }
+
     }
 }
