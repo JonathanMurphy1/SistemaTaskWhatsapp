@@ -2,7 +2,6 @@
 const modalEliminar = document.getElementById("modalEliminar");
 
 modalEliminar.addEventListener('show.bs.modal', (e) => {
-    console.log("SE ABRIÓ MODAL PROGRAMAS"); // 👈
     const boton = e.relatedTarget;
 
     const id = boton.getAttribute('data-id');
@@ -53,12 +52,7 @@ function cargarProgramasRelacionados() {
 
                 let accion = "";
 
-                console.log(p);
-
-
-                if (!p.puedeEliminar) {
-                    accion = `<span class="badge bg-secondary">Origen</span>`;
-                } else {
+                if (p.puedeEliminar) {
                     accion = `
                         <button class="btn btn-sm btn-outline-danger btnEliminarRelacion" data-id="${p.id}">
                             <i class="bi bi-trash"></i>
