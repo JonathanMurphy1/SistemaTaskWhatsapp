@@ -14,13 +14,13 @@ using SistemaTaskWhatsapp.Utilidades;
 namespace SistemaTaskWhatsapp.Controllers
 {
     [Authorize(Roles = "Administrador")]
-    public class UsuarioController : Controller
+    public class UsuariosController : Controller
     {
         private readonly IContenedorTrabajo _contenedorTrabajo;
         private readonly UserManager<Usuario> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        public UsuarioController(UserManager<Usuario> userManager, RoleManager<IdentityRole> roleManager, IContenedorTrabajo contenedorTrabajo)
+        public UsuariosController(UserManager<Usuario> userManager, RoleManager<IdentityRole> roleManager, IContenedorTrabajo contenedorTrabajo)
         {
             _contenedorTrabajo = contenedorTrabajo;
             _userManager = userManager;
@@ -33,13 +33,13 @@ namespace SistemaTaskWhatsapp.Controllers
             return View(listaUsuarios);
         }
 
-        // GET: UsuarioController/Details/5
+        // GET: UsuariosController/Details/5
         public ActionResult Details(int id)
         {
             return View();
         }
 
-        // GET: UsuarioController/Create
+        // GET: UsuariosController/Create
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -394,7 +394,7 @@ namespace SistemaTaskWhatsapp.Controllers
             return RedirectToAction("Index");
         }
 
-        // POST: UsuarioController/Delete/5
+        // POST: UsuariosController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string id)

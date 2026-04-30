@@ -175,7 +175,7 @@
                 return;
             }
 
-            const response = await fetch(`/Usuario/GetEmpresasPorPrograma?programaId=${programaId}`);
+            const response = await fetch(`/Usuarios/GetEmpresasPorPrograma?programaId=${programaId}`);
             const data = await response.json();
 
             empresaSelect.innerHTML = '<option value="">-- Seleccione una empresa --</option>';
