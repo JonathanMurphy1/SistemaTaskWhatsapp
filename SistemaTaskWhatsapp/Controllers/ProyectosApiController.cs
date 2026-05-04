@@ -84,7 +84,7 @@ namespace SistemaTaskWhatsapp.Controllers
             //Validación de permisos
             if (proyecto.ProgramaId != dto.ProgramaId)
             {
-                return Forbid("No tienes permisos para editar este proyecto");
+                return StatusCode(403, new { message = "No tienes permisos para editar este proyecto" });
             }
 
             proyecto.Nombre = dto.Nombre;
@@ -114,7 +114,7 @@ namespace SistemaTaskWhatsapp.Controllers
             //Validación de permisos
             if (proyecto.ProgramaId != programaId)
             {
-                return Forbid("No tienes permisos para eliminar este proyecto");
+                return StatusCode(403, new { message = "No tienes permisos para eliminar este proyecto" });
             }
 
             _contenedorTrabajo.Proyecto.Remove(proyecto);

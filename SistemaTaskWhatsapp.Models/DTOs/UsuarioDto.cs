@@ -22,7 +22,9 @@ namespace SistemaTaskWhatsapp.Models
         public int? EmpresaId { get; set; }
         public string EmpresaNombre { get; set; }
 
-        public int? ProgramaId { get; set; }
+        public int ProgramaId { get; set; }
+
+        public string ProgramaNombre { get; set; }
 
         public int? IdExterno { get; set; }
 
@@ -40,7 +42,7 @@ namespace SistemaTaskWhatsapp.Models
 
         public int? EmpresaId { get; set; }
 
-        public int? ProgramaId { get; set; }
+        public int ProgramaId { get; set; }
 
         public int? IdExterno { get; set; }
     }

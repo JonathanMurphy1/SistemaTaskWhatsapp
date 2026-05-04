@@ -78,7 +78,7 @@ namespace SistemaTaskWhatsapp.Controllers
             //Validación de permisos
             if (empresa.ProgramaOrigenId != dto.ProgramaOrigenId)
             {
-                return Forbid("No tienes permisos para editar esta empresa");
+                return StatusCode(403, new { message = "No tienes permisos para modificar esta empresa" });
             }
 
             //Validar duplicado
@@ -111,7 +111,7 @@ namespace SistemaTaskWhatsapp.Controllers
             //Validación de permisos
             if (empresa.ProgramaOrigenId != programaId)
             {
-                return Forbid("No tienes permisos para eliminar esta empresa");
+                return StatusCode(403, new { message = "No tienes permisos para eliminar esta empresa" });
             }
 
             //Validar dependencias

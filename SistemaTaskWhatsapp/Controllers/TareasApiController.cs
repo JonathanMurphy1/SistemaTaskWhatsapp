@@ -89,7 +89,7 @@ namespace SistemaTaskWhatsapp.Controllers
             //Validación
             if (tarea.Proyecto.ProgramaId != programaId)
             {
-                return Forbid("No tienes permisos para modificar esta tarea");
+                return StatusCode(403, new { message = "No tienes permisos para modificar esta tarea" });
             }
 
             tarea.Nombre = dto.Nombre;
@@ -124,7 +124,7 @@ namespace SistemaTaskWhatsapp.Controllers
             //Validación
             if (tarea.Proyecto.ProgramaId != programaId)
             {
-                return Forbid("No tienes permisos para eliminar esta tarea");
+                return StatusCode(403, new { message = "No tienes permisos para eliminar esta tarea" });
             }
 
             _contenedorTrabajo.Tarea.Remove(tarea);
@@ -152,7 +152,7 @@ namespace SistemaTaskWhatsapp.Controllers
             //Validación
             if (tarea.Proyecto.ProgramaId != programaId)
             {
-                return Forbid("No tienes permisos para modificar esta tarea");
+                return StatusCode(403, new { message = "No tienes permisos para modificar esta tarea" });
             }
 
             //Buscar usuario

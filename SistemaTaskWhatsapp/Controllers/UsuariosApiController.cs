@@ -3,9 +3,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Models;
+using SistemaTaskWhatsapp.Models.ViewModels;
+using SistemaTaskWhatsapp.Utilidades;
 using SistemaTaskWhatsapp.Utilidades;
 using System.Threading.Tasks;
-using SistemaTaskWhatsapp.Utilidades;
 
 namespace SistemaTaskWhatsapp.Controllers
 {
@@ -27,7 +28,7 @@ namespace SistemaTaskWhatsapp.Controllers
         public async Task<IActionResult> GetUsuarios()
         {
             var lista = await _contenedorTrabajo.Usuario
-                .GetAllAsync(includeProperties: "Empresa");
+                .GetAllAsync(includeProperties: "Empresa,Programa");
 
             var resultado = lista.Select(u => new UsuarioResponseDto
             {
@@ -38,7 +39,8 @@ namespace SistemaTaskWhatsapp.Controllers
                 Rol = u.Rol.ToString(),
                 EmpresaId = u.EmpresaId,
                 EmpresaNombre = u.Empresa != null ? u.Empresa.Nombre : "Sin empresa",
-                ProgramaId = u.ProgramaId,
+                ProgramaId = (int)u.ProgramaId,
+                ProgramaNombre = u.Programa != null ? u.Programa.Nombre : "Sin programa",
                 IdExterno = u.IdExterno
             });
 
@@ -124,9 +126,9 @@ namespace SistemaTaskWhatsapp.Controllers
                 return NotFound();
 
             //Validación
-            if (usuario.ProgramaId == null || usuario.ProgramaId != programaId)
+            if (usuario.ProgramaId != dto.ProgramaId)
             {
-                return Forbid("No tienes permisos para modificar este usuario");
+                return StatusCode(403, new { message = "No tienes permisos para modificar este usuario" });
             }
 
             usuario.Nombre = dto.Nombre;
@@ -235,6 +237,7 @@ namespace SistemaTaskWhatsapp.Controllers
 
             await _contenedorTrabajo.SaveAsync();
 
+
             return Ok(new { message = "Usuario actualizado correctamente" });
        
         }
@@ -250,7 +253,7 @@ namespace SistemaTaskWhatsapp.Controllers
 
             if (usuario.ProgramaId == null || usuario.ProgramaId != programaId)
             {
-                return Forbid("No tienes permisos para eliminar este usuario");
+                return StatusCode(403, new { message = "No tienes permisos para eliminar este usuario" });
             }
 
             //Eliminar Supervisor si existe
