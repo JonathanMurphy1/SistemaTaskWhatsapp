@@ -71,4 +71,71 @@ public class ProgramasApiController : ControllerBase
             message = "Programa creado correctamente"
         });
     }
+
+    [HttpPost("update")]
+    public async Task<IActionResult> ActualizarPrograma([FromBody] ProgramaCreateDto dto)
+    {
+        if (dto == null || dto.Id == 0 || string.IsNullOrEmpty(dto.Nombre))
+            return BadRequest();
+
+        var programa = await _contenedorTrabajo.Programa
+            .GetByIdAsync(dto.Id);
+
+        if (programa == null)
+            return NotFound(new { message = "Programa no encontrado" });
+
+        int programaId = dto.Id;
+
+        //Validación
+        if (programa.Id != programaId)
+        {
+            return StatusCode(403, new { message = "No tienes permisos para modificar este programa" });
+        }
+
+        // Solo actualizar nombre
+        programa.Nombre = dto.Nombre;
+
+        _contenedorTrabajo.Programa.Update(programa);
+        await _contenedorTrabajo.SaveAsync();
+
+        return Ok(new
+        {
+            message = "Programa actualizado correctamente"
+        });
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> EliminarPrograma(int id, [FromQuery] int programaId)
+    {
+        var programa = await _contenedorTrabajo.Programa
+            .GetByIdAsync(id);
+
+        if (programa == null)
+            return NotFound(new { message = "Programa no existe" });
+
+        var tieneRelaciones = await _contenedorTrabajo.Empresa
+                                    .GetFirstOrDefaultAsync(e => e.ProgramaOrigenId == id);
+
+        if (tieneRelaciones != null)
+        {
+            return BadRequest(new
+            {
+                message = "No se puede eliminar el programa porque tiene registros asociados"
+            });
+        }
+
+        //Validación
+        if (programa.Id != programaId)
+        {
+            return StatusCode(403, new { message = "No tienes permisos para eliminar este programa" });
+        }
+
+        _contenedorTrabajo.Programa.Remove(programa);
+        await _contenedorTrabajo.SaveAsync();
+
+        return Ok(new
+        {
+            message = "Programa eliminado correctamente"
+        });
+    }
 }
