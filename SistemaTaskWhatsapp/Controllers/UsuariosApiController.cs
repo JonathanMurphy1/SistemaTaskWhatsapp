@@ -38,7 +38,7 @@ namespace SistemaTaskWhatsapp.Controllers
                 Rol = u.Rol.ToString(),
                 EmpresaId = u.EmpresaId,
                 EmpresaNombre = u.Empresa != null ? u.Empresa.Nombre : "Sin empresa",
-
+                ProgramaId = u.ProgramaId,
                 IdExterno = u.IdExterno
             });
 
@@ -71,6 +71,7 @@ namespace SistemaTaskWhatsapp.Controllers
                 Email = dto.Email,
                 PhoneNumber = dto.PhoneNumber,
                 EmpresaId = dto.EmpresaId,
+                ProgramaId = dto.ProgramaId,
                 Rol = RoleMapper.MapFromLaravel(dto.UserTypeId)
             };
 
@@ -111,7 +112,7 @@ namespace SistemaTaskWhatsapp.Controllers
 
         //Modificar el usuario desde perfil y tabla
         [HttpPost("update")]
-        public async Task<IActionResult> ActualizarUsuario([FromBody] UsuarioUpdateDto dto)
+        public async Task<IActionResult> ActualizarUsuario([FromBody] UsuarioUpdateDto dto, [FromQuery] int programaId)
         {
             if (dto == null)
                 return BadRequest();
@@ -122,17 +123,17 @@ namespace SistemaTaskWhatsapp.Controllers
             if (usuario == null)
                 return NotFound();
 
+            //Validación
+            if (usuario.ProgramaId == null || usuario.ProgramaId != programaId)
+            {
+                return Forbid("No tienes permisos para modificar este usuario");
+            }
+
             usuario.Nombre = dto.Nombre;
             usuario.Email = dto.Email;
             usuario.UserName = dto.Email;
+            usuario.PhoneNumber = dto.PhoneNumber;
             
-            //El numero de telefono se vuelve opcional ya que en tabla 
-            //de usuario no se actualiza
-            if (dto.PhoneNumber != null)
-            {
-                usuario.PhoneNumber = dto.PhoneNumber;
-            }
-
 
             ///Proceso para cambiar el rol del usuario en TasWhatsApp
             Roles? nuevoRol = null;
@@ -239,13 +240,18 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
         [HttpPost("delete")]
-        public async Task<IActionResult> EliminarUsuario(int IdExterno)
+        public async Task<IActionResult> EliminarUsuario(int IdExterno, [FromQuery] int programaId)
         {
             var usuario = await _contenedorTrabajo.Usuario
                 .GetFirstOrDefaultAsync(u => u.IdExterno == IdExterno);
 
             if (usuario == null)
                 return Ok(new { message = "Usuario no existe" });
+
+            if (usuario.ProgramaId == null || usuario.ProgramaId != programaId)
+            {
+                return Forbid("No tienes permisos para eliminar este usuario");
+            }
 
             //Eliminar Supervisor si existe
             var supervisor = await _contenedorTrabajo.Supervisor

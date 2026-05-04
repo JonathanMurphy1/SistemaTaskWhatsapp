@@ -74,16 +74,23 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> ActualizarTarea([FromBody] TareaCreateDto dto)
+        public async Task<IActionResult> ActualizarTarea([FromBody] TareaCreateDto dto, [FromQuery] int programaId)
         {
             if (dto == null || dto.IdExterno == null)
                 return BadRequest();
 
             var tarea = await _contenedorTrabajo.Tarea
-                .GetFirstOrDefaultAsync(t => t.IdExterno == dto.IdExterno);
+                .GetFirstOrDefaultAsync(t => t.IdExterno == dto.IdExterno, 
+                                        includeProperties: "Proyecto");
 
             if (tarea == null)
                 return NotFound($"No existe tarea con IdExterno {dto.IdExterno}");
+            
+            //Validación
+            if (tarea.Proyecto.ProgramaId != programaId)
+            {
+                return Forbid("No tienes permisos para modificar esta tarea");
+            }
 
             tarea.Nombre = dto.Nombre;
             tarea.Descripcion = dto.Descripcion;
@@ -105,13 +112,20 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
         [HttpDelete("{idExterno}")]
-        public async Task<IActionResult> EliminarTarea(int idExterno)
+        public async Task<IActionResult> EliminarTarea(int idExterno, [FromQuery] int programaId)
         {
             var tarea = await _contenedorTrabajo.Tarea
-                .GetFirstOrDefaultAsync(t => t.IdExterno == idExterno);
+                .GetFirstOrDefaultAsync(t => t.IdExterno == idExterno, 
+                                        includeProperties: "Proyecto");
 
             if (tarea == null)
                 return NotFound(new { message = "Tarea no existe" });
+
+            //Validación
+            if (tarea.Proyecto.ProgramaId != programaId)
+            {
+                return Forbid("No tienes permisos para eliminar esta tarea");
+            }
 
             _contenedorTrabajo.Tarea.Remove(tarea);
             await _contenedorTrabajo.SaveAsync();
@@ -120,18 +134,25 @@ namespace SistemaTaskWhatsapp.Controllers
         }
 
         [HttpPost("asignar-responsable")]
-        public async Task<IActionResult> AsignarResponsable([FromBody] AsignarResponsableDto dto)
+        public async Task<IActionResult> AsignarResponsable([FromBody] AsignarResponsableDto dto, [FromQuery] int programaId)
         {
             if (dto == null)
                 return BadRequest();
 
-            //Buscar la tarea usando SubtaskId
+            //Buscar la tarea usando IdExterno
             var tarea = await _contenedorTrabajo.Tarea
-                .GetFirstOrDefaultAsync(t => t.IdExterno == dto.IdExterno);
+                .GetFirstOrDefaultAsync(t => t.IdExterno == dto.IdExterno, 
+                                        includeProperties: "Proyecto");
 
             if (tarea == null)
             {
                 return BadRequest($"No existe tarea con IdExterno {dto.IdExterno}");
+            }
+
+            //Validación
+            if (tarea.Proyecto.ProgramaId != programaId)
+            {
+                return Forbid("No tienes permisos para modificar esta tarea");
             }
 
             //Buscar usuario

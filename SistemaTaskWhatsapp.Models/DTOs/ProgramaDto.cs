@@ -13,6 +13,7 @@ namespace SistemaTaskWhatsapp.Models
     public class ProgramaCreateDto
     {
         public string Nombre { get; set; }
+        public string CallbackUrl { get; set; }
     }
 
     public class ProgramaResponseDto

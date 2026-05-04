@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Humanizer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Models;
+using SistemaTaskWhatsapp.Models.ViewModels;
 using SistemaTaskWhatsapp.Utilidades;
 using System.Threading.Tasks;
 
@@ -72,11 +74,18 @@ namespace SistemaTaskWhatsapp.Controllers
             if (dto == null)
                 return BadRequest();
 
+
             var proyecto = await _contenedorTrabajo.Proyecto
                 .GetFirstOrDefaultAsync(p => p.IdExterno == dto.IdExterno);
 
             if (proyecto == null)
                 return NotFound();
+
+            //Validación de permisos
+            if (proyecto.ProgramaId != dto.ProgramaId)
+            {
+                return Forbid("No tienes permisos para editar este proyecto");
+            }
 
             proyecto.Nombre = dto.Nombre;
             proyecto.Descripcion = dto.Descripcion;
@@ -93,13 +102,20 @@ namespace SistemaTaskWhatsapp.Controllers
 
 
         [HttpDelete("{idExterno}")]
-        public async Task<IActionResult> EliminarProyecto(int idExterno)
+        public async Task<IActionResult> EliminarProyecto(int idExterno, [FromQuery] int programaId)
         {
             var proyecto = await _contenedorTrabajo.Proyecto
                 .GetFirstOrDefaultAsync(p => p.IdExterno == idExterno);
 
             if (proyecto == null)
                 return NotFound(new { message = "Proyecto no existe" });
+
+
+            //Validación de permisos
+            if (proyecto.ProgramaId != programaId)
+            {
+                return Forbid("No tienes permisos para eliminar este proyecto");
+            }
 
             _contenedorTrabajo.Proyecto.Remove(proyecto);
             await _contenedorTrabajo.SaveAsync();

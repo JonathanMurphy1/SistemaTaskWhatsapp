@@ -22,6 +22,8 @@ namespace SistemaTaskWhatsapp.Models
         public int? EmpresaId { get; set; }
         public string EmpresaNombre { get; set; }
 
+        public int? ProgramaId { get; set; }
+
         public int? IdExterno { get; set; }
 
     }
@@ -37,6 +39,9 @@ namespace SistemaTaskWhatsapp.Models
         public int UserTypeId { get; set; }
 
         public int? EmpresaId { get; set; }
+
+        public int? ProgramaId { get; set; }
+
         public int? IdExterno { get; set; }
     }
 
@@ -49,6 +54,9 @@ namespace SistemaTaskWhatsapp.Models
         public string? PhoneNumber { get; set; }
 
         public int? UserTypeId { get; set; }
+
+        public int? ProgramaId { get; set; }
+
         public int? EmpresaId { get; set; }
     }
 

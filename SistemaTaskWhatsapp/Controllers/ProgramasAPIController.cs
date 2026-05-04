@@ -30,4 +30,45 @@ public class ProgramasApiController : ControllerBase
 
         return Ok(resultado);
     }
+
+    [HttpPost]
+    public async Task<IActionResult> CrearPrograma([FromBody] ProgramaCreateDto dto)
+    {
+        if (dto == null || string.IsNullOrEmpty(dto.Nombre))
+            return BadRequest();
+
+        var programa = new Programa
+        {
+            Nombre = dto.Nombre,
+            FechaRegistro = DateTime.Now
+        };
+
+        await _contenedorTrabajo.Programa.AddAsync(programa);
+        await _contenedorTrabajo.SaveAsync();
+
+        //Callback
+        if (!string.IsNullOrEmpty(dto.CallbackUrl))
+        {
+            try
+            {
+                using var httpClient = new HttpClient();
+
+                await httpClient.PostAsJsonAsync(dto.CallbackUrl, new
+                {
+                    id = programa.Id,
+                    nombre = programa.Nombre
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error en callback: {ex.Message}");
+            }
+        }
+
+        return Ok(new
+        {
+            id = programa.Id,
+            message = "Programa creado correctamente"
+        });
+    }
 }
