@@ -61,16 +61,27 @@ namespace SistemaTaskWhatsapp.Controllers
             await _contenedorTrabajo.Empresa.AddAsync(empresa);
             await _contenedorTrabajo.SaveAsync();
 
+            //Crear relación con el programa de origen
+            var relacion = new EmpresaPrograma
+            {
+                EmpresaId = empresa.Id,
+                ProgramaId = dto.ProgramaOrigenId
+            };
+
+            await _contenedorTrabajo.EmpresaPrograma.AddAsync(relacion);
+            await _contenedorTrabajo.SaveAsync();
+
             return Ok(new { message = "Empresa creada correctamente" });
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> EditarEmpresa(int id, [FromBody] EmpresaCreateDto dto)
+        [HttpPut("update")]
+        public async Task<IActionResult> EditarEmpresa([FromBody] EmpresaCreateDto dto)
         {
-            if (dto == null)
+            if (dto == null || dto.IdExterno == null)
                 return BadRequest("Datos inválidos");
 
-            var empresa = await _contenedorTrabajo.Empresa.GetByIdAsync(id);
+            var empresa = await _contenedorTrabajo.Empresa
+                .GetFirstOrDefaultAsync(e => e.IdExterno == dto.IdExterno);
 
             if (empresa == null)
                 return NotFound("Empresa no encontrada");
@@ -84,26 +95,26 @@ namespace SistemaTaskWhatsapp.Controllers
             //Validar duplicado
             var existe = await _contenedorTrabajo.Empresa
                 .GetFirstOrDefaultAsync(e =>
-                    e.Nombre == dto.Nombre && e.Id != id);
+                    e.Nombre == dto.Nombre && e.Id != empresa.Id);
 
             if (existe != null)
             {
                 return BadRequest("Ya existe una empresa con ese nombre");
             }
 
-            // Actualizar datos
             empresa.Nombre = dto.Nombre;
-            //empresa.IdExterno = dto.IdExterno;
 
+            _contenedorTrabajo.Empresa.Update(empresa);
             await _contenedorTrabajo.SaveAsync();
 
             return Ok(new { message = "Empresa actualizada correctamente" });
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> EliminarEmpresa(int id, [FromQuery] int programaId)
+        [HttpDelete("{idExterno}")]
+        public async Task<IActionResult> EliminarEmpresa(int idExterno, [FromQuery] int programaId)
         {
-            var empresa = await _contenedorTrabajo.Empresa.GetByIdAsync(id);
+            var empresa = await _contenedorTrabajo.Empresa
+                                     .GetFirstOrDefaultAsync(e => e.IdExterno == idExterno);
 
             if (empresa == null)
                 return NotFound("Empresa no encontrada");
@@ -116,7 +127,7 @@ namespace SistemaTaskWhatsapp.Controllers
 
             //Validar dependencias
             var tieneMensajes = await _contenedorTrabajo.Mensaje
-                .GetFirstOrDefaultAsync(m => m.EmpresaId == id);
+                .GetFirstOrDefaultAsync(m => m.EmpresaId == empresa.Id);
 
             if (tieneMensajes != null)
             {
@@ -125,7 +136,7 @@ namespace SistemaTaskWhatsapp.Controllers
 
             //Eliminar relaciones primero
             var relaciones = await _contenedorTrabajo.EmpresaPrograma
-                .GetAllAsync(x => x.EmpresaId == id);
+                .GetAllAsync(x => x.EmpresaId == empresa.Id);
 
             foreach (var rel in relaciones)
             {

@@ -73,8 +73,8 @@ namespace SistemaTaskWhatsapp.Controllers
             return Ok(new { message = "Tarea creada correctamente" });
         }
 
-        [HttpPut]
-        public async Task<IActionResult> ActualizarTarea([FromBody] TareaCreateDto dto, [FromQuery] int programaId)
+        [HttpPut("update")]
+        public async Task<IActionResult> ActualizarTarea([FromBody] TareaCreateDto dto)
         {
             if (dto == null || dto.IdExterno == null)
                 return BadRequest();
@@ -85,9 +85,9 @@ namespace SistemaTaskWhatsapp.Controllers
 
             if (tarea == null)
                 return NotFound($"No existe tarea con IdExterno {dto.IdExterno}");
-            
+
             //Validación
-            if (tarea.Proyecto.ProgramaId != programaId)
+            if (tarea.Proyecto == null || tarea.Proyecto.ProgramaId != dto.ProgramaId)
             {
                 return StatusCode(403, new { message = "No tienes permisos para modificar esta tarea" });
             }

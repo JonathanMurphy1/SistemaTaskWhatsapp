@@ -93,6 +93,16 @@ namespace SistemaTaskWhatsapp.Controllers
             await _contenedorTrabajo.Empresa.AddAsync(model.Empresa);
             await _contenedorTrabajo.SaveAsync();
 
+            //Crear relación automaticamente
+            var relacion = new EmpresaPrograma
+            {
+                EmpresaId = model.Empresa.Id,
+                ProgramaId = 1
+            };
+
+            await _contenedorTrabajo.EmpresaPrograma.AddAsync(relacion);
+            await _contenedorTrabajo.SaveAsync();
+
             return RedirectToAction("Index");
 
         }

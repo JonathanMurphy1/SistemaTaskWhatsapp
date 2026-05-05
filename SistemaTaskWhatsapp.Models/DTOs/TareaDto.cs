@@ -23,6 +23,8 @@ namespace SistemaTaskWhatsapp.Models
         public int? ProyectoId { get; set; }
 
         public int? IdExterno { get; set; }
+
+        public int ProgramaId { get; set; }
     }
 
     public class TareaResponseDto

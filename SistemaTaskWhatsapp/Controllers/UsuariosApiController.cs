@@ -242,9 +242,10 @@ namespace SistemaTaskWhatsapp.Controllers
        
         }
 
-        [HttpPost("delete")]
+        [HttpDelete("{idExterno}")]
         public async Task<IActionResult> EliminarUsuario(int IdExterno, [FromQuery] int programaId)
         {
+
             var usuario = await _contenedorTrabajo.Usuario
                 .GetFirstOrDefaultAsync(u => u.IdExterno == IdExterno);
 
