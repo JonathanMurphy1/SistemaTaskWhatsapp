@@ -50,7 +50,7 @@ namespace SistemaTaskWhatsapp.Controllers
             if (dto.ProyectoId.HasValue)
             {
                 proyecto = await _contenedorTrabajo.Proyecto
-                    .GetFirstOrDefaultAsync(p => p.Id == dto.ProyectoId);
+                    .GetFirstOrDefaultAsync(p => p.IdExterno == dto.ProyectoId);
             }
 
             if (proyecto == null)
