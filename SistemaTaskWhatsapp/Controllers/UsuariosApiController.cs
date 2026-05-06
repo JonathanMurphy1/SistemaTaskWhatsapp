@@ -39,7 +39,7 @@ namespace SistemaTaskWhatsapp.Controllers
                 Rol = u.Rol.ToString(),
                 EmpresaId = u.EmpresaId,
                 EmpresaNombre = u.Empresa != null ? u.Empresa.Nombre : "Sin empresa",
-                ProgramaId = (int)u.ProgramaId,
+                ProgramaId = u.ProgramaId ?? 0,
                 ProgramaNombre = u.Programa != null ? u.Programa.Nombre : "Sin programa",
                 IdExterno = u.IdExterno
             });
