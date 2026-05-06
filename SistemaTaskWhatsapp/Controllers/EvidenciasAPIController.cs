@@ -17,6 +17,26 @@ public class EvidenciasApiController : ControllerBase
         _contenedorTrabajo = contenedorTrabajo;
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var lista = await _contenedorTrabajo.Evidencia.GetAllAsync();
+
+        var baseUrl = $"{Request.Scheme}://{Request.Host}";
+
+        var resultado = lista.Select(e => new EvidenciaDto
+        {
+            Id = e.Id,
+            ReporteId = e.ReporteId,
+            Descripcion = e.Descripcion,
+            Url = $"{baseUrl}/{e.Url}"
+            
+        });
+
+        return Ok(resultado);
+    }
+
+    //Buscar evidencias agrupadas por el Id del reporte
     [HttpGet("{reporteId}")]
     public async Task<IActionResult> GetByReporte(int reporteId)
     {
