@@ -36,6 +36,11 @@ namespace SistemaTaskWhatsapp.Models.ViewModels
         [Required(ErrorMessage = "Seleccione una empresa")]
         public int? EmpresaId { get; set; }
 
+
+        [Required(ErrorMessage = "Seleccione un programa")]
+        public int? ProgramaId { get; set; }
+
+        public IEnumerable<SelectListItem>? ListaProgramas { get; set; }
         public IEnumerable<SelectListItem>? ListaEmpresas { get; set; }
     }
 }

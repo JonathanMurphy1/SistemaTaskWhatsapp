@@ -1,0 +1,155 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
+using SistemaTaskWhatsapp.Models;
+using System.Threading.Tasks;
+
+namespace SistemaTaskWhatsapp.Controllers
+{
+    [ApiController]
+    [Route("api/empresas")]
+    [AllowAnonymous]
+    public class EmpresasApiController : ControllerBase
+    {
+        private readonly IContenedorTrabajo _contenedorTrabajo;
+
+        public EmpresasApiController(IContenedorTrabajo contenedorTrabajo)
+        {
+            _contenedorTrabajo = contenedorTrabajo;
+        }
+
+        //Mostrar datos en un Json
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            var lista = await _contenedorTrabajo.Empresa.GetAllAsync();
+
+            var resultado = lista.Select(e => new EmpresaResponseDto
+            {
+                Id = e.Id,
+                Nombre = e.Nombre,
+                FechaRegistro = e.FechaRegistro,
+                IdExterno = e.IdExterno,
+                ProgramaOrigenId = e.ProgramaOrigenId
+            });
+
+            return Ok(resultado);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CrearEmpresa([FromBody] EmpresaCreateDto dto)
+        {
+            if (dto == null)
+                return BadRequest();
+
+            var existe = await _contenedorTrabajo.Empresa
+                .GetFirstOrDefaultAsync(e => e.IdExterno == dto.IdExterno);
+
+            if (existe != null)
+            {
+                return Ok(new { message = "Empresa ya sincronizada" });
+            }
+
+            var empresa = new Empresa
+            {
+                Nombre = dto.Nombre,
+                IdExterno = dto.IdExterno,
+                ProgramaOrigenId = dto.ProgramaOrigenId,
+                FechaRegistro = DateTime.Now
+            };
+
+            await _contenedorTrabajo.Empresa.AddAsync(empresa);
+            await _contenedorTrabajo.SaveAsync();
+
+            //Crear relación con el programa de origen
+            var relacion = new EmpresaPrograma
+            {
+                EmpresaId = empresa.Id,
+                ProgramaId = dto.ProgramaOrigenId
+            };
+
+            await _contenedorTrabajo.EmpresaPrograma.AddAsync(relacion);
+            await _contenedorTrabajo.SaveAsync();
+
+            return Ok(new { message = "Empresa creada correctamente" });
+        }
+
+        [HttpPut("update")]
+        public async Task<IActionResult> EditarEmpresa([FromBody] EmpresaCreateDto dto)
+        {
+            if (dto == null || dto.IdExterno == null)
+                return BadRequest("Datos inválidos");
+
+            var empresa = await _contenedorTrabajo.Empresa
+                .GetFirstOrDefaultAsync(e => e.IdExterno == dto.IdExterno);
+
+            if (empresa == null)
+                return NotFound("Empresa no encontrada");
+
+            //Validación de permisos
+            if (empresa.ProgramaOrigenId != dto.ProgramaOrigenId)
+            {
+                return StatusCode(403, new { message = "No tienes permisos para modificar esta empresa" });
+            }
+
+            //Validar duplicado
+            var existe = await _contenedorTrabajo.Empresa
+                .GetFirstOrDefaultAsync(e =>
+                    e.Nombre == dto.Nombre && e.Id != empresa.Id);
+
+            if (existe != null)
+            {
+                return BadRequest("Ya existe una empresa con ese nombre");
+            }
+
+            empresa.Nombre = dto.Nombre;
+
+            _contenedorTrabajo.Empresa.Update(empresa);
+            await _contenedorTrabajo.SaveAsync();
+
+            return Ok(new { message = "Empresa actualizada correctamente" });
+        }
+
+        [HttpDelete("{idExterno}")]
+        public async Task<IActionResult> EliminarEmpresa(int idExterno, [FromQuery] int programaId)
+        {
+            var empresa = await _contenedorTrabajo.Empresa
+                                     .GetFirstOrDefaultAsync(e => e.IdExterno == idExterno);
+
+            if (empresa == null)
+                return NotFound("Empresa no encontrada");
+
+            //Validación de permisos
+            if (empresa.ProgramaOrigenId != programaId)
+            {
+                return StatusCode(403, new { message = "No tienes permisos para eliminar esta empresa" });
+            }
+
+            //Validar dependencias
+            var tieneMensajes = await _contenedorTrabajo.Mensaje
+                .GetFirstOrDefaultAsync(m => m.EmpresaId == empresa.Id);
+
+            if (tieneMensajes != null)
+            {
+                return BadRequest("No se puede eliminar la empresa porque tiene mensajes asociados");
+            }
+
+            //Eliminar relaciones primero
+            var relaciones = await _contenedorTrabajo.EmpresaPrograma
+                .GetAllAsync(x => x.EmpresaId == empresa.Id);
+
+            foreach (var rel in relaciones)
+            {
+                _contenedorTrabajo.EmpresaPrograma.Remove(rel);
+            }
+
+            //Eliminar empresa
+            _contenedorTrabajo.Empresa.Remove(empresa);
+
+            await _contenedorTrabajo.SaveAsync();
+
+            return Ok(new { message = "Empresa eliminada correctamente" });
+        }
+
+    }
+}

@@ -10,13 +10,19 @@ using System.Threading.Tasks;
 
 namespace SistemaTaskWhatsapp.Models
 {
-    public class ProjectDto
+    public class MensajeResponseDto
     {
-        public int Idproject { get; set; } //Id de Task
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public DateTime? StartDate { get; set; }
+        public int Id { get; set; }
+
+        public Roles Tipo { get; set; }
+        public string Contenido { get; set; }
+        public string Cron { get; set; }
+
+        public bool Activo { get; set; }
+
+        public DateTime FechaCreacion { get; set; }
+
         public int EmpresaId { get; set; }
-        public int Estado { get; set; }
+
     }
 }

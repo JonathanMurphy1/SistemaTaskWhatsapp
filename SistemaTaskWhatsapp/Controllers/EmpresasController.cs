@@ -33,6 +33,11 @@ namespace SistemaTaskWhatsapp.Controllers
         [HttpGet]
         public async Task<IActionResult> GetProgramasByEmpresa(int id)
         {
+            var empresa = await _contenedorTrabajo.Empresa.GetByIdAsync(id);
+
+            if (empresa == null)
+                return NotFound();
+
             var lista = await _contenedorTrabajo.EmpresaPrograma
                 .GetAllAsync(
                     x => x.EmpresaId == id,
@@ -42,7 +47,8 @@ namespace SistemaTaskWhatsapp.Controllers
             var result = lista.Select(x => new
             {
                 id = x.Id,
-                nombre = x.Programa.Nombre
+                nombre = x.Programa.Nombre,
+                puedeEliminar = empresa.ProgramaOrigenId != x.ProgramaId
             });
 
             return Json(result);
@@ -85,6 +91,16 @@ namespace SistemaTaskWhatsapp.Controllers
             model.Empresa.ProgramaOrigenId = 1; //Por defecto de mientras ya que todos las empresas vienen de TW
 
             await _contenedorTrabajo.Empresa.AddAsync(model.Empresa);
+            await _contenedorTrabajo.SaveAsync();
+
+            //Crear relación automaticamente
+            var relacion = new EmpresaPrograma
+            {
+                EmpresaId = model.Empresa.Id,
+                ProgramaId = 1
+            };
+
+            await _contenedorTrabajo.EmpresaPrograma.AddAsync(relacion);
             await _contenedorTrabajo.SaveAsync();
 
             return RedirectToAction("Index");
@@ -154,14 +170,6 @@ namespace SistemaTaskWhatsapp.Controllers
             if (empresa == null)
                 return RedirectToAction("Index");
 
-            // Validar permisos
-            //if (empresa.ProgramaOrigenId != model.ProgramaId)
-            //{
-            //    ModelState.AddModelError("", "No tienes permisos para editar esta empresa");
-            //                            model.ListaProgramas = await _contenedorTrabajo.Programa.GetProgramaDropdown();
-            //                            return View(model);
-            //}
-
             var existeNombre = await _contenedorTrabajo.Empresa
                                     .GetFirstOrDefaultAsync(e => e.Nombre == 
                                     model.Empresa.Nombre && e.Id != empresa.Id);
@@ -189,6 +197,16 @@ namespace SistemaTaskWhatsapp.Controllers
             if (empresa == null)
                 return RedirectToAction("Index");
 
+            //Solicitar borrar mensajes antes que otra cosa
+            var tieneMensajes = await _contenedorTrabajo.Mensaje
+                               .GetFirstOrDefaultAsync(x => x.EmpresaId == id);
+
+            if (tieneMensajes != null)
+            {
+                TempData["Error"] = "No se puede eliminar la empresa porque tiene mensajes asociados";
+                return RedirectToAction("Index");
+            }
+
             //eliminar relaciones primero
             var relaciones = await _contenedorTrabajo.EmpresaPrograma
                 .GetAllAsync(x => x.EmpresaId == id);
@@ -214,12 +232,22 @@ namespace SistemaTaskWhatsapp.Controllers
             if (relacion == null)
                 return NotFound();
 
+            var empresa = await _contenedorTrabajo.Empresa
+                .GetByIdAsync(relacion.EmpresaId);
+
+            if (empresa == null)
+                return NotFound();
+
+            if (relacion.Empresa.ProgramaOrigenId == relacion.ProgramaId)
+            {
+                return BadRequest("No se puede eliminar el programa origen");
+            }
+
             _contenedorTrabajo.EmpresaPrograma.Remove(relacion);
             await _contenedorTrabajo.SaveAsync();
 
             return Ok();
         }
-
 
     }
 }

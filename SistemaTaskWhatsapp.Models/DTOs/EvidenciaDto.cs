@@ -10,9 +10,12 @@ using System.Threading.Tasks;
 
 namespace SistemaTaskWhatsapp.Models
 {
-    public class AsignarResponsableDto
+    public class EvidenciaDto
     {
-        public int IdExterno { get; set; }
-        public int UserId { get; set; }
+        public int Id { get; set; }
+        public int ReporteId { get; set; }
+        public string Descripcion { get; set; }
+        public string Url { get; set; }
+   
     }
 }

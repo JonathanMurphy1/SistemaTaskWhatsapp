@@ -3,14 +3,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SistemaTaskWhatsapp.AccesoDatos.Data.Repository.IRepository;
 using SistemaTaskWhatsapp.Models;
+using SistemaTaskWhatsapp.Models.ViewModels;
+using SistemaTaskWhatsapp.Utilidades;
 using SistemaTaskWhatsapp.Utilidades;
 using System.Threading.Tasks;
-using SistemaTaskWhatsapp.Utilidades;
 
 namespace SistemaTaskWhatsapp.Controllers
 {
     [ApiController]
-    [Route("api/users")]
+    [Route("api/usuarios")]
     [AllowAnonymous]
     public class UsuariosApiController : ControllerBase
     {
@@ -23,37 +24,66 @@ namespace SistemaTaskWhatsapp.Controllers
             _userManager = userManager;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetUsuarios()
+        {
+            var lista = await _contenedorTrabajo.Usuario
+                .GetAllAsync(includeProperties: "Empresa,Programa");
+
+            var resultado = lista.Select(u => new UsuarioResponseDto
+            {
+                Id = u.Id,
+                Nombre = u.Nombre,
+                Email = u.Email,
+                PhoneNumber = u.PhoneNumber,
+                Rol = u.Rol.ToString(),
+                EmpresaId = u.EmpresaId,
+                EmpresaNombre = u.Empresa != null ? u.Empresa.Nombre : "Sin empresa",
+                ProgramaId = u.ProgramaId ?? 0,
+                ProgramaNombre = u.Programa != null ? u.Programa.Nombre : "Sin programa",
+                IdExterno = u.IdExterno
+            });
+
+            return Ok(resultado);
+        }
+
         [HttpPost]
-        public async Task<IActionResult> CrearUsuario([FromBody] UsuarioDto dto)
+        public async Task<IActionResult> CrearUsuario([FromBody] UsuarioCreateDto dto)
         {
             if (dto == null)
                 return BadRequest();
 
-            var existe = await _contenedorTrabajo.Usuario
-                .GetFirstOrDefaultAsync(u => u.IdExterno == dto.UserId || u.Email == dto.Email);
+            var existeEmail = await _userManager.FindByEmailAsync(dto.Email);
+            if (existeEmail != null)
+                return BadRequest("El email ya está registrado");
 
-            if (existe != null)
-            {
-                return Ok(new { message = "El usuario ya existe" });
-            }
+            //Validar IdExterno
+            var existeExterno = await _contenedorTrabajo.Usuario
+                .GetFirstOrDefaultAsync(u => u.IdExterno == dto.IdExterno);
+
+            if (existeExterno != null)
+                return Ok(new { message = "Usuario ya sincronizado" });
+
 
             var usuario = new Usuario
             {
-                IdExterno = dto.UserId,
-                Nombre = dto.Name,
+                IdExterno = dto.IdExterno,
+                Nombre = dto.Nombre,
                 UserName = dto.Email,
                 Email = dto.Email,
-                PhoneNumber = null,
+                PhoneNumber = dto.PhoneNumber,
+                EmpresaId = dto.EmpresaId,
+                ProgramaId = dto.ProgramaId,
                 Rol = RoleMapper.MapFromLaravel(dto.UserTypeId)
             };
 
+            //Crear usuario en Identity
             var resultado = await _userManager.CreateAsync(usuario, dto.Password);
 
             if (!resultado.Succeeded)
-            {
                 return BadRequest(resultado.Errors);
-            }
 
+            //Asignar rol
             await _userManager.AddToRoleAsync(usuario, usuario.Rol.ToString());
 
             if (usuario.Rol == Roles.Supervisor)
@@ -84,28 +114,28 @@ namespace SistemaTaskWhatsapp.Controllers
 
         //Modificar el usuario desde perfil y tabla
         [HttpPost("update")]
-        public async Task<IActionResult> ActualizarUsuario([FromBody] UsuarioUpdateDto dto)
+        public async Task<IActionResult> ActualizarUsuario([FromBody] UsuarioUpdateDto dto, [FromQuery] int programaId)
         {
             if (dto == null)
                 return BadRequest();
 
             var usuario = await _contenedorTrabajo.Usuario
-                .GetFirstOrDefaultAsync(u => u.IdExterno == dto.UserId);
+                .GetFirstOrDefaultAsync(u => u.IdExterno == dto.IdExterno);
 
             if (usuario == null)
                 return NotFound();
 
-            usuario.Nombre = dto.Name;
-            usuario.Email = dto.Email;
-            usuario.UserName = dto.Email;
-            
-            //El numero de telefono se vuelve opcional ya que en tabla 
-            //de usuario no se actualiza
-            if (dto.PhoneNumber != null)
+            //Validación
+            if (usuario.ProgramaId != dto.ProgramaId)
             {
-                usuario.PhoneNumber = dto.PhoneNumber;
+                return StatusCode(403, new { message = "No tienes permisos para modificar este usuario" });
             }
 
+            usuario.Nombre = dto.Nombre;
+            usuario.Email = dto.Email;
+            usuario.UserName = dto.Email;
+            usuario.PhoneNumber = dto.PhoneNumber;
+            
 
             ///Proceso para cambiar el rol del usuario en TasWhatsApp
             Roles? nuevoRol = null;
@@ -207,21 +237,25 @@ namespace SistemaTaskWhatsapp.Controllers
 
             await _contenedorTrabajo.SaveAsync();
 
+
             return Ok(new { message = "Usuario actualizado correctamente" });
        
         }
 
-        [HttpPost("delete")]
-        public async Task<IActionResult> EliminarUsuario([FromBody] UsuarioDeleteDto dto)
+        [HttpDelete("{idExterno}")]
+        public async Task<IActionResult> EliminarUsuario(int IdExterno, [FromQuery] int programaId)
         {
-            if (dto == null)
-                return BadRequest();
 
             var usuario = await _contenedorTrabajo.Usuario
-                .GetFirstOrDefaultAsync(u => u.IdExterno == dto.UserId);
+                .GetFirstOrDefaultAsync(u => u.IdExterno == IdExterno);
 
             if (usuario == null)
                 return Ok(new { message = "Usuario no existe" });
+
+            if (usuario.ProgramaId == null || usuario.ProgramaId != programaId)
+            {
+                return StatusCode(403, new { message = "No tienes permisos para eliminar este usuario" });
+            }
 
             //Eliminar Supervisor si existe
             var supervisor = await _contenedorTrabajo.Supervisor
@@ -255,11 +289,10 @@ namespace SistemaTaskWhatsapp.Controllers
             {
                 return userTypeId switch
                 {
-                    1 => Roles.Supervisor,     // Administrador -> Supervisor
-                    2 => Roles.Empleado,       // Practicante -> Empleado
-                    4 => Roles.Administrador,  // Super Admin -> Administrador
-                    40 => Roles.Empleado,      // JCF -> Empleado
-                    _ => Roles.Empleado        // default por seguridad
+                    0 => Roles.Administrador,  // Origen a Administrador
+                    1 => Roles.Supervisor,     // Origen a Supervisor
+                    2 => Roles.Empleado,       // Origen a Empleado
+                    _ => Roles.Empleado        //Cualquier otra opción será empleado por defecto
                 };
             }
         }

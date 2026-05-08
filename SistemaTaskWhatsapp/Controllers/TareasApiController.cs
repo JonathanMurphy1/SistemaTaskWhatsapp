@@ -18,68 +18,91 @@ namespace SistemaTaskWhatsapp.Controllers
             _contenedorTrabajo = contenedorTrabajo;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetTareas()
+        {
+            var lista = await _contenedorTrabajo.Tarea.GetAllAsync();
+
+            var resultado = lista.Select(t => new TareaResponseDto
+            {
+                Id = t.Id,
+                Nombre = t.Nombre,
+                Descripcion = t.Descripcion,
+                FechaInicio = t.FechaInicio,
+                FechaTermino = t.FechaTermino,
+                FechaEntrega = t.FechaEntrega,
+                Estado = (int)t.Estado,
+                ProyectoId = t.ProyectoId,
+                IdExterno = t.IdExterno
+            });
+
+            return Ok(resultado);
+        }
+
         [HttpPost]
-        public async Task<IActionResult> RecibirTarea([FromBody] TareaDto dto)
+        public async Task<IActionResult> RecibirTarea([FromBody] TareaCreateDto dto)
         {
             if (dto == null)
                 return BadRequest();
 
-            //Se busca el proyecto por nombre
-            var proyecto = await _contenedorTrabajo.Proyecto
-                    .GetFirstOrDefaultAsync(p =>
-                     p.Nombre.Trim().ToLower() == dto.ProjectName.Trim().ToLower()); //Se ajusta el formato para que coicida con Task
+            Proyecto proyecto = null;
+
+            if (dto.ProyectoId.HasValue)
+            {
+                proyecto = await _contenedorTrabajo.Proyecto
+                    .GetFirstOrDefaultAsync(p => p.IdExterno == dto.ProyectoId);
+            }
 
             if (proyecto == null)
-            {
-                Console.WriteLine("Proyecto no encontrado: " + dto.ProjectName);
-                return BadRequest($"Proyecto no encontrado: {dto.ProjectName}");
-            }
+                return BadRequest("Proyecto no encontrado");
 
             var tarea = new Tarea
             {
-                Nombre = dto.Title,
-                Descripcion = dto.Description,
-                FechaInicio = dto.StartDate ?? DateTime.Now,
-                FechaEntrega = dto.DeliveryDate ?? DateTime.Now.AddDays(1),
+                Nombre = dto.Nombre,
+                Descripcion = dto.Descripcion,
+                FechaInicio = dto.FechaInicio ?? DateTime.Now,
+                FechaEntrega = dto.FechaEntrega ?? DateTime.Now.AddDays(1),
                 Estado = (EstadosTarea)dto.Estado,
                 ProyectoId = proyecto.Id,
-                IdExterno = dto.SubtaskId
+                IdExterno = dto.IdExterno
             };
 
             await _contenedorTrabajo.Tarea.AddAsync(tarea);
             await _contenedorTrabajo.SaveAsync();
 
-            return Ok(new { message = "Tarea recibida correctamente" });
+            return Ok(new { message = "Tarea creada correctamente" });
         }
 
-        [HttpPut]
-        public async Task<IActionResult> ActualizarTarea([FromBody] TareaDto dto)
+        [HttpPut("update")]
+        public async Task<IActionResult> ActualizarTarea([FromBody] TareaCreateDto dto)
         {
+            if (dto == null || dto.IdExterno == null)
+                return BadRequest();
+
             var tarea = await _contenedorTrabajo.Tarea
-                .GetFirstOrDefaultAsync(t => t.IdExterno == dto.SubtaskId);
+                .GetFirstOrDefaultAsync(t => t.IdExterno == dto.IdExterno, 
+                                        includeProperties: "Proyecto");
 
             if (tarea == null)
-                return NotFound($"No existe tarea con SubtaskId {dto.SubtaskId}");
+                return NotFound($"No existe tarea con IdExterno {dto.IdExterno}");
 
-            //Unicamente se actualizan estos datos en task
-            tarea.Nombre = dto.Title;
-            tarea.Descripcion = dto.Description;
-
-            //Esto en caso de que se actualice el estado desde el panel
-            if (dto.Estado.HasValue)
+            //Validación
+            if (tarea.Proyecto == null || tarea.Proyecto.ProgramaId != dto.ProgramaId)
             {
-                tarea.Estado = (EstadosTarea)dto.Estado.Value;
+                return StatusCode(403, new { message = "No tienes permisos para modificar esta tarea" });
+            }
 
-                //Si el estado es en Task es terminado
+            tarea.Nombre = dto.Nombre;
+            tarea.Descripcion = dto.Descripcion;
+
+            if (dto.Estado >= 0)
+            {
+                tarea.Estado = (EstadosTarea)dto.Estado;
+
                 if (tarea.Estado == EstadosTarea.Finalizada)
-                {
                     tarea.FechaTermino = DateTime.Now;
-                }
                 else
-                {
-                    //Poner la fecha en null si se cambia de terminado a otro
                     tarea.FechaTermino = null;
-                }
             }
 
             _contenedorTrabajo.Tarea.Update(tarea);
@@ -88,34 +111,48 @@ namespace SistemaTaskWhatsapp.Controllers
             return Ok(new { message = "Tarea actualizada correctamente" });
         }
 
-        [HttpDelete("{subtaskId}")]
-        public async Task<IActionResult> EliminarTarea(int subtaskId)
+        [HttpDelete("{idExterno}")]
+        public async Task<IActionResult> EliminarTarea(int idExterno, [FromQuery] int programaId)
         {
             var tarea = await _contenedorTrabajo.Tarea
-                .GetFirstOrDefaultAsync(t => t.IdExterno == subtaskId);
+                .GetFirstOrDefaultAsync(t => t.IdExterno == idExterno, 
+                                        includeProperties: "Proyecto");
 
-            if (tarea != null)
+            if (tarea == null)
+                return NotFound(new { message = "Tarea no existe" });
+
+            //Validación
+            if (tarea.Proyecto.ProgramaId != programaId)
             {
-                _contenedorTrabajo.Tarea.Remove(tarea);
-                await _contenedorTrabajo.SaveAsync();
+                return StatusCode(403, new { message = "No tienes permisos para eliminar esta tarea" });
             }
+
+            _contenedorTrabajo.Tarea.Remove(tarea);
+            await _contenedorTrabajo.SaveAsync();
 
             return Ok(new { message = "Tarea eliminada correctamente" });
         }
 
         [HttpPost("asignar-responsable")]
-        public async Task<IActionResult> AsignarResponsable([FromBody] AsignarResponsableDto dto)
+        public async Task<IActionResult> AsignarResponsable([FromBody] AsignarResponsableDto dto, [FromQuery] int programaId)
         {
             if (dto == null)
                 return BadRequest();
 
-            //Buscar la tarea usando SubtaskId
+            //Buscar la tarea usando IdExterno
             var tarea = await _contenedorTrabajo.Tarea
-                .GetFirstOrDefaultAsync(t => t.IdExterno == dto.SubtaskId);
+                .GetFirstOrDefaultAsync(t => t.IdExterno == dto.IdExterno, 
+                                        includeProperties: "Proyecto");
 
             if (tarea == null)
             {
-                return BadRequest($"No existe tarea con SubtaskId {dto.SubtaskId}");
+                return BadRequest($"No existe tarea con IdExterno {dto.IdExterno}");
+            }
+
+            //Validación
+            if (tarea.Proyecto.ProgramaId != programaId)
+            {
+                return StatusCode(403, new { message = "No tienes permisos para modificar esta tarea" });
             }
 
             //Buscar usuario

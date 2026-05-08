@@ -84,8 +84,18 @@
                 <div class="col-6">
 
                     <div class="form-group">
+                        <label>Programa origen:</label>
+
+                        <select id="programa" asp-for="ProgramaId" asp-items="@Model.ListaProgramas" class="form-select">
+                            <option disabled selected value="">-- Seleccione un programa --</option>
+                        </select>
+                        <span asp-validation-for="ProgramaId" class="text-danger"></span>
+                    </div>
+                    <br />
+
+                    <div class="form-group">
                         <label for="empresa">Empresa:</label>
-                        <select id="empresa" asp-for="EmpresaId" asp-items="@Model.ListaEmpresas" class="form-select">
+                        <select id="empresa" asp-for="EmpresaId" class="form-select">
                             <option disabled selected value="">--Elija una empresa--</option>
                         </select>
                         <span asp-validation-for="EmpresaId" class="text-danger"></span>
@@ -152,5 +162,40 @@
 
         selectRol.addEventListener("change", toggleForms);
         window.addEventListener("load", toggleForms);
+    </script>
+
+    <script>
+        const programaSelect = document.getElementById("programa");
+        const empresaSelect = document.getElementById("empresa");
+
+        programaSelect.addEventListener("change", async function () {
+            const programaId = this.value;
+
+            empresaSelect.innerHTML = '<option value="">Cargando...</option>';
+
+            if (!programaId) {
+                empresaSelect.innerHTML = '<option value="">-- Seleccione una empresa --</option>';
+                return;
+            }
+
+            const response = await fetch(`/Usuarios/GetEmpresasPorPrograma?programaId=${programaId}`);
+            const data = await response.json();
+
+            empresaSelect.innerHTML = '<option value="">-- Seleccione una empresa --</option>';
+
+            const empresaSeleccionada = "@Model.EmpresaId";
+
+            data.forEach(e => {
+                const selected = e.id == empresaSeleccionada ? "selected" : "";
+                empresaSelect.innerHTML += `<option value="${e.id}" ${selected}>${e.nombre}</option>`;
+            });
+        });
+
+        window.addEventListener("load", () => {
+            if (programaSelect.value) {
+                programaSelect.dispatchEvent(new Event("change"));
+            }
+        });
+
     </script>
 }

@@ -32,5 +32,20 @@ namespace SistemaTaskWhatsapp.AccesoDatos.Data.Repository
             });
         }
 
+        public async Task<IEnumerable<SelectListItem>> GetEmpresasPorProgramaDropdown(int programaId)
+        {
+            var lista = await _db.EmpresaPrograma
+                .Where(ep => ep.ProgramaId == programaId)
+                .Include(ep => ep.Empresa)
+                .Select(ep => new SelectListItem
+                {
+                    Value = ep.Empresa.Id.ToString(),
+                    Text = ep.Empresa.Nombre
+                })
+                .ToListAsync();
+
+            return lista;
+        }
+
     }
 }

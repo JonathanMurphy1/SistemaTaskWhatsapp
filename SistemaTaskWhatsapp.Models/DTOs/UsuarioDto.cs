@@ -10,12 +10,56 @@ using System.Threading.Tasks;
 
 namespace SistemaTaskWhatsapp.Models
 {
-    public class UsuarioDto
+    public class UsuarioResponseDto
     {
-        public int UserId { get; set; }
-        public string Name { get; set; }
+        public string Id { get; set; }
+        public string Nombre { get; set; }
+        public string Email { get; set; }
+        public string? PhoneNumber { get; set; }
+
+        public string Rol { get; set; }
+
+        public int? EmpresaId { get; set; }
+        public string EmpresaNombre { get; set; }
+
+        public int ProgramaId { get; set; }
+
+        public string ProgramaNombre { get; set; }
+
+        public int? IdExterno { get; set; }
+
+    }
+
+    public class UsuarioCreateDto
+    {
+        public string Nombre { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
+
+        public string? PhoneNumber { get; set; }
+
         public int UserTypeId { get; set; }
+
+        public int? EmpresaId { get; set; }
+
+        public int ProgramaId { get; set; }
+
+        public int? IdExterno { get; set; }
     }
+
+    public class UsuarioUpdateDto
+    {
+        public int IdExterno { get; set; }
+
+        public string Nombre { get; set; }
+        public string Email { get; set; }
+        public string? PhoneNumber { get; set; }
+
+        public int? UserTypeId { get; set; }
+
+        public int? ProgramaId { get; set; }
+
+        public int? EmpresaId { get; set; }
+    }
+
 }
